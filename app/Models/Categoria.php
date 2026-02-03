@@ -9,7 +9,7 @@ class Categoria extends Model
     protected $fillable = ['nom']; // [cite: 66]
 
     // Relación: Una categoría tiene muchas subcategorías
-    public function subcategories()
+    public function subcategorias()
     {
         return $this->hasMany(Subcategoria::class, 'categoria_id');
     }
