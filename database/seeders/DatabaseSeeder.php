@@ -60,6 +60,6 @@ public function run(): void
 
     // Crear Categorías y Subcategorías iniciales
     $sw = Categoria::create(['nom' => 'Software']); 
-    $sw->subcategories()->create(['nom' => 'Accés remot']); 
+    $sw->subcategorias()->create(['nom' => 'Accés remot']); 
 }
 }
