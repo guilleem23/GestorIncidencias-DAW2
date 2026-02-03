@@ -17,9 +17,9 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('subcategories', function (Blueprint $table) {
+        Schema::create('subcategorias', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('categoria_id')->constrained('categories')->onDelete('cascade');
+            $table->foreignId('categoria_id')->constrained('categorias')->onDelete('cascade');
             $table->string('nom'); // Ejemplo: Accés remot, Ratolí no funciona [cite: 66]
             $table->timestamps();
         });
@@ -30,6 +30,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('categories');
+        Schema::dropIfExists('categorias');
+        Schema::dropIfExists('subcategorias');
     }
 };

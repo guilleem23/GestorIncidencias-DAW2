@@ -11,6 +11,6 @@ class Categoria extends Model
     // Relación: Una categoría tiene muchas subcategorías
     public function subcategories()
     {
-        return $this->hasMany(Subcategory::class, 'categoria_id');
+        return $this->hasMany(Subcategoria::class, 'categoria_id');
     }
 }

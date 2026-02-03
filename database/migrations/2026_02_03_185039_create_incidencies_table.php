@@ -17,8 +17,8 @@ return new class extends Migration
             $table->text('descripcio'); // [cite: 54, 69]
             
             // Relaciones con Usuarios y Sedes
-            $table->foreignId('client_id')->constrained('users'); // El cliente que informa 
-            $table->foreignId('tecnic_id')->nullable()->constrained('users'); // El técnico asignado 
+            $table->foreignId('client_id')->constrained('usuarios'); // El cliente que informa 
+            $table->foreignId('tecnic_id')->nullable()->constrained('usuarios'); // El técnico asignado 
             $table->foreignId('sede_id')->constrained('sedes'); // Sede de la incidencia [cite: 16, 35]
             
             // Categorización
