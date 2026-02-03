@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Sede extends Model
+{
+    protected $fillable = ['nom']; // 
+
+    // Relación: Una sede tiene muchos usuarios
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
+    // Relación: Una sede tiene muchas incidencias
+    public function incidencies()
+    {
+        return $this->hasMany(Incidencia::class);
+    }
+}

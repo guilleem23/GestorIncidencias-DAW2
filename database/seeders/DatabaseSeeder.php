@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Sede;
+use App\Models\Categoria;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -13,13 +15,51 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
-    public function run(): void
-    {
-        // User::factory(10)->create();
+public function run(): void
+{
+    // Crear las Sedes (Barcelona y Montreal)
+    $bcn = Sede::create(['nom' => 'Barcelona']); 
+    $mtl = Sede::create(['nom' => 'Montreal']); 
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-    }
+    // Crear Usuarios de Prueba (uno por cada rol)
+    User::create([
+        'name' => 'Admin Max',
+        'email' => 'admin@empresa.com',
+        'password' => bcrypt('password'),
+        'rol' => 'administrador', 
+        'sede_id' => $bcn->id,
+        'actiu' => true 
+    ]);
+
+    User::create([
+        'name' => 'Client Joan',
+        'email' => 'client@empresa.com',
+        'password' => bcrypt('password'),
+        'rol' => 'client', 
+        'sede_id' => $bcn->id,
+        'actiu' => true
+    ]);
+
+    User::create([
+        'name' => 'Gestor BCN',
+        'email' => 'gestor@empresa.com',
+        'password' => bcrypt('password'),
+        'rol' => 'gestor', 
+        'sede_id' => $bcn->id,
+        'actiu' => true
+    ]);
+
+    User::create([
+        'name' => 'Tecnic Pepe',
+        'email' => 'tecnic@empresa.com',
+        'password' => bcrypt('password'),
+        'rol' => 'tecnic', 
+        'sede_id' => $bcn->id,
+        'actiu' => true
+    ]);
+
+    // Crear Categorías y Subcategorías iniciales
+    $sw = Categoria::create(['nom' => 'Software']); 
+    $sw->subcategories()->create(['nom' => 'Accés remot']); 
+}
 }
