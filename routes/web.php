@@ -14,3 +14,12 @@ Route::get('/dashboard', function () {
 Route::get('/', function () {
     return view('auth.login');
 });
+// Solo los administradores pueden entrar aquí
+Route::middleware(['auth', 'role:administrador'])->group(function () {
+    Route::get('/admin/usuarios', [AdminController::class, 'index']);
+});
+
+// Solo los clientes pueden entrar aquí
+Route::middleware(['auth', 'role:client'])->group(function () {
+    Route::get('/mis-incidencias', [IncidenciaController::class, 'index']);
+});
