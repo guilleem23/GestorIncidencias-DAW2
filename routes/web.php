@@ -18,6 +18,14 @@ Route::get('/', function () {
 });
 // Solo los administradores pueden entrar aquí
 Route::middleware(['auth', 'role:administrador'])->group(function () {
+    Route::get('/admin/dashboard', function () {
+        return view('admin.admin_dashboard_principal');
+    })->name('admin.dashboard');
+
+    Route::get('/admin/incidencias', function () {
+        return view('admin.admin_dashboard_incidencias');
+    })->name('admin.incidencias');
+
     Route::get('/admin/usuarios', [AdminController::class, 'index']);
 });
 
