@@ -22,10 +22,9 @@ class AuthController extends Controller
 
         // 2. Intentar el login añadiendo la condición de 'actiu'
         if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password'], 'actiu' => true])) {
-            $request->session()->regenerate();
-            return redirect()->intended('dashboard');
-        }
-
+        $request->session()->regenerate();
+        return redirect()->intended('/dashboard');
+    }
         // 3. Si falla, devolver error 
         return back()->withErrors([
             'email' => 'Las credenciales no coinciden o el usuario no está activo.',
