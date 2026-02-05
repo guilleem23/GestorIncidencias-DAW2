@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\IncidenciaController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -36,3 +38,6 @@ Route::middleware(['auth', 'role:gestor'])->group(function () {
     Route::get('/gestor/incidencies', [IncidenciaController::class, 'indexGestor'])->name('gestor.index');
     Route::post('/gestor/assignar/{id}', [IncidenciaController::class, 'assignarTecnic'])->name('gestor.assignar');
 });
+
+//Cambiar el estado de la incidencia
+Route::post('tecnic/incidencia/{id}/estat', [IncidenciaController::class, 'updateEstat'])->name('tecnic.updateEstat')->middleware(['auth', 'role:tecnic']);
