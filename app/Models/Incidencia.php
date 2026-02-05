@@ -12,7 +12,8 @@ class Incidencia extends Model
         'descripcio', 
         'estat', 
         'sede_id', 
-        'categoria_id', 
+        'categoria_id',
+        'subcategoria_id', 
         'tecnic_id', 
         'client_id'
     ];
@@ -22,4 +23,14 @@ class Incidencia extends Model
     {
         return $this->belongsTo(Sede::class);
     }
+
+    // Relación para saber a qué usuario pertenece la incidencia
+    public function cliente() {
+        return $this->belongsTo(User::class, 'client_id');
+    }
+
+    // Relación para saber qué técnico tiene asignada la incidencia
+    public function tecnico() {
+        return $this->belongsTo(User::class, 'tecnic_id');
+}
 }
