@@ -12,5 +12,19 @@ Route::get('/dashboard', function () {
 })->middleware('auth');
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
+// Solo los administradores pueden entrar aquí
+Route::middleware(['auth', 'role:administrador'])->group(function () {
+    Route::get('/admin/usuarios', [AdminController::class, 'index']);
+});
+
+// Solo los clientes pueden entrar aquí
+Route::middleware(['auth', 'role:client'])->group(function () {
+    Route::get('/mis-incidencias', [IncidenciaController::class, 'index']);
+});
+// Rutas de prueba para verificar las redirecciones
+Route::get('/admin/usuarios', function() { return "Panel de Administrador"; })->middleware(['auth', 'role:administrador']);
+Route::get('/client/mis-incidencias', function() { return "Mis Incidencias como Cliente"; })->middleware(['auth', 'role:client']);
+Route::get('/tecnic/tasques', function() { return "Tareas del Técnico"; })->middleware(['auth', 'role:tecnic']);
+Route::get('/gestor/incidencies', function() { return "Panel del Gestor de Sede"; })->middleware(['auth', 'role:gestor']);
