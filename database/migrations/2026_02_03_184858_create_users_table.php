@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            // Roles mínimos: administrador, client, gestor, tecnic [cite: 18, 19, 20, 21, 25]
+            // Roles mínimos: administrador, client, gestor, tecnic
             $table->enum('rol', ['administrador', 'client', 'gestor', 'tecnic']); 
-            $table->foreignId('sede_id')->constrained('sedes'); // Cada usuario pertenece a una sede [cite: 28]
-            $table->boolean('actiu')->default(true); // Para bajas de RRHH [cite: 29]
+            $table->foreignId('sede_id')->constrained('sedes'); // Cada usuario pertenece a una sede
+            $table->boolean('actiu')->default(true); // Para bajas de RRHH
             $table->rememberToken();
             $table->timestamps();
         });
