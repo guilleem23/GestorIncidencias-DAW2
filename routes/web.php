@@ -23,3 +23,8 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
 Route::middleware(['auth', 'role:client'])->group(function () {
     Route::get('/mis-incidencias', [IncidenciaController::class, 'index']);
 });
+// Rutas de prueba para verificar las redirecciones
+Route::get('/admin/usuarios', function() { return "Panel de Administrador"; })->middleware(['auth', 'role:administrador']);
+Route::get('/client/mis-incidencias', function() { return "Mis Incidencias como Cliente"; })->middleware(['auth', 'role:client']);
+Route::get('/tecnic/tasques', function() { return "Tareas del Técnico"; })->middleware(['auth', 'role:tecnic']);
+Route::get('/gestor/incidencies', function() { return "Panel del Gestor de Sede"; })->middleware(['auth', 'role:gestor']);
