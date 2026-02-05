@@ -12,7 +12,8 @@ Route::get('/dashboard', function () {
 })->middleware('auth');
 
 Route::get('/', function () {
-    return view('auth.login');
+    return view('welcome');
+    // CAMBIAR LUEGO POR LOGIN 
 });
 // Solo los administradores pueden entrar aquí
 Route::middleware(['auth', 'role:administrador'])->group(function () {
