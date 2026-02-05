@@ -38,26 +38,4 @@ class IncidenciaController extends Controller
         return back()->with('success', 'Técnico asignado correctamente.');
     }
 
-    public function cambiarEstado(Request $request, $id){
-        $incidencia= Incidencia::findOrFail($id);
-
-        // Validar que el técnico sea el asignado
-        if ($incidencia->tecnic_id !== Auth::id()) {
-            return back()->with('error', 'No tens permisos per canviar aquesta incidència.');
-        }
-        $nouEstat = $request->input('estat');
-        // Actualizar estado y fechas correspondientes
-        $incidencia->estat = $nouEstat;
-
-        if ($nouEstat === 'En treball' && !$incidencia->data_inici_treball) {
-            $incidencia->data_inici_treball = now();
-        }
-
-        if ($nouEstat === 'Resolta') {
-            $incidencia->data_resolucio = now();
-        }
-        $incidencia->save();
-
-        return back()->with('success', 'Estado de la incidencia actualizado correctamente.');
-    }
 }

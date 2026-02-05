@@ -39,5 +39,3 @@ Route::middleware(['auth', 'role:gestor'])->group(function () {
     Route::post('/gestor/assignar/{id}', [IncidenciaController::class, 'assignarTecnic'])->name('gestor.assignar');
 });
 
-//Cambiar el estado de la incidencia
-Route::post('tecnic/incidencia/{id}/estat', [IncidenciaController::class, 'updateEstat'])->name('tecnic.updateEstat')->middleware(['auth', 'role:tecnic']);
