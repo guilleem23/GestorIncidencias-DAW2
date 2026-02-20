@@ -19,7 +19,7 @@ return new class extends Migration
 
         Schema::create('subcategorias', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('categoria_id')->constrained('categorias')->onDelete('cascade');
+            $table->foreignId('categoria_id')->constrained('categorias');
             $table->string('nom'); // Ejemplo: Accés remot, Ratolí no funciona [cite: 66]
             $table->timestamps();
         });
