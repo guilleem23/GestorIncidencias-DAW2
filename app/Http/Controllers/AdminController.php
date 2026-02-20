@@ -11,8 +11,8 @@ class AdminController extends Controller
 {
     public function index()
     {
-        // Asegúrate de crear esta vista o dará error
-        return view('admin.usuarios.index'); 
+        // Vista de administración de usuarios
+        return view('admin.index'); 
     }
 
     public function create()
@@ -56,5 +56,77 @@ class AdminController extends Controller
         return redirect()
             ->route('admin.usuarios.create') // Asegúrate de que esta ruta existe en web.php
             ->with('success', 'Usuario creado correctamente.');
+    }
+
+    public function listado(Request $request)
+    {
+        // Obtener filtros de la petición
+        $sedeFilter = $request->get('sede');
+        $rolFilter = $request->get('rol');
+        $estadoFilter = $request->get('estado', 'activos'); // Por defecto mostrar solo activos
+
+        // Construir query de usuarios
+        $query = User::with('sede');
+
+        // Aplicar filtro de sede
+        if ($sedeFilter) {
+            $query->where('sede_id', $sedeFilter);
+        }
+
+        // Aplicar filtro de rol
+        if ($rolFilter) {
+            $query->where('rol', $rolFilter);
+        }
+
+        // Aplicar filtro de estado
+        if ($estadoFilter === 'activos') {
+            $query->where('actiu', true);
+        } elseif ($estadoFilter === 'inactivos') {
+            $query->where('actiu', false);
+        }
+        // Si es 'todos', no aplicar filtro
+
+        $usuarios = $query->orderBy('name')->get();
+
+        // Obtener todas las sedes para el filtro
+        $sedes = Sede::orderBy('nom')->get();
+
+        // Roles disponibles
+        $roles = [
+            'administrador' => 'Administrador',
+            'client' => 'Cliente',
+            'gestor' => 'Gestor',
+            'tecnic' => 'Técnico',
+        ];
+
+        return view('admin.usuarios.listado', compact('usuarios', 'sedes', 'roles', 'sedeFilter', 'rolFilter', 'estadoFilter'));
+    }
+
+    public function categorias()
+    {
+        // Método para gestionar categorías y subcategorías
+        return view('admin.categorias.index');
+    }
+
+    public function darBaja($id)
+    {
+        $usuario = User::findOrFail($id);
+        $usuario->actiu = false;
+        $usuario->save();
+
+        return redirect()
+            ->route('admin.usuarios.listado', request()->only(['sede', 'rol', 'estado']))
+            ->with('success', 'Usuario "' . $usuario->name . '" dado de baja correctamente.');
+    }
+
+    public function darAlta($id)
+    {
+        $usuario = User::findOrFail($id);
+        $usuario->actiu = true;
+        $usuario->save();
+
+        return redirect()
+            ->route('admin.usuarios.listado', request()->only(['sede', 'rol', 'estado']))
+            ->with('success', 'Usuario "' . $usuario->name . '" reactivado correctamente.');
     }
 }
