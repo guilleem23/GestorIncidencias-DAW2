@@ -1,0 +1,342 @@
+/* Reinicio y Variables Base */
+:root {
+    --color-primario: #3b82f6;
+    /* Azul más claro para modo oscuro */
+    --hover-primario: #2563eb;
+    --texto-primario: #f8fafc;
+    /* Texto Blanco/Claro */
+    --texto-secundario: #94a3b8;
+    --color-fondo: #000000;
+    /* Fondo Negro Puro */
+    --blanco: #111111;
+    /* Superficie de Tarjeta Oscura */
+    --color-borde: #333333;
+    --color-error: #ef4444;
+    --sombra-pq: 0 1px 2px 0 rgb(255 255 255 / 0.05);
+    --sombra-md: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+    --radio-md: 0.5rem;
+    --radio-lg: 0.75rem;
+    --familia-fuente: 'Inter', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--familia-fuente);
+    background-color: var(--color-fondo);
+    color: var(--texto-primario);
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+}
+
+/* Contenedor */
+.contenedor-login {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+/* Columna Izquierda: Imagen de Marca */
+.marca-login {
+    display: none;
+    /* Oculto en móvil por defecto */
+    width: 50%;
+    background-image: url('../img/login.png');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.superposicion-marca {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.4), rgba(30, 41, 59, 0.7));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    padding: 2rem;
+    text-align: center;
+}
+
+.contenido-marca h1 {
+    font-size: 3rem;
+    /* "un poco grande" */
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #ffffff;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    /* Sombra para mejor legibilidad */
+}
+
+.contenido-marca p {
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: #ffffff;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Columna Derecha: Formulario */
+.envoltorio-formulario-login {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background-color: var(--blanco);
+}
+
+.caja-login {
+    width: 100%;
+    max-width: 420px;
+    padding: 2rem;
+}
+
+/* Logo */
+.contenedor-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    color: var(--color-primario);
+}
+
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.texto-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--texto-primario);
+    letter-spacing: -0.025em;
+}
+
+/* Tipografía */
+h2 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--texto-primario);
+}
+
+.subtitulo {
+    color: var(--texto-secundario);
+    margin-bottom: 2.5rem;
+    font-size: 0.95rem;
+}
+
+/* Grupos de Formulario */
+.grupo-formulario {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.grupo-formulario label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--texto-primario);
+}
+
+.envoltorio-input {
+    position: relative;
+}
+
+.icono-input {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--texto-secundario);
+    font-size: 1rem;
+    pointer-events: none;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    /* Espacio para icono */
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-md);
+    font-size: 0.95rem;
+    background-color: var(--blanco);
+    color: #ffffff;
+    /* Texto explicitamente blanco */
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+input:focus {
+    border-color: var(--color-primario);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+input:focus+.icono-input,
+.envoltorio-input:focus-within .icono-input {
+    color: var(--color-primario);
+}
+
+input::placeholder {
+    color: #cbd5e1;
+    opacity: 0.7;
+}
+
+/* Estado de Error en Input */
+input.input-error {
+    border-color: var(--color-error);
+    background-color: rgba(254, 242, 242, 0.1);
+    /* Fondo rojo muy sutil */
+}
+
+input.input-error:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.mensaje-error {
+    display: none;
+    font-size: 0.75rem;
+    color: var(--color-error);
+    margin-top: 0.4rem;
+    margin-left: 0.25rem;
+}
+
+.mensaje-error.visible {
+    display: block;
+    animation: aparecer 0.3s ease;
+}
+
+/* Botón */
+.boton-login {
+    width: 100%;
+    padding: 0.875rem;
+    background-color: var(--color-primario);
+    color: var(--texto-primario);
+    border: none;
+    border-radius: var(--radio-md);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s, transform 0.1s;
+    box-shadow: var(--sombra-pq);
+    margin-top: 1.5rem;
+    /* Margen extra ya que quitamos los enlaces */
+}
+
+.boton-login:hover {
+    background-color: var(--hover-primario);
+}
+
+.boton-login:active {
+    transform: translateY(1px);
+}
+
+/* Alerta General de Error */
+.error-general {
+    display: none;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    margin-top: 1.5rem;
+    border-radius: var(--radio-md);
+    background-color: rgba(254, 242, 242, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+    font-size: 0.875rem;
+    font-weight: 500;
+    animation: deslizarArriba 0.3s ease;
+}
+
+.error-general.visible {
+    display: flex;
+}
+
+/* Pie de Página */
+.pie-login {
+    margin-top: 3rem;
+    text-align: center;
+    color: var(--texto-secundario);
+    font-size: 0.75rem;
+}
+
+/* Decoración Superior Derecha (Opcional) */
+.caja-login::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+    border-radius: 50%;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Animaciones */
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes deslizarArriba {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Tablet (División Vertical) */
+@media (min-width: 768px) {
+    .marca-login {
+        display: block;
+        width: 45%;
+    }
+
+    .envoltorio-formulario-login {
+        width: 55%;
+    }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+    .marca-login {
+        width: 50%;
+    }
+
+    .envoltorio-formulario-login {
+        width: 50%;
+    }
+}

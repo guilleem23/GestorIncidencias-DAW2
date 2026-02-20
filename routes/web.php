@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\IncidenciaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
@@ -15,12 +16,13 @@ Route::get('/dashboard', function () {
 })->middleware('auth');
 
 Route::get('/', function () {
-    return view('welcome');
-    // CAMBIAR LUEGO POR LOGIN 
+    return view('auth.login');
 });
 // Solo los administradores pueden entrar aquí
 Route::middleware(['auth', 'role:administrador'])->group(function () {
     Route::get('/admin/usuarios', [AdminController::class, 'index']);
+    Route::get('/admin/usuarios/create', [AdminController::class, 'create'])->name('admin.usuarios.create');
+    Route::post('/admin/usuarios', [AdminController::class, 'store'])->name('admin.usuarios.store');
 });
 
 // Solo los clientes pueden entrar aquí
