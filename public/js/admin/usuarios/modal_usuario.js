@@ -1,3 +1,11 @@
+// Abrir modal de creación si hay errores de validación
+window.addEventListener('DOMContentLoaded', function () {
+    if (window.modalUsuarioOpen) {
+        var modalCrear = new bootstrap.Modal(document.getElementById('modalCrearUsuario'));
+        modalCrear.show();
+    }
+});
+
 // MODAL EDITAR USUARIO
 function closeAllModals() {
     document.querySelectorAll('.modal.show').forEach(modalEl => {
@@ -20,7 +28,6 @@ document.querySelectorAll('.btn-editar-usuario').forEach(btn => {
                 modal.show();
             })
             .catch(error => {
-                // Cargar sweetalert de error
                 Swal.fire({
                     title: 'Error',
                     text: 'No se pudo cargar el formulario de edición.',

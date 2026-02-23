@@ -54,6 +54,7 @@ class UserController extends Controller
             'sede_id' => ['required', 'exists:sedes,id'],
             'rol' => ['required', 'in:' . implode(',', $rolesPermitidos)],
         ]);
+        
         try {
             DB::beginTransaction();
             $usuario = User::findOrFail($id);
