@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Sede;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -52,17 +53,23 @@ class UserController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:usuarios,email,' . $id],
             'sede_id' => ['required', 'exists:sedes,id'],
             'rol' => ['required', 'in:' . implode(',', $rolesPermitidos)],
-            'actiu' => ['required', 'boolean'],
         ]);
-        User::beginTransaction();
         try {
+            DB::beginTransaction();
             $usuario = User::findOrFail($id);
-            $usuario->update($validated);
-            User::commit();
+            $usuario->name = $validated['name'];
+            $usuario->email = $validated['email'];
+            $usuario->sede_id = $validated['sede_id'];
+            $usuario->rol = $validated['rol'];
+            if ($request->filled('password')) {
+                $usuario->password = Hash::make($request->input('password'));
+            }
+            $usuario->save();
+            DB::commit();
             return redirect()->route('admin.usuarios.index')->with('success', 'Usuario actualizado correctamente.');
         } catch (\Exception $e) {
-            User::rollBack();
-            return back()->withErrors(['error' => 'Error al actualizar el usuario: ' . $e->getMessage()]);
+            DB::rollBack();
+            return redirect()->route('admin.usuarios.index')->withErrors(['error' => 'Error al actualizar el usuario: ' . $e->getMessage()]);
         }
     }
 
@@ -71,15 +78,15 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        User::beginTransaction();
         try {
+            DB::beginTransaction();
             $usuario = User::findOrFail($id);
             $usuario->delete();
-            \DB::commit();
+            DB::commit();
             return redirect()->route('admin.usuarios.index')->with('success', 'Usuario eliminado correctamente.');
         } catch (\Exception $e) {
-            \DB::rollBack();
-            return back()->withErrors(['error' => 'Error al eliminar el usuario: ' . $e->getMessage()]);
+            DB::rollBack();
+            return redirect()->route('admin.usuarios.index')->withErrors(['error' => 'Error al eliminar el usuario: ' . $e->getMessage()]);
         }
     }
 
@@ -98,10 +105,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        // Repetir el array aquí es peligroso si cambias uno y olvidas el otro.
-        // Lo ideal es validar contra las claves del array anterior, pero así funciona:
         $rolesPermitidos = ['administrador', 'client', 'gestor', 'tecnic'];
-
         $validated = $request->validate([
             'name' => ['required', 'string', 'min:3', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:usuarios,email'],
@@ -109,18 +113,25 @@ class UserController extends Controller
             'sede_id' => ['required', 'exists:sedes,id'],
             'rol' => ['required', 'in:' . implode(',', $rolesPermitidos)],
         ]);
-
-        User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'sede_id' => $validated['sede_id'],
-            'rol' => $validated['rol'],
-            'actiu' => true, // Asegúrate de que este campo está en $fillable del modelo User
-        ]);
-
-        return redirect()
-            ->route('admin.usuarios.create') // Asegúrate de que esta ruta existe en web.php
-            ->with('success', 'Usuario creado correctamente.');
+        try {
+            DB::beginTransaction();
+            User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'sede_id' => $validated['sede_id'],
+                'rol' => $validated['rol'],
+                'actiu' => true,
+            ]);
+            DB::commit();
+            return redirect()
+                ->route('admin.usuarios.create')
+                ->with('success', 'Usuario creado correctamente.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()
+                ->route('admin.usuarios.create')
+                ->withErrors(['error' => 'Error al crear el usuario: ' . $e->getMessage()]);
+        }
     }
 }
