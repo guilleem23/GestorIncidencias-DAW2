@@ -20,6 +20,7 @@ public function run(): void
     // Crear las Sedes (Barcelona y Montreal)
     $bcn = Sede::create(['nom' => 'Barcelona']); 
     $mtl = Sede::create(['nom' => 'Montreal']); 
+    $berlin = Sede::create(['nom' => 'Berlin']);
 
     // Crear Usuarios de Prueba (uno por cada rol)
     User::create([
