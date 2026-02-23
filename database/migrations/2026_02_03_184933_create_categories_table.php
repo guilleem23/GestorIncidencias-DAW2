@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('categorias', function (Blueprint $table) {
             $table->id();
-            $table->string('nom'); // Ejemplo: Software, Hardware [cite: 66]
+            $table->string('nom'); // Ejemplo: Software, Hardware
             $table->timestamps();
         });
 
         Schema::create('subcategorias', function (Blueprint $table) {
             $table->id();
             $table->foreignId('categoria_id')->constrained('categorias')->onDelete('cascade');
-            $table->string('nom'); // Ejemplo: Accés remot, Ratolí no funciona [cite: 66]
+            $table->string('nom'); // Ejemplo: Accés remot, Ratolí no funciona
             $table->timestamps();
         });
     }

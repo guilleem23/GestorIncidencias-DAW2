@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\IncidenciaController;
+use App\Http\Controllers\UserController;
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -16,22 +17,22 @@ Route::get('/dashboard', function () {
 Route::get('/', function () {
     return view('auth.login');
 });
-// Solo los administradores pueden entrar aquí
+// Rutas del controlador de administrador
 Route::middleware(['auth', 'role:administrador'])->group(function () {
-    Route::get('/admin/usuarios', [AdminController::class, 'index']);
-    Route::get('/admin/usuarios/create', [AdminController::class, 'create'])->name('admin.usuarios.create');
-    Route::post('/admin/usuarios', [AdminController::class, 'store'])->name('admin.usuarios.store');
+    Route::get('/admin', [AdminController::class, 'index']);
+    // Gestión de usuarios
+    Route::get('/admin/usuarios', [UserController::class, 'index'])->name('admin.usuarios.index');
+    Route::get('/admin/usuarios/create', [UserController::class, 'create'])->name('admin.usuarios.create');
+    Route::put('/admin/usuarios', [UserController::class, 'store'])->name('admin.usuarios.store');
+    Route::get('/admin/usuarios/{id}/edit', [UserController::class, 'edit'])->name('admin.usuarios.edit');
+    Route::put('/admin/usuarios/{id}', [UserController::class, 'update'])->name('admin.usuarios.update');
+    Route::delete('/admin/usuarios/{id}', [UserController::class, 'destroy'])->name('admin.usuarios.destroy');
 });
 
 // Solo los clientes pueden entrar aquí
 Route::middleware(['auth', 'role:client'])->group(function () {
     Route::get('/mis-incidencias', [IncidenciaController::class, 'index']);
 });
-
-// RUTAS DE PRUEBA, BORRAR DESPUÉS
-Route::get('/admin/usuarios', function() { return "Panel de Administrador"; })->middleware(['auth', 'role:administrador']);
-Route::get('/client/mis-incidencias', function() { return "Mis Incidencias como Cliente"; })->middleware(['auth', 'role:client']);
-Route::get('/tecnic/tasques', function() { return "Tareas del Técnico"; })->middleware(['auth', 'role:tecnic']);
 
 //Solo los gestores pueden entrar aquí
 Route::middleware(['auth', 'role:gestor'])->group(function () {

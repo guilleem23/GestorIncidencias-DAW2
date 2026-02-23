@@ -15,9 +15,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'rol',     // [cite: 18]
-        'sede_id', // 
-        'actiu',   // [cite: 29]
+        'rol',
+        'sede_id',
+        'actiu',
     ];
 
     // Relación: Un usuario pertenece a una sede
