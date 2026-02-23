@@ -447,6 +447,51 @@
     box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
 }
 
+/* ========== ICONOS DE INFO/DESCRIPCIÓN ========== */
+.btn-info-desc {
+    background: none;
+    border: none;
+    color: var(--neon-blue);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    transition: transform 0.2s ease, color 0.2s ease;
+    opacity: 0.8;
+}
+
+.btn-info-desc:hover {
+    transform: scale(1.2);
+    color: var(--neon-purple);
+    opacity: 1;
+}
+
+.subcategoria-nombre-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-info-desc-sm {
+    background: none;
+    border: none;
+    color: var(--neon-purple);
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0.15rem;
+    display: inline-flex;
+    align-items: center;
+    transition: transform 0.2s ease, color 0.2s ease;
+    opacity: 0.7;
+}
+
+.btn-info-desc-sm:hover {
+    transform: scale(1.2);
+    color: var(--neon-blue);
+    opacity: 1;
+}
+
 /* ========== RESPONSIVE ========== */
 @media (max-width: 768px) {
     .categorias-header {
@@ -471,6 +516,7 @@
         align-self: flex-end;
     }
 
+    /* Ocultar celda de descripción vacía en móvil */
     .subcategorias-table th:nth-child(2),
     .subcategorias-table td:nth-child(2) {
         display: none;

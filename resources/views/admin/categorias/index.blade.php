@@ -45,11 +45,16 @@
                             <i class="fa-solid fa-chevron-right toggle-icon" id="toggle-icon-{{ $categoria->id }}"></i>
                         </button>
                         <h2>{{ $categoria->nom }}</h2>
+                        @if ($categoria->descripcion)
+                            <button type="button" class="btn-info-desc btn-show-desc" 
+                                data-descripcion="{{ $categoria->descripcion }}" 
+                                data-nombre="{{ $categoria->nom }}"
+                                title="Ver descripción">
+                                <i class="fa-solid fa-circle-question"></i>
+                            </button>
+                        @endif
                         <span class="badge-count">{{ $categoria->subcategorias->count() }} subcategorías</span>
                     </div>
-                    @if ($categoria->descripcion)
-                        <p class="categoria-descripcion">{{ $categoria->descripcion }}</p>
-                    @endif
                 </div>
                 <div class="categoria-actions">
                     <button type="button" class="btn-action btn-editar btn-editar-categoria" data-id="{{ $categoria->id }}" title="Editar categoría">
@@ -84,11 +89,21 @@
                             @foreach ($categoria->subcategorias as $sub)
                                 <tr>
                                     <td>
-                                        <span class="subcategoria-nombre">
-                                            <i class="fa-solid fa-tag"></i> {{ $sub->nom }}
-                                        </span>
+                                        <div class="subcategoria-nombre-container">
+                                            <span class="subcategoria-nombre">
+                                                <i class="fa-solid fa-tag"></i> {{ $sub->nom }}
+                                            </span>
+                                            @if ($sub->descripcion)
+                                                <button type="button" class="btn-info-desc-sm btn-show-desc" 
+                                                    data-descripcion="{{ $sub->descripcion }}" 
+                                                    data-nombre="{{ $sub->nom }}"
+                                                    title="Ver descripción">
+                                                    <i class="fa-solid fa-circle-question"></i>
+                                                </button>
+                                            @endif
+                                        </div>
                                     </td>
-                                    <td class="subcategoria-desc">{{ $sub->descripcion ?? '—' }}</td>
+                                    <td>{{-- Celda de descripción original ahora vacía o eliminada --}}</td>
                                     <td>
                                         <div class="subcategoria-actions">
                                             <button type="button" class="btn-action-sm btn-editar btn-editar-subcategoria" data-id="{{ $sub->id }}" title="Editar subcategoría">

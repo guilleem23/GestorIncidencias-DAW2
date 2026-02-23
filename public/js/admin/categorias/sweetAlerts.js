@@ -71,3 +71,27 @@ document.querySelectorAll('.btn-eliminar-subcategoria').forEach(btn => {
         });
     });
 });
+
+// Mostrar descripción en SweetAlert
+document.querySelectorAll('.btn-show-desc').forEach(btn => {
+    btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation(); // Evitar que el acordeón se cierre si está dentro de un botón toggle
+        const nombre = this.dataset.nombre;
+        const descripcion = this.dataset.descripcion;
+
+        Swal.fire({
+            title: `<span style="color: var(--neon-blue)">${nombre}</span>`,
+            html: `<div style="text-align: left; padding: 10px; line-height: 1.6;">${descripcion}</div>`,
+            icon: 'info',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#3b82f6',
+            background: '#1e1e1e',
+            color: '#f3f4f6',
+            customClass: {
+                popup: 'swal-dark-popup',
+                confirmButton: 'swal-confirm-btn'
+            }
+        });
+    });
+});
