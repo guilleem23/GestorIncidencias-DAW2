@@ -7,6 +7,25 @@
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        /* Estilos personalizados para SweetAlert2 tema oscuro */
+        .swal-dark-popup {
+            border: 1px solid #333333 !important;
+        }
+        .swal2-popup.swal2-toast {
+            background: #111111 !important;
+            color: #f8fafc !important;
+        }
+        .swal-confirm-btn {
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 500 !important;
+        }
+        .swal-cancel-btn {
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 500 !important;
+        }
+    </style>
 </head>
 <body>
     <!-- Header -->
@@ -183,9 +202,9 @@
 
                     <div class="incidencia-actions">
                         @if($incidencia->estat === 'Resolta')
-                            <form method="POST" action="{{ route('client.tancar', $incidencia->id) }}">
+                            <form method="POST" action="{{ route('client.tancar', $incidencia->id) }}" class="form-close-incidencia">
                                 @csrf
-                                <button type="submit" class="btn-resolve" onclick="return confirm('Confirmes que vols tancar aquesta incidència?')">
+                                <button type="submit" class="btn-resolve">
                                     <i class="fas fa-check-double"></i>
                                     Tancar incidència
                                 </button>
@@ -219,5 +238,8 @@
             </div>
         @endif
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('js/client-actions.js') }}"></script>
 </body>
 </html>

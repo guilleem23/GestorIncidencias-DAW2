@@ -34,6 +34,7 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
 Route::middleware(['auth', 'role:client'])->group(function () {
     Route::get('/client/mis-incidencias', [ClientController::class, 'index'])->name('client.index');
     Route::get('/client/crear', [ClientController::class, 'crear'])->name('client.crear');
+    Route::post('/client/crear', [ClientController::class, 'store'])->name('client.store');
     Route::post('/client/tancar/{id}', [ClientController::class, 'tancarIncidencia'])->name('client.tancar');
 });
 

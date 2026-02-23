@@ -76,7 +76,41 @@ class ClientController extends Controller
 
     public function crear()
     {
-        // Vista para crear nueva incidencia (pendiente de implementar)
-        return view('client.crear');
+        // Cargar sedes, categorías para el formulario
+        $sedes = \App\Models\Sede::all();
+        $categorias = \App\Models\Categoria::with('subcategorias')->get();
+        
+        return view('client.crear', compact('sedes', 'categorias'));
+    }
+
+    public function store(Request $request)
+    {
+        // Validar datos
+        $validated = $request->validate([
+            'titol' => 'required|string|max:255',
+            'descripcio' => 'required|string',
+            'sede_id' => 'required|exists:sedes,id',
+            'categoria_id' => 'required|exists:categorias,id',
+            'subcategoria_id' => 'required|exists:subcategorias,id',
+        ], [
+            'titol.required' => 'El títol és obligatori',
+            'descripcio.required' => 'La descripció és obligatòria',
+            'sede_id.required' => 'Has de seleccionar una seu',
+            'categoria_id.required' => 'Has de seleccionar una categoria',
+            'subcategoria_id.required' => 'Has de seleccionar una subcategoria',
+        ]);
+
+        // Crear la incidencia
+        $incidencia = new \App\Models\Incidencia();
+        $incidencia->titol = $validated['titol'];
+        $incidencia->descripcio = $validated['descripcio'];
+        $incidencia->sede_id = $validated['sede_id'];
+        $incidencia->categoria_id = $validated['categoria_id'];
+        $incidencia->subcategoria_id = $validated['subcategoria_id'];
+        $incidencia->client_id = Auth::id(); // El cliente autenticado
+        $incidencia->estat = 'Sense assignar'; // Estado inicial
+        $incidencia->save();
+
+        return redirect()->route('client.index')->with('success', 'Incidència creada correctament!');
     }
 }
