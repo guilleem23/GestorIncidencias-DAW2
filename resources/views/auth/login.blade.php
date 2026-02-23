@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexton - Portal d'Incidències</title>
-    @vite(['resources/css/login.css'])
+    <link rel="stylesheet" href="{{ asset('css/login.css') }}">
     <!-- Reutilizando la fuente de la variable CSS si está disponible, típicamente Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -53,8 +53,7 @@
                                 id="email" 
                                 name="email" 
                                 placeholder="ejemplo@nexton.com" 
-                                value="{{ old('email') }}" 
-                                required 
+                                value="{{ old('email') }}"  
                                 autofocus
                                 class="{{ $errors->has('email') ? 'input-error' : '' }}"
                             >
@@ -77,7 +76,7 @@
                                 id="password" 
                                 name="password" 
                                 placeholder="••••••••" 
-                                required
+                                
                                 class="{{ $errors->has('password') ? 'input-error' : '' }}"
                             >
                             <!-- Icono de Candado SVG -->

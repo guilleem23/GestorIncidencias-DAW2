@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Categoria extends Model
 {
-    protected $fillable = ['nom']; // [cite: 66]
+    protected $fillable = ['nom', 'descripcion'];
 
     // Relación: Una categoría tiene muchas subcategorías
     public function subcategorias()

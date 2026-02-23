@@ -16,6 +16,12 @@
             </a>
         </li>
         <li class="nav-item">
+            <a href="{{ route('admin.categorias.index') }}" class="{{ request()->routeIs('admin.categorias.*') ? 'active' : '' }}">
+                <span class="nav-icon"><i class="fa-solid fa-layer-group"></i></span>
+                Categorías
+            </a>
+        </li>
+        <li class="nav-item">
             <a href="#">
                 <span class="nav-icon"><i class="fa-solid fa-users"></i></span>
                 Usuarios
