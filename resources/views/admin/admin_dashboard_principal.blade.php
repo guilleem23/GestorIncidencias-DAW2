@@ -17,7 +17,7 @@
     <div class="kpi-card">
         <div class="kpi-info">
             <h3>Total Usuarios</h3>
-            <div class="kpi-value">12,450</div>
+            <div class="kpi-value">{{ number_format($totalUsuarios ?? 0, 0, ',', '.') }}</div>
         </div>
         <div class="kpi-icon kpi-purple">
             <i class="fa-solid fa-users"></i>
@@ -26,7 +26,7 @@
     <div class="kpi-card">
         <div class="kpi-info">
             <h3>Incidencias Activas</h3>
-            <div class="kpi-value">34</div>
+            <div class="kpi-value">{{ number_format($incidenciasActivas ?? 0, 0, ',', '.') }}</div>
         </div>
         <div class="kpi-icon kpi-orange">
             <i class="fa-solid fa-triangle-exclamation"></i>
@@ -35,7 +35,9 @@
     <div class="kpi-card">
         <div class="kpi-info">
             <h3>Tiempo Medio Res.</h3>
-            <div class="kpi-value">2.4h</div>
+            <div class="kpi-value">
+                {{ $tiempoMedioResolucionHoras !== null ? ($tiempoMedioResolucionHoras . 'h') : '—' }}
+            </div>
         </div>
         <div class="kpi-icon kpi-blue">
             <i class="fa-regular fa-clock"></i>
@@ -44,7 +46,7 @@
     <div class="kpi-card">
         <div class="kpi-info">
             <h3>Satisfacción Global</h3>
-            <div class="kpi-value">4.8/5</div>
+            <div class="kpi-value">{{ $satisfaccionGlobal !== null ? ($satisfaccionGlobal . '/5') : '—' }}</div>
         </div>
         <div class="kpi-icon kpi-green">
             <i class="fa-solid fa-star"></i>
@@ -58,28 +60,36 @@
         <h3 class="card-title">Incidencias por Sede</h3>
         <div class="bar-chart">
             <div class="bar-group">
-                <div class="bar bar-bcn"></div>
-                <span class="bar-label">BCN</span>
+                <div class="bar bar-bcn" style="height: {{ $barHeights['BCN'] ?? 100 }}px;"></div>
+                <span class="bar-label">BCN ({{ $sedeCounts['BCN'] ?? 0 }})</span>
             </div>
             <div class="bar-group">
-                <div class="bar bar-berlin"></div>
-                <span class="bar-label">BER</span>
+                <div class="bar bar-berlin" style="height: {{ $barHeights['BER'] ?? 100 }}px;"></div>
+                <span class="bar-label">BER ({{ $sedeCounts['BER'] ?? 0 }})</span>
             </div>
             <div class="bar-group">
-                <div class="bar bar-montreal"></div>
-                <span class="bar-label">MTL</span>
+                <div class="bar bar-montreal" style="height: {{ $barHeights['MTL'] ?? 100 }}px;"></div>
+                <span class="bar-label">MTL ({{ $sedeCounts['MTL'] ?? 0 }})</span>
             </div>
         </div>
     </div>
     <div class="chart-card">
         <h3 class="card-title">Tipología de Problemas</h3>
         <div class="donut-chart-container">
-            <div class="donut"></div>
+            @php
+                $p1 = (int) (($tipologias[0]['percent'] ?? 33));
+                $p2 = (int) (($tipologias[1]['percent'] ?? 33));
+                $p3 = 100 - $p1 - $p2;
+                $a1 = (int) round($p1 * 3.6);
+                $a2 = (int) round($p2 * 3.6);
+                $a12 = $a1 + $a2;
+            @endphp
+            <div class="donut" style="background: conic-gradient(var(--neon-orange) 0deg {{ $a1 }}deg, var(--neon-blue) {{ $a1 }}deg {{ $a12 }}deg, var(--neon-purple) {{ $a12 }}deg 360deg);"></div>
             <div class="donut-legend">
                 <ul>
-                    <li><span class="dot dot-orange"></span> Hardware (33%)</li>
-                    <li><span class="dot dot-blue"></span> Software (33%)</li>
-                    <li><span class="dot dot-purple"></span> Redes (33%)</li>
+                    <li><span class="dot dot-orange"></span> {{ $tipologias[0]['nom'] ?? 'Hardware' }} ({{ $p1 }}%)</li>
+                    <li><span class="dot dot-blue"></span> {{ $tipologias[1]['nom'] ?? 'Software' }} ({{ $p2 }}%)</li>
+                    <li><span class="dot dot-purple"></span> {{ $tipologias[2]['nom'] ?? 'Redes' }} ({{ $p3 }}%)</li>
                 </ul>
             </div>
         </div>
@@ -101,30 +111,24 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>#INC-2024-001</td>
-                <td>Fallo en servidor principal de archivos</td>
-                <td>Barcelona</td>
-                <td>Hace 10 min</td>
-                <td><span class="status-badge">Sense assignar</span></td>
-                <td><button class="btn-action">Asignar Técnico</button></td>
-            </tr>
-            <tr>
-                <td>#INC-2024-002</td>
-                <td>Error de conexión en planta 3</td>
-                <td>Berlín</td>
-                <td>Hace 25 min</td>
-                <td><span class="status-badge">Sense assignar</span></td>
-                <td><button class="btn-action">Asignar Técnico</button></td>
-            </tr>
-            <tr>
-                <td>#INC-2024-003</td>
-                <td>Pantallas sala de reuniones no encienden</td>
-                <td>Montreal</td>
-                <td>Hace 1 hora</td>
-                <td><span class="status-badge">Sense assignar</span></td>
-                <td><button class="btn-action">Asignar Técnico</button></td>
-            </tr>
+            @forelse (($pendientesAsignacion ?? collect()) as $incidencia)
+                <tr>
+                    <td>#INC-{{ $incidencia->id }}</td>
+                    <td>{{ $incidencia->titol }}</td>
+                    <td>{{ $incidencia->sede?->nom ?? '-' }}</td>
+                    <td>{{ $incidencia->created_at?->locale('es')->diffForHumans() ?? '-' }}</td>
+                    <td><span class="status-badge">{{ $incidencia->estat }}</span></td>
+                    <td>
+                        <a class="btn-action" href="{{ route('admin.incidencias') }}">Asignar Técnico</a>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="6" style="color: var(--text-secondary); padding: 1rem;">
+                        No hay incidencias pendientes de asignación.
+                    </td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 </div>
