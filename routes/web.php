@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\IncidenciaController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\SedeController;
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -43,6 +44,13 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
     Route::get('/admin/subcategorias/{id}/edit', [CategoriaController::class, 'editSubcategoria'])->name('admin.subcategorias.edit');
     Route::put('/admin/subcategorias/{id}', [CategoriaController::class, 'updateSubcategoria'])->name('admin.subcategorias.update');
     Route::delete('/admin/subcategorias/{id}', [CategoriaController::class, 'destroySubcategoria'])->name('admin.subcategorias.destroy');
+
+    // CRUD Sedes
+    Route::get('/admin/sedes', [SedeController::class, 'index'])->name('admin.sedes.index');
+    Route::post('/admin/sedes', [SedeController::class, 'store'])->name('admin.sedes.store');
+    Route::get('/admin/sedes/{id}/edit', [SedeController::class, 'edit'])->name('admin.sedes.edit');
+    Route::put('/admin/sedes/{id}', [SedeController::class, 'update'])->name('admin.sedes.update');
+    Route::delete('/admin/sedes/{id}', [SedeController::class, 'destroy'])->name('admin.sedes.destroy');
 });
 
 // Solo los clientes pueden entrar aquí

@@ -22,6 +22,12 @@
             </a>
         </li>
         <li class="nav-item">
+            <a href="{{ route('admin.sedes.index') }}" class="{{ request()->routeIs('admin.sedes.*') ? 'active' : '' }}">
+                <span class="nav-icon"><i class="fa-solid fa-building"></i></span>
+                Sedes
+            </a>
+        </li>
+        <li class="nav-item">
             <a href="#">
                 <span class="nav-icon"><i class="fa-solid fa-users"></i></span>
                 Usuarios
