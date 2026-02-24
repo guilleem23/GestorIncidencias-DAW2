@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('categorias', function (Blueprint $table) {
             $table->id();
-            $table->string('nom'); // Ejemplo: Software, Hardware [cite: 66]
+            $table->string('nom'); // Ejemplo: Software, Hardware
             $table->timestamps();
         });
 
