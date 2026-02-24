@@ -376,7 +376,9 @@
 .categoria-actions {
     display: flex;
     gap: 0.5rem;
-    align-items: center;
+    align-items: flex-start;
+    margin-top: 0.25rem;
+    /* Push down to align visually with text baseline */
     flex-shrink: 0;
 }
 

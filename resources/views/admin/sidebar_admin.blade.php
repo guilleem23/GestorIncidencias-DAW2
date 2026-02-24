@@ -46,4 +46,25 @@
             </a>
         </li>
     </ul>
+
+    <!-- Footer de Sidebar: Perfil de Usuario y Logout -->
+    <div class="sidebar-footer">
+        <div class="user-profile">
+            <div class="user-avatar">
+                {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+            </div>
+            <div class="user-info">
+                <span class="user-name">{{ Auth::user()->name ?? 'Administrador' }}</span>
+                <span class="user-role">Administrador</span>
+            </div>
+        </div>
+        
+        <form action="{{ route('logout') }}" method="POST" class="logout-form">
+            @csrf
+            <button type="submit" class="btn-logout" title="Cerrar sesión">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span class="logout-text">Salir</span>
+            </button>
+        </form>
+    </div>
 </div>

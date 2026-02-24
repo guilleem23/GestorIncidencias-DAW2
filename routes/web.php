@@ -66,7 +66,9 @@ Route::middleware(['auth', 'role:client'])->group(function () {
 
 //Solo los gestores pueden entrar aquí
 Route::middleware(['auth', 'role:gestor'])->group(function () {
-    Route::get('/gestor/incidencies', [IncidenciaController::class, 'indexGestor'])->name('gestor.index');
+    Route::get('/gestor/asignar_incidencias', [IncidenciaController::class, 'indexGestor'])->name('gestor.index');
+    Route::get('/gestor/incidencias', [IncidenciaController::class, 'indexGestorTodas'])->name('gestor.incidencias');
+    Route::get('/gestor/usuarios', [UserController::class, 'indexGestor'])->name('gestor.usuarios');
     Route::post('/gestor/assignar/{id}', [IncidenciaController::class, 'assignarTecnic'])->name('gestor.assignar');
 });
 
