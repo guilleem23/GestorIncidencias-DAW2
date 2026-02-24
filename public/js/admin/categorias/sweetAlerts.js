@@ -82,7 +82,7 @@ document.querySelectorAll('.btn-show-desc').forEach(btn => {
 
         Swal.fire({
             title: `<span style="color: var(--neon-blue)">${nombre}</span>`,
-            html: `<div style="text-align: left; padding: 10px; line-height: 1.6;">${descripcion}</div>`,
+            html: `<div style="text-align: center; padding: 10px; line-height: 1.6;">${descripcion}</div>`,
             icon: 'info',
             confirmButtonText: 'Entendido',
             confirmButtonColor: '#3b82f6',

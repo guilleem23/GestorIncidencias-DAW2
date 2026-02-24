@@ -68,7 +68,7 @@
                     </div>
                     
                     <div class="sede-footer">
-                        <div></div> <!-- Espacio vacío en lugar de las estrellas para alinear el botón a la derecha -->
+                        <div></div> 
                         <button type="button" class="btn-ver-detalles-sede btn-editar-sede" data-id="{{ $sede->id }}">
                             Editar Sede
                         </button>

@@ -36,110 +36,112 @@
     @endif
 
     {{-- Listado de categorías --}}
-    @forelse ($categorias as $categoria)
-        <div class="categoria-card">
-            <div class="categoria-header">
-                <div class="categoria-info">
-                    <div class="categoria-title">
-                        <button class="btn-toggle" onclick="toggleSubcategorias({{ $categoria->id }})">
-                            <i class="fa-solid fa-chevron-right toggle-icon" id="toggle-icon-{{ $categoria->id }}"></i>
-                        </button>
-                        <h2>{{ $categoria->nom }}</h2>
-                        @if ($categoria->descripcion)
-                            <button type="button" class="btn-info-desc btn-show-desc" 
-                                data-descripcion="{{ $categoria->descripcion }}" 
-                                data-nombre="{{ $categoria->nom }}"
-                                title="Ver descripción">
-                                <i class="fa-solid fa-circle-question"></i>
+    <div class="categorias-grid">
+        @forelse ($categorias as $categoria)
+            <div class="categoria-card">
+                <div class="categoria-header">
+                    <div class="categoria-info">
+                        <div class="categoria-title">
+                            <button class="btn-toggle" onclick="toggleSubcategorias({{ $categoria->id }})">
+                                <i class="fa-solid fa-chevron-right toggle-icon" id="toggle-icon-{{ $categoria->id }}"></i>
                             </button>
-                        @endif
-                        <span class="badge-count">{{ $categoria->subcategorias->count() }} subcategorías</span>
+                            <h2>{{ $categoria->nom }}</h2>
+                            @if ($categoria->descripcion)
+                                <button type="button" class="btn-info-desc btn-show-desc" 
+                                    data-descripcion="{{ $categoria->descripcion }}" 
+                                    data-nombre="{{ $categoria->nom }}"
+                                    title="Ver descripción">
+                                    <i class="fa-solid fa-circle-question"></i>
+                                </button>
+                            @endif
+                        </div>
+                        <div style="margin-top: 0.5rem; padding-left: 2.25rem;">
+                            <span class="badge-count">{{ $categoria->subcategorias->count() }} subcategorías</span>
+                        </div>
                     </div>
-                </div>
-                <div class="categoria-actions">
-                    <button type="button" class="btn-action btn-editar btn-editar-categoria" data-id="{{ $categoria->id }}" title="Editar categoría">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                    </button>
-                    <form action="{{ route('admin.categorias.destroy', $categoria->id) }}" method="POST" style="display:inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="button" class="btn-action btn-eliminar btn-eliminar-categoria"
-                            data-id="{{ $categoria->id }}"
-                            data-nombre="{{ $categoria->nom }}"
-                            data-subcategorias="{{ $categoria->subcategorias->count() }}"
-                            title="Eliminar categoría">
-                            <i class="fa-solid fa-trash"></i>
+                    <div class="categoria-actions">
+                        <button type="button" class="btn-action btn-editar btn-editar-categoria" data-id="{{ $categoria->id }}" title="Editar categoría">
+                            <i class="fa-solid fa-pen-to-square"></i>
                         </button>
-                    </form>
+                        <form action="{{ route('admin.categorias.destroy', $categoria->id) }}" method="POST" style="display:inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="button" class="btn-action btn-eliminar btn-eliminar-categoria"
+                                data-id="{{ $categoria->id }}"
+                                data-nombre="{{ $categoria->nom }}"
+                                data-subcategorias="{{ $categoria->subcategorias->count() }}"
+                                title="Eliminar categoría">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                {{-- Subcategorías --}}
+                <div class="subcategorias-container" id="subcategorias-{{ $categoria->id }}" style="display: none;">
+                    @if ($categoria->subcategorias->count() > 0)
+                        <table class="subcategorias-table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($categoria->subcategorias as $sub)
+                                    <tr>
+                                        <td>
+                                            <div class="subcategoria-nombre-container">
+                                                <span class="subcategoria-nombre">
+                                                    <i class="fa-solid fa-tag"></i> {{ $sub->nom }}
+                                                </span>
+                                                @if ($sub->descripcion)
+                                                    <button type="button" class="btn-info-desc-sm btn-show-desc" 
+                                                        data-descripcion="{{ $sub->descripcion }}" 
+                                                        data-nombre="{{ $sub->nom }}"
+                                                        title="Ver descripción">
+                                                        <i class="fa-solid fa-circle-question"></i>
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="subcategoria-actions">
+                                                <button type="button" class="btn-action-sm btn-editar btn-editar-subcategoria" data-id="{{ $sub->id }}" title="Editar subcategoría">
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                </button>
+                                                <form action="{{ route('admin.subcategorias.destroy', $sub->id) }}" method="POST" style="display:inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="button" class="btn-action-sm btn-eliminar btn-eliminar-subcategoria"
+                                                        data-id="{{ $sub->id }}"
+                                                        data-nombre="{{ $sub->nom }}"
+                                                        title="Eliminar subcategoría">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @else
+                        <div class="empty-subcategorias">
+                            <i class="fa-solid fa-inbox"></i>
+                            <p>No hay subcategorías en esta categoría</p>
+                        </div>
+                    @endif
                 </div>
             </div>
-
-            {{-- Subcategorías --}}
-            <div class="subcategorias-container" id="subcategorias-{{ $categoria->id }}" style="display: none;">
-                @if ($categoria->subcategorias->count() > 0)
-                    <table class="subcategorias-table">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Descripción</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($categoria->subcategorias as $sub)
-                                <tr>
-                                    <td>
-                                        <div class="subcategoria-nombre-container">
-                                            <span class="subcategoria-nombre">
-                                                <i class="fa-solid fa-tag"></i> {{ $sub->nom }}
-                                            </span>
-                                            @if ($sub->descripcion)
-                                                <button type="button" class="btn-info-desc-sm btn-show-desc" 
-                                                    data-descripcion="{{ $sub->descripcion }}" 
-                                                    data-nombre="{{ $sub->nom }}"
-                                                    title="Ver descripción">
-                                                    <i class="fa-solid fa-circle-question"></i>
-                                                </button>
-                                            @endif
-                                        </div>
-                                    </td>
-                                    <td>{{-- Celda de descripción original ahora vacía o eliminada --}}</td>
-                                    <td>
-                                        <div class="subcategoria-actions">
-                                            <button type="button" class="btn-action-sm btn-editar btn-editar-subcategoria" data-id="{{ $sub->id }}" title="Editar subcategoría">
-                                                <i class="fa-solid fa-pen-to-square"></i>
-                                            </button>
-                                            <form action="{{ route('admin.subcategorias.destroy', $sub->id) }}" method="POST" style="display:inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="button" class="btn-action-sm btn-eliminar btn-eliminar-subcategoria"
-                                                    data-id="{{ $sub->id }}"
-                                                    data-nombre="{{ $sub->nom }}"
-                                                    title="Eliminar subcategoría">
-                                                    <i class="fa-solid fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                @else
-                    <div class="empty-subcategorias">
-                        <i class="fa-solid fa-inbox"></i>
-                        <p>No hay subcategorías en esta categoría</p>
-                    </div>
-                @endif
+        @empty
+            <div class="empty-state">
+                <i class="fa-solid fa-folder-open"></i>
+                <h3>No hay categorías</h3>
+                <p>Crea la primera categoría para empezar</p>
             </div>
-        </div>
-    @empty
-        <div class="empty-state">
-            <i class="fa-solid fa-folder-open"></i>
-            <h3>No hay categorías</h3>
-            <p>Crea la primera categoría para empezar</p>
-        </div>
-    @endforelse
+        @endforelse
+    </div>
 </div>
 
 {{-- Modal Crear Categoría --}}
