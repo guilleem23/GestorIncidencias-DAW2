@@ -275,5 +275,10 @@ public function run(): void
         ['nom' => 'Paper encallat'],
         ['nom' => 'Qualitat d\'impressió dolenta'],
     ]);
+
+    // Ejecutar el seeder de Incidencias realista
+    $this->call([
+        IncidenciaSeeder::class,
+    ]);
 }
 }

@@ -26,6 +26,23 @@ class UserController extends Controller
     }
 
     /**
+     * Muestra la lista de técnicos asignados a la sede del gestor.
+     * Vista de solo lectura.
+     */
+    public function indexGestor()
+    {
+        $user = auth()->user();
+        
+        // Obtener solo usuarios que son 'tecnic' y pertenecen a la misma sede que el gestor
+        $tecnicos = User::where('sede_id', $user->sede_id)
+            ->where('rol', 'tecnic')
+            ->orderBy('name')
+            ->get();
+            
+        return view('gestor.usuarios', compact('tecnicos'));
+    }
+
+    /**
      * Muestra el formulario de edición de un usuario.
      */
     public function edit($id)

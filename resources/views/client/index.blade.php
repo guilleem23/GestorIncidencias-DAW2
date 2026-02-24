@@ -8,24 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <style>
-        /* Estilos personalizados para SweetAlert2 tema oscuro */
-        .swal-dark-popup {
-            border: 1px solid #333333 !important;
-        }
-        .swal2-popup.swal2-toast {
-            background: #111111 !important;
-            color: #f8fafc !important;
-        }
-        .swal-confirm-btn {
-            font-family: 'Inter', sans-serif !important;
-            font-weight: 500 !important;
-        }
-        .swal-cancel-btn {
-            font-family: 'Inter', sans-serif !important;
-            font-weight: 500 !important;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/client_incidencias.css') }}">
 </head>
 <body>
     <!-- Header -->
