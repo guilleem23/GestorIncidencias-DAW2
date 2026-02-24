@@ -20,6 +20,24 @@
     </div>
 </div>
 
+@if (session('success'))
+    <div class="admin-alert admin-alert-success">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>{{ session('success') }}</span>
+    </div>
+@endif
+
+@if ($errors->any())
+    <div class="admin-alert admin-alert-error">
+        <i class="fa-solid fa-circle-xmark"></i>
+        <div>
+            @foreach ($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    </div>
+@endif
+
 <div class="incidents-table-container">
     <table class="incidents-table">
         <thead>
@@ -34,54 +52,46 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>#INC-2024-004</td>
-                <td>Problema con impresora en red</td>
-                <td>Gilles Villeneuve</td>
-                <td>Montreal</td>
-                <td>05/02/2026 09:30</td>
-                <td><span class="badge badge-assigned">Asignada</span></td>
-                <td>
-                    <a href="#" class="view-btn" title="Ver Detalle"><i class="fa-solid fa-eye"></i></a>
-                    <button class="delete-btn" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
-                </td>
-            </tr>
-            <tr>
-                <td>#INC-2024-005</td>
-                <td>Wifi inestable en sala de juntas</td>
-                <td>Ayrton Senna</td>
-                <td>Sao Paulo</td>
-                <td>05/02/2026 10:15</td>
-                <td><span class="badge badge-pending">Sin Asignar</span></td>
-                <td>
-                    <a href="#" class="view-btn" title="Ver Detalle"><i class="fa-solid fa-eye"></i></a>
-                    <button class="delete-btn" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
-                </td>
-            </tr>
-             <tr>
-                <td>#INC-2024-006</td>
-                <td>Actualización de software fallida</td>
-                <td>Michael Schumacher</td>
-                <td>Berlín</td>
-                <td>04/02/2026 16:45</td>
-                <td><span class="badge badge-assigned">Asignada</span></td>
-                <td>
-                    <a href="#" class="view-btn" title="Ver Detalle"><i class="fa-solid fa-eye"></i></a>
-                    <button class="delete-btn" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
-                </td>
-            </tr>
-             <tr>
-                <td>#INC-2024-007</td>
-                <td>Pantalla parpadeante</td>
-                <td>Fernando Alonso</td>
-                <td>Oviedo</td>
-                <td>05/02/2026 08:00</td>
-                <td><span class="badge badge-pending">Sin Asignar</span></td>
-                <td>
-                    <a href="#" class="view-btn" title="Ver Detalle"><i class="fa-solid fa-eye"></i></a>
-                    <button class="delete-btn" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
-                </td>
-            </tr>
+            @forelse ($incidencias as $incidencia)
+                @php
+                    $tieneTecnics = isset($tecnicsBySede[$incidencia->sede_id]) && $tecnicsBySede[$incidencia->sede_id]->count() > 0;
+                @endphp
+                <tr>
+                    <td>#INC-{{ $incidencia->id }}</td>
+                    <td>{{ $incidencia->titol }}</td>
+                    <td>{{ $incidencia->cliente?->name ?? '-' }}</td>
+                    <td>{{ $incidencia->sede?->nom ?? '-' }}</td>
+                    <td>{{ $incidencia->created_at?->format('d/m/Y H:i') ?? '-' }}</td>
+                    <td>
+                        <span class="badge {{ $incidencia->estat === 'Sense assignar' ? 'badge-pending' : 'badge-assigned' }}">
+                            {{ $incidencia->estat }}
+                        </span>
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ route('admin.incidencias.assign', $incidencia->id) }}" class="assign-form">
+                            @csrf
+                            <select name="tecnic_id" class="assign-select" {{ $tieneTecnics ? '' : 'disabled' }}>
+                                <option value="">Selecciona técnico...</option>
+                                @foreach (($tecnicsBySede[$incidencia->sede_id] ?? collect()) as $tecnic)
+                                    <option value="{{ $tecnic->id }}" {{ (int) $incidencia->tecnic_id === (int) $tecnic->id ? 'selected' : '' }}>
+                                        {{ $tecnic->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            <button type="submit" class="btn-action" {{ $tieneTecnics ? '' : 'disabled' }}>
+                                Asignar técnico
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="7" style="padding: 2rem; color: var(--text-secondary);">
+                        No hay incidencias registradas.
+                    </td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 </div>

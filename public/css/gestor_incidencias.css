@@ -1,0 +1,48 @@
+/* basic styling for gestor incidencias table */
+h1 {
+    color: var(--neon-blue);
+    margin-bottom: 2rem;
+    font-weight: 700;
+}
+
+.table-container {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+}
+
+table {
+    width: 100%;
+    color: var(--text-primary);
+    border-collapse: collapse;
+}
+
+td,
+th {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+select {
+    background: #0f172a;
+    color: white;
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+}
+
+.btn-asignar-tecnic {
+    background: var(--neon-blue);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-asignar-tecnic:hover {
+    background: #2563eb;
+}
