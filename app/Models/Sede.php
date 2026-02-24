@@ -19,4 +19,10 @@ class Sede extends Model
     {
         return $this->hasMany(Incidencia::class);
     }
+
+    // Relación: Gestor asignado a la sede
+    public function gestor()
+    {
+        return $this->hasOne(User::class)->where('rol', 'gestor');
+    }
 }

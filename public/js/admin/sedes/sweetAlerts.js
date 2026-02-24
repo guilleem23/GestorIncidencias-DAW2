@@ -35,3 +35,24 @@ document.querySelectorAll('.btn-eliminar-sede').forEach(btn => {
         });
     });
 });
+
+// Mostrar descripción completa de la sede
+document.querySelectorAll('.btn-info-desc').forEach(btn => {
+    btn.addEventListener('click', function () {
+        const nombre = this.dataset.nombre;
+        const descripcion = this.dataset.descripcion;
+
+        Swal.fire({
+            title: nombre,
+            text: descripcion,
+            icon: 'info',
+            confirmButtonColor: '#3b82f6',
+            confirmButtonText: 'Cerrar',
+            background: '#1e1e1e',
+            color: '#f3f4f6',
+            customClass: {
+                popup: 'swal-dark-popup'
+            }
+        });
+    });
+});

@@ -267,7 +267,7 @@
     justify-content: space-between;
     align-items: flex-start;
     gap: 1rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     font-size: 0.9rem;
     color: var(--text-secondary);
 }
@@ -275,6 +275,27 @@
 .sede-category {
     flex: 1.2;
     line-height: 1.4;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+}
+
+.btn-info-desc {
+    background: none;
+    border: none;
+    color: var(--neon-blue);
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0;
+    margin-left: 0.35rem;
+    transition: opacity 0.2s;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+.btn-info-desc:hover {
+    opacity: 0.7;
 }
 
 .sede-responsable-info {
@@ -294,6 +315,28 @@
     margin-top: auto;
     padding-top: 1.25rem;
     border-top: 1px solid var(--border-color);
+}
+
+.sede-incidencias-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.sede-incidencias-badge.badge-warning {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.sede-incidencias-badge.badge-ok {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .sede-rating {

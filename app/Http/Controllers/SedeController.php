@@ -13,7 +13,12 @@ class SedeController extends Controller
      */
     public function index()
     {
-        $sedes = Sede::orderBy('nom')->get();
+        $sedes = Sede::with('gestor')
+            ->withCount(['incidencies as incidencies_obertes_count' => function($q) {
+            $q->whereNotIn('estat', ['Tancada', 'Resolta']);
+        }])
+        ->orderBy('nom')
+        ->get();
         return view('admin.sedes.index', compact('sedes'));
     }
 
@@ -52,7 +57,10 @@ class SedeController extends Controller
     public function edit($id)
     {
         $sede = Sede::findOrFail($id);
-        return view('admin.sedes.partial.editar_sede', compact('sede'));
+        $gestor = \App\Models\User::where('sede_id', $sede->id)
+            ->where('rol', 'gestor')
+            ->first();
+        return view('admin.sedes.partial.editar_sede', compact('sede', 'gestor'));
     }
 
     /**
