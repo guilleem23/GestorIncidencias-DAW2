@@ -1,6 +1,54 @@
+// Confirmación SweetAlert para cerrar sesión
+// Confirmación SweetAlert para cerrar sesión con enlace
+document.addEventListener('DOMContentLoaded', function () {
+    const logoutLink = document.getElementById('enlace-cerrar-sesion');
+    if (logoutLink) {
+        logoutLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            Swal.fire({
+                title: '¿Cerrar sesión?',
+                theme: 'dark',
+                text: '¿Seguro que quieres cerrar la sesión?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, cerrar sesión',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Hacer logout vía POST usando fetch
+                    fetch('/logout', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.getElementById('csrf-token').getAttribute('content'),
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'same-origin'
+                    }).then(() => {
+                        localStorage.setItem('logout_success', '1');
+                        window.location.href = '/';
+                    });
+                }
+            });
+        });
+    }
+});
+// SweetAlert para cierre de sesión exitoso
+document.addEventListener('DOMContentLoaded', function () {
+    if (localStorage.getItem('logout_success')) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Sesión cerrada',
+            text: 'Has cerrado sesión correctamente.',
+            confirmButtonColor: '#3085d6',
+        });
+        localStorage.removeItem('logout_success');
+    }
+});
 
 
-document.querySelectorAll('.btn-eliminar').forEach(btn => {
+document.getElementsByName('boton_eliminar').forEach(btn => {
     btn.addEventListener('click', function (e) {
         e.preventDefault();
         const form = this.closest('form');

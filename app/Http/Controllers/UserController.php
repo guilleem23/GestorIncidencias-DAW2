@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
-   /**
+    /**
      * Muestra la lista de usuarios.
      */
     public function index()
@@ -24,6 +24,16 @@ class UserController extends Controller
             'tecnic' => 'Tecnico de Mantenimiento',
         ];
         return view('admin.usuarios.index', compact('usuarios', 'sedes', 'roles'));
+    }
+
+    /**
+     * Comprobar disponibilidad de email para AJAX
+     */
+    public function checkEmail(Request $request)
+    {
+        $email = $request->query('email');
+        $disponible = !User::where('email', $email)->exists();
+        return response()->json(['disponible' => $disponible]);
     }
 
     /**
@@ -49,12 +59,33 @@ class UserController extends Controller
     {
         $rolesPermitidos = ['administrador', 'client', 'gestor', 'tecnic'];
         $validated = $request->validate([
-            'name' => ['required', 'string', 'min:3', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:usuarios,email,' . $id],
-            'sede_id' => ['required', 'exists:sedes,id'],
-            'rol' => ['required', 'in:' . implode(',', $rolesPermitidos)],
+            'edit_name' => ['required', 'string', 'min:3', 'max:255'],
+            'edit_email' => ['required', 'email', 'max:255', 'unique:usuarios,email,' . $id],
+            'edit_sede_id' => ['required', 'exists:sedes,id'],
+            'edit_rol' => ['required', 'in:' . implode(',', $rolesPermitidos)],
+        ], [
+            'edit_name.required' => 'El nombre es obligatorio.',
+            'edit_name.min' => 'El nombre debe tener al menos 3 caracteres.',
+            'edit_email.required' => 'El email es obligatorio.',
+            'edit_email.email' => 'El email debe ser válido.',
+            'edit_email.unique' => 'Ese email ya está registrado.',
+            'edit_sede_id.required' => 'La sede es obligatoria.',
+            'edit_sede_id.exists' => 'La sede seleccionada no existe.',
+            'edit_rol.required' => 'El rol es obligatorio.',
+            'edit_rol.in' => 'El rol seleccionado no es válido.'
         ]);
-        
+        // Guardar los datos editados
+        $usuario = User::findOrFail($id);
+        $usuario->name = $validated['edit_name'];
+        $usuario->email = $validated['edit_email'];
+        $usuario->sede_id = $validated['edit_sede_id'];
+        $usuario->rol = $validated['edit_rol'];
+        if ($request->filled('edit_password')) {
+            $usuario->password = Hash::make($request->input('edit_password'));
+        }
+        $usuario->save();
+        DB::commit();
+        return redirect()->route('admin.usuarios.index')->with('success', 'Usuario actualizado correctamente.');
         try {
             DB::beginTransaction();
             $usuario = User::findOrFail($id);
@@ -70,7 +101,7 @@ class UserController extends Controller
             return redirect()->route('admin.usuarios.index')->with('success', 'Usuario actualizado correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('admin.usuarios.index')->withErrors(['error' => 'Error al actualizar el usuario: ' . $e->getMessage()]);
+            return redirect()->route('admin.usuarios.index')->withErrors(['error_editar' => 'Error al actualizar el usuario: ' . $e->getMessage()]);
         }
     }
 
@@ -79,15 +110,23 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
+        // Validar que llega el id
+        if (empty($id)) {
+            return redirect()->route('admin.usuarios.index')->withErrors(['error_eliminar' => 'El id del usuario no ha llegado.']);
+        }
+        // Validar que el usuario existe
+        $usuario = User::find($id);
+        if (!$usuario) {
+            return redirect()->route('admin.usuarios.index')->withErrors(['error_eliminar' => 'El usuario que intentas eliminar no existe o ya ha sido eliminado.']);
+        }
         try {
             DB::beginTransaction();
-            $usuario = User::findOrFail($id);
             $usuario->delete();
             DB::commit();
             return redirect()->route('admin.usuarios.index')->with('success', 'Usuario eliminado correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('admin.usuarios.index')->withErrors(['error' => 'Error al eliminar el usuario: ' . $e->getMessage()]);
+            return redirect()->route('admin.usuarios.index')->withErrors(['error_eliminar' => 'Error al eliminar el usuario: ' . $e->getMessage()]);
         }
     }
 
@@ -113,6 +152,18 @@ class UserController extends Controller
             'password' => ['required', 'string', 'min:6'],
             'sede_id' => ['required', 'exists:sedes,id'],
             'rol' => ['required', 'in:' . implode(',', $rolesPermitidos)],
+        ], [
+            'name.required' => 'El nombre es obligatorio.',
+            'name.min' => 'El nombre debe tener al menos 3 caracteres.',
+            'email.required' => 'El email es obligatorio.',
+            'email.email' => 'El email debe ser válido.',
+            'email.unique' => 'Ese email ya está registrado.',
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.min' => 'La contraseña debe tener al menos 6 caracteres.',
+            'sede_id.required' => 'La sede es obligatoria.',
+            'sede_id.exists' => 'La sede seleccionada no existe.',
+            'rol.required' => 'El rol es obligatorio.',
+            'rol.in' => 'El rol seleccionado no es válido.'
         ]);
         try {
             DB::beginTransaction();
@@ -126,12 +177,12 @@ class UserController extends Controller
             ]);
             DB::commit();
             return redirect()
-                ->route('admin.usuarios.create')
+                ->route('admin.usuarios.index')
                 ->with('success', 'Usuario creado correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()
-                ->route('admin.usuarios.create')
+                ->route('admin.usuarios.index')
                 ->withErrors(['error' => 'Error al crear el usuario: ' . $e->getMessage()]);
         }
     }

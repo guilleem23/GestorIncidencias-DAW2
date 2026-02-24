@@ -2,32 +2,26 @@ window.onload = function () {
 	// Elementos de error
 	const eNombre = document.getElementById("error-nombre");
 	const eEmail = document.getElementById("error-email");
+	const disponibilidadEmail = document.getElementById("disponibilidad-email");
 	const ePassword = document.getElementById("error-password");
 	const ePasswordConfirmation = document.getElementById("error-password-confirmation");
 	const eSede = document.getElementById("error-sede_id");
 	const eRol = document.getElementById("error-rol");
 
 	// Inputs
-	const nombreInput = document.querySelector('input[name="name"]');
-	const emailInput = document.querySelector('input[name="email"]');
-	const passwordInput = document.querySelector('input[name="password"]');
-	const passwordConfirmationInput = document.querySelector('input[name="password_confirmation"]');
-	const sedeInput = document.querySelector('select[name="sede_id"]');
-	const rolInput = document.querySelector('select[name="rol"]');
-	const botonEnviar = document.querySelector('button[type="submit"]');
+	const nombreInput = document.getElementById("nombre-usuario");
+	const emailInput = document.getElementById("email-usuario");
+	const passwordInput = document.getElementById("password-usuario");
+	const passwordConfirmationInput = document.getElementById("password-confirmation-usuario");
+	const sedeInput = document.getElementById("sede-usuario");
+	const rolInput = document.getElementById("rol-usuario");
+	const botonEnviar = document.getElementById("boton-enviar");
 
 	comprobarBoton();
 
-	nombreInput.onblur = comprobarNombre;
-	emailInput.onblur = comprobarEmail;
-	passwordInput.onblur = comprobarPassword;
-	passwordConfirmationInput.onblur = comprobarPasswordConfirmation;
-	sedeInput.onblur = comprobarSede;
-	rolInput.onblur = comprobarRol;
-
 	nombreInput.oninput = comprobarNombre;
 	emailInput.oninput = comprobarEmail;
-	passwordInput.oninput = function() {
+	passwordInput.oninput = function () {
 		comprobarPassword();
 		if (passwordConfirmationInput.value.trim() !== '') {
 			comprobarPasswordConfirmation();
@@ -53,7 +47,7 @@ window.onload = function () {
 		let sedeValida = sede !== '' && sede !== null;
 		let rolValido = rol !== '' && rol !== null;
 
-		if (nombreValido && emailValido && passwordValido && passwordConfirmationValido && sedeValida && rolValido && actiuValido) {
+		if (nombreValido && emailValido && passwordValido && passwordConfirmationValido && sedeValida && rolValido) {
 			botonEnviar.disabled = false;
 			botonEnviar.classList.remove("btn-login-desabilitado");
 		} else {
@@ -79,13 +73,36 @@ window.onload = function () {
 	function comprobarEmail() {
 		const email = emailInput.value.trim();
 		const emailFormato = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 		if (eEmail) {
 			if (email === '') {
 				eEmail.innerText = 'El correo electrónico no puede estar vacío.';
+				disponibilidadEmail.textContent = '';
 			} else if (!emailFormato.test(email)) {
 				eEmail.innerText = 'Por favor, introduce un correo electrónico válido.';
+				disponibilidadEmail.textContent = '';
 			} else {
 				eEmail.innerText = '';
+				disponibilidadEmail.innerText = '';
+				fetch('/admin/usuarios/check-email?email=' + encodeURIComponent(email))
+					.then(respuesta => respuesta.json())
+					.then(data => {
+						if (data.disponible) {
+							$disponibilida = true;
+							$errorcomprobacion = false;
+							disponibilidadEmail.innerText = 'El correo electrónico está disponible.';
+						} else {
+							$disponibilida = false;
+							$errorcomprobacion = false;
+							eEmail.innerText = 'El correo electrónico ya está en uso.';
+							disponibilidadEmail.innerText = '';
+						}
+					})
+					.catch(error => {
+						$errorcomprobacion = true;
+						eEmail.innerText = 'Error al comprobar la disponibilidad del correo electrónico.';
+						disponibilidadEmail.innerText = '';
+					});
 			}
 		}
 		comprobarBoton();

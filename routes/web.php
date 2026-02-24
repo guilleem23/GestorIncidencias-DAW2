@@ -27,6 +27,7 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
     Route::get('/admin/usuarios/{id}/edit', [UserController::class, 'edit'])->name('admin.usuarios.edit');
     Route::put('/admin/usuarios/{id}', [UserController::class, 'update'])->name('admin.usuarios.update');
     Route::delete('/admin/usuarios/{id}', [UserController::class, 'destroy'])->name('admin.usuarios.destroy');
+    Route::get('/admin/usuarios/check-email', [UserController::class, 'checkEmail']);
 });
 
 // Solo los clientes pueden entrar aquí

@@ -3,6 +3,10 @@ window.addEventListener('DOMContentLoaded', function () {
     if (window.modalUsuarioOpen) {
         var modalCrear = new bootstrap.Modal(document.getElementById('modalCrearUsuario'));
         modalCrear.show();
+        // Lanzar validación JS de crear usuario si existe la función global
+        if (typeof window.iniciarValidacionCrearUsuario === 'function') {
+            window.iniciarValidacionCrearUsuario();
+        }
     }
 });
 
@@ -16,10 +20,10 @@ function closeAllModals() {
     });
 }
 
-document.querySelectorAll('.btn-editar-usuario').forEach(btn => {
+document.getElementsByName('editar_usuario').forEach(btn => {
     btn.onclick = function () {
         closeAllModals();
-        const id = this.dataset.id;
+        const id = this.value;
         fetch(`/admin/usuarios/${id}/edit`)
             .then(res => res.text())
             .then(html => {
