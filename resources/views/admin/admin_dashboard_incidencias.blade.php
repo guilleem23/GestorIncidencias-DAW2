@@ -3,7 +3,8 @@
 @section('title', 'Nexton Admin - Gestión de Incidencias')
 
 @push('styles')
-    @vite(['resources/css/admin_dashboard.css', 'resources/css/admin_incidencias.css'])
+    <link rel="stylesheet" href="{{ asset('css/admin_dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin_incidencias.css') }}">
 @endpush
 
 @section('content')
