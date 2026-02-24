@@ -19,6 +19,13 @@ window.onload = function () {
 
 	comprobarBoton();
 
+	nombreInput.onblur = comprobarNombre;
+	emailInput.onblur = comprobarEmail;
+	passwordInput.onblur = comprobarPassword;
+	passwordConfirmationInput.onblur = comprobarPasswordConfirmation;
+	sedeInput.onblur = comprobarSede;
+	rolInput.onblur = comprobarRol;
+
 	nombreInput.oninput = comprobarNombre;
 	emailInput.oninput = comprobarEmail;
 	passwordInput.oninput = function () {
