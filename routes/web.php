@@ -67,6 +67,9 @@ Route::middleware(['auth', 'role:client'])->group(function () {
 Route::middleware(['auth', 'role:gestor'])->group(function () {
     Route::get('/gestor/asignar_incidencias', [IncidenciaController::class, 'indexGestor'])->name('gestor.index');
     Route::get('/gestor/incidencias', [IncidenciaController::class, 'indexGestorTodas'])->name('gestor.incidencias');
+    Route::get('/gestor/incidencias/{id}', [IncidenciaController::class, 'showGestor'])->name('gestor.incidencias.show');
+    Route::get('/gestor/incidencias/{id}/edit', [IncidenciaController::class, 'editGestor'])->name('gestor.incidencias.edit');
+    Route::put('/gestor/incidencias/{id}', [IncidenciaController::class, 'updateGestor'])->name('gestor.incidencias.update');
     Route::get('/gestor/usuarios', [UserController::class, 'indexGestor'])->name('gestor.usuarios');
     Route::post('/gestor/assignar/{id}', [IncidenciaController::class, 'assignarTecnic'])->name('gestor.assignar');
 });
