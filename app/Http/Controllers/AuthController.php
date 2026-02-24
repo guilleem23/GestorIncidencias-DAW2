@@ -29,7 +29,7 @@ class AuthController extends Controller
 
             return match ($user->rol) {
                 'administrador' => redirect()->intended('/admin/dashboard'),
-                'gestor'        => redirect()->intended('/gestor/incidencies'),
+                'gestor'        => redirect()->intended('/gestor/asignar_incidencias'),
                 'tecnic'        => redirect()->intended('/tecnic/tasques'),
                 'client'        => redirect()->intended('/client/mis-incidencias'),
                 default         => redirect()->intended('/dashboard'),
