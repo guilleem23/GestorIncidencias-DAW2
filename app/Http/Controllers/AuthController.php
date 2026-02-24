@@ -28,7 +28,7 @@ class AuthController extends Controller
             $user = Auth::user();
 
             return match ($user->rol) {
-                'administrador' => redirect()->intended('/admin/usuarios'),
+                'administrador' => redirect()->intended('/admin/dashboard'),
                 'gestor'        => redirect()->intended('/gestor/incidencies'),
                 'tecnic'        => redirect()->intended('/tecnic/tasques'),
                 'client'        => redirect()->intended('/client/mis-incidencias'),

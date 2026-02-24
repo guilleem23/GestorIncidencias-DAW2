@@ -12,13 +12,13 @@ class AdminController extends Controller
     public function index()
     {
         // Vista de administración de usuarios
-        return view('admin.index'); 
+        return view('admin.index');
     }
 
     public function create()
     {
         $sedes = Sede::orderBy('nom')->get();
-        
+
         // CONSEJO: Podrías llevar esto a una clase Enum o Constante para no repetirlo
         $roles = [
             'administrador' => 'Admin',
@@ -37,11 +37,11 @@ class AdminController extends Controller
         $rolesPermitidos = ['administrador', 'client', 'gestor', 'tecnic'];
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'min:3', 'max:255'], 
-            'email' => ['required', 'email', 'max:255', 'unique:usuarios,email'], 
+            'name' => ['required', 'string', 'min:3', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:usuarios,email'],
             'password' => ['required', 'string', 'min:6'],
             'sede_id' => ['required', 'exists:sedes,id'],
-            'rol' => ['required', 'in:' . implode(',', $rolesPermitidos)], 
+            'rol' => ['required', 'in:' . implode(',', $rolesPermitidos)],
         ]);
 
         User::create([

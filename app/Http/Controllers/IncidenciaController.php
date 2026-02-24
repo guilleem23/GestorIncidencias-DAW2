@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Auth;
 
 class IncidenciaController extends Controller
 {
+    public function index()
+    {
+        return "Mis Incidencias como Cliente";
+    }
+
     public function indexGestor()
     {
         $user = Auth::user();

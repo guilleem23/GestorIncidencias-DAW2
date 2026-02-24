@@ -19,7 +19,7 @@ class CheckRol
         if (!auth()->check() || auth()->user()->rol !== $rol) {
             // Lo mandamos al dashboard con un mensaje de error
             return redirect('/dashboard')->with('error', 'No tienes permiso para acceder a esta sección.');
-        }
+        } 
 
         return $next($request);
     }
