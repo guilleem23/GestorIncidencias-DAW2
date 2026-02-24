@@ -1,34 +1,4 @@
-<!DOCTYPE html>
-<html lang="ca">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Les meves incidències - Nexton</title>
-    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <link rel="stylesheet" href="{{ asset('css/client_incidencias.css') }}">
-</head>
-<body>
-    <!-- Header -->
-    <header class="header">
-        <div class="logo-header">
-            <i class="fas fa-cube logo-icon"></i>
-            <span class="logo-text">Nexton</span>
-        </div>
-        <div class="user-info">
-            <span class="user-name">
-                <i class="fas fa-user"></i> {{ auth()->user()->name }}
-            </span>
-            <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
-                @csrf
-                <button type="submit" class="btn-logout">
-                    <i class="fas fa-sign-out-alt"></i> Tancar Sessió
-                </button>
-            </form>
-        </div>
-    </header>
+@extends('layouts.client')
 
 @section('title', 'Mis Incidencias - Nexton')
 
