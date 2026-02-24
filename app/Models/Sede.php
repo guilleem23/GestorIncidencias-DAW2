@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Sede extends Model
 {
-    protected $fillable = ['nom']; // 
+    protected $fillable = ['nom', 'responsable', 'imagen', 'descripcion'];
 
     // Relación: Una sede tiene muchos usuarios
     public function users()

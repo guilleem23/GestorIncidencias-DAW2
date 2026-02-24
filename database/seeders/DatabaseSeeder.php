@@ -25,6 +25,7 @@ public function run(): void
     // Crear Usuarios de Prueba (uno por cada rol)
     User::create([
         'name' => 'Admin Max',
+        'username' => 'adminmax',
         'email' => 'admin@empresa.com',
         'password' => bcrypt('password'),
         'rol' => 'administrador', 
@@ -34,6 +35,7 @@ public function run(): void
 
     User::create([
         'name' => 'Client Joan',
+        'username' => 'clientjoan',
         'email' => 'client@empresa.com',
         'password' => bcrypt('password'),
         'rol' => 'client', 
@@ -43,6 +45,7 @@ public function run(): void
 
     User::create([
         'name' => 'Gestor BCN',
+        'username' => 'gestorbcn',
         'email' => 'gestor@empresa.com',
         'password' => bcrypt('password'),
         'rol' => 'gestor', 
@@ -52,6 +55,7 @@ public function run(): void
 
     User::create([
         'name' => 'Tecnic Pepe',
+        'username' => 'tecnicpepe',
         'email' => 'tecnic@empresa.com',
         'password' => bcrypt('password'),
         'rol' => 'tecnic', 
