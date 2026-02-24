@@ -6,6 +6,8 @@ use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\IncidenciaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SedeController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\TecnicController;
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -55,7 +57,10 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
 
 // Solo los clientes pueden entrar aquí
 Route::middleware(['auth', 'role:client'])->group(function () {
-    Route::get('/client/mis-incidencias', [IncidenciaController::class, 'index']);
+    Route::get('/client/mis-incidencias', [ClientController::class, 'index'])->name('client.index');
+    Route::get('/client/crear', [ClientController::class, 'crear'])->name('client.crear');
+    Route::post('/client/crear', [ClientController::class, 'store'])->name('client.store');
+    Route::post('/client/tancar/{id}', [ClientController::class, 'tancarIncidencia'])->name('client.tancar');
 });
 
 //Solo los gestores pueden entrar aquí
