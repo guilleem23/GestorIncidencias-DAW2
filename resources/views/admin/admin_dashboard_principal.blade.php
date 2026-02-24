@@ -3,7 +3,7 @@
 @section('title', 'Nexton Admin - Dashboard Global')
 
 @push('styles')
-    @vite(['resources/css/admin_dashboard.css'])
+    <link rel="stylesheet" href="{{ asset('css/admin_dashboard.css') }}">
 @endpush
 
 @section('content')
