@@ -63,25 +63,20 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
-    /**
-     * Escuchadores de eventos
-     */
-
-    // Búsqueda con debounce (300ms)
-    searchInput.addEventListener('input', function () {
+    searchInput.oninput = function () {
         clearTimeout(timeout);
-        timeout = setTimeout(() => fetchUsuarios(), 300);
-    });
+        timeout = setTimeout(fetchUsuarios, 100);
+    };
 
     // Selectores (cambio instantáneo)
     [rolFilter, sedeFilter, activoFilter, perPageFilter].filter(Boolean).forEach(filter => {
-        filter.addEventListener('change', () => fetchUsuarios());
+        filter.onchange = () => fetchUsuarios();
     });
 
     // Botón de limpiar filtros
     const btnLimpiar = document.getElementById('btn-limpiar-filtros');
     if (btnLimpiar) {
-        btnLimpiar.addEventListener('click', function () {
+        btnLimpiar.onclick = function () {
             searchInput.value = '';
             rolFilter.value = '';
             sedeFilter.value = '';
@@ -89,15 +84,15 @@ document.addEventListener('DOMContentLoaded', function () {
             if (perPageFilter) perPageFilter.value = '5';
 
             fetchUsuarios();
-        });
+        };
     }
 
     // Delegación de eventos para la paginación
-    tableContainer.addEventListener('click', function (e) {
+    tableContainer.onclick = function (e) {
         const link = e.target.closest('.pagination a');
         if (link) {
             e.preventDefault();
             fetchUsuarios(link.href);
         }
-    });
+    };
 });
