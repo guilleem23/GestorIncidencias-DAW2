@@ -10,7 +10,7 @@
 @section('content')
 <div class="header-actions">
     <div>
-        <h1>Gestión de Incidencias</h1>
+        <h1><i class="fa-solid fa-triangle-exclamation"></i> Gestión de Incidencias</h1>
         <p style="color: var(--text-secondary); margin-top: 0.5rem;">Administra las incidencias reportadas por los clientes.</p>
     </div>
     

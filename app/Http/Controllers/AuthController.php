@@ -29,7 +29,7 @@ class AuthController extends Controller
 
             return match ($user->rol) {
                 'administrador' => redirect()->intended('/admin/dashboard'),
-                'gestor'        => redirect()->intended('/gestor/incidencies'),
+                'gestor'        => redirect()->intended('/gestor/asignar_incidencias'),
                 'tecnic'        => redirect()->intended('/tecnic/tasques'),
                 'client'        => redirect()->intended('/client/mis-incidencias'),
                 default         => redirect()->intended('/dashboard'),
@@ -47,7 +47,9 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/');
+        // Usar localStorage para mostrar SweetAlert tras logout
+        echo '<script>localStorage.setItem("logout_success", "1");window.location.href="/";</script>';
+        exit;
     }
 }
     

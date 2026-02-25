@@ -25,6 +25,7 @@ public function run(): void
     // ========== ADMINISTRADORES ==========
     User::create([
         'name' => 'Admin Max',
+        'username' => 'adminmax',
         'email' => 'admin@empresa.com',
         'password' => bcrypt('password'),
         'rol' => 'administrador', 
@@ -33,36 +34,9 @@ public function run(): void
     ]);
 
     User::create([
-        'name' => 'Maria Rodriguez',
-        'email' => 'maria.admin@empresa.com',
-        'password' => bcrypt('password'),
-        'rol' => 'administrador', 
-        'sede_id' => $mtl->id,
-        'actiu' => true 
-    ]);
-
-    // ========== GESTORES (uno por sede) ==========
-    User::create([
-        'name' => 'Gestor BCN - Carlos Pérez',
-        'email' => 'gestor.bcn@empresa.com',
-        'password' => bcrypt('password'),
-        'rol' => 'gestor', 
-        'sede_id' => $bcn->id,
-        'actiu' => true
-    ]);
-
-    User::create([
-        'name' => 'Gestor Montreal - Sophie Martin',
-        'email' => 'gestor.mtl@empresa.com',
-        'password' => bcrypt('password'),
-        'rol' => 'gestor', 
-        'sede_id' => $mtl->id,
-        'actiu' => true
-    ]);
-
-    User::create([
-        'name' => 'Gestor Berlin - Hans Mueller',
-        'email' => 'gestor.berlin@empresa.com',
+        'name' => 'Gestor BCN',
+        'username' => 'gestorbcn',
+        'email' => 'gestor@empresa.com',
         'password' => bcrypt('password'),
         'rol' => 'gestor', 
         'sede_id' => $berlin->id,
@@ -74,15 +48,7 @@ public function run(): void
     User::create([
         'name' => 'Tecnic BCN - Pepe García',
         'email' => 'pepe.tecnic@empresa.com',
-        'password' => bcrypt('password'),
-        'rol' => 'tecnic', 
-        'sede_id' => $bcn->id,
-        'actiu' => true
-    ]);
-
-    User::create([
-        'name' => 'Tecnic BCN - Laura Martínez',
-        'email' => 'laura.tecnic@empresa.com',
+        'username' => 'tecnicpepe',
         'password' => bcrypt('password'),
         'rol' => 'tecnic', 
         'sede_id' => $bcn->id,
@@ -93,6 +59,7 @@ public function run(): void
     User::create([
         'name' => 'Tecnic MTL - Jean Dupont',
         'email' => 'jean.tecnic@empresa.com',
+        'username' => 'tecnicjean',
         'password' => bcrypt('password'),
         'rol' => 'tecnic', 
         'sede_id' => $mtl->id,
@@ -102,6 +69,7 @@ public function run(): void
     User::create([
         'name' => 'Tecnic MTL - Marie Leblanc',
         'email' => 'marie.tecnic@empresa.com',
+        'username' => 'tecnicmarie',
         'password' => bcrypt('password'),
         'rol' => 'tecnic', 
         'sede_id' => $mtl->id,
@@ -112,6 +80,7 @@ public function run(): void
     User::create([
         'name' => 'Tecnic Berlin - Klaus Schmidt',
         'email' => 'klaus.tecnic@empresa.com',
+        'username' => 'tecnicklaus',
         'password' => bcrypt('password'),
         'rol' => 'tecnic', 
         'sede_id' => $berlin->id,
@@ -121,6 +90,7 @@ public function run(): void
     User::create([
         'name' => 'Tecnic Berlin - Anna Weber',
         'email' => 'anna.tecnic@empresa.com',
+        'username' => 'tecnicanna',
         'password' => bcrypt('password'),
         'rol' => 'tecnic', 
         'sede_id' => $berlin->id,
@@ -131,6 +101,7 @@ public function run(): void
     // Barcelona
     User::create([
         'name' => 'Client BCN - Joan López',
+        'username' => 'clientjoan',
         'email' => 'joan.client@empresa.com',
         'password' => bcrypt('password'),
         'rol' => 'client', 
@@ -140,6 +111,7 @@ public function run(): void
 
     User::create([
         'name' => 'Client BCN - Carmen Sánchez',
+        'username' => 'clientcarmen',
         'email' => 'carmen.client@empresa.com',
         'password' => bcrypt('password'),
         'rol' => 'client', 
@@ -149,6 +121,7 @@ public function run(): void
 
     User::create([
         'name' => 'Client BCN - David Ruiz',
+        'username' => 'clientdavid',
         'email' => 'david.client@empresa.com',
         'password' => bcrypt('password'),
         'rol' => 'client', 
@@ -158,6 +131,7 @@ public function run(): void
 
     User::create([
         'name' => 'Client BCN - Ana Torres',
+        'username' => 'clientana',
         'email' => 'ana.client@empresa.com',
         'password' => bcrypt('password'),
         'rol' => 'client', 
@@ -168,6 +142,7 @@ public function run(): void
     // Montreal
     User::create([
         'name' => 'Client MTL - Pierre Tremblay',
+        'username' => 'clientpierre',
         'email' => 'pierre.client@empresa.com',
         'password' => bcrypt('password'),
         'rol' => 'client', 
@@ -177,6 +152,7 @@ public function run(): void
 
     User::create([
         'name' => 'Client MTL - Emma Gagnon',
+        'username' => 'clientemma',
         'email' => 'emma.client@empresa.com',
         'password' => bcrypt('password'),
         'rol' => 'client', 
@@ -186,6 +162,7 @@ public function run(): void
 
     User::create([
         'name' => 'Client MTL - Luc Bouchard',
+        'username' => 'clientluc',
         'email' => 'luc.client@empresa.com',
         'password' => bcrypt('password'),
         'rol' => 'client', 
@@ -196,6 +173,7 @@ public function run(): void
     // Berlin
     User::create([
         'name' => 'Client Berlin - Thomas Fischer',
+        'username' => 'clientthomas',
         'email' => 'thomas.client@empresa.com',
         'password' => bcrypt('password'),
         'rol' => 'client', 
@@ -205,6 +183,7 @@ public function run(): void
 
     User::create([
         'name' => 'Client Berlin - Julia Becker',
+        'username' => 'clientjulia',
         'email' => 'julia.client@empresa.com',
         'password' => bcrypt('password'),
         'rol' => 'client', 
@@ -214,6 +193,7 @@ public function run(): void
 
     User::create([
         'name' => 'Client Berlin - Stefan Wagner',
+        'username' => 'clientstefan',
         'email' => 'stefan.client@empresa.com',
         'password' => bcrypt('password'),
         'rol' => 'client', 
@@ -224,6 +204,7 @@ public function run(): void
     // ========== USUARIOS INACTIVOS (para probar filtros) ==========
     User::create([
         'name' => 'Client Inactivo - Marco Polo',
+        'username' => 'clientmarco',
         'email' => 'marco.inactivo@empresa.com',
         'password' => bcrypt('password'),
         'rol' => 'client', 
@@ -233,6 +214,7 @@ public function run(): void
 
     User::create([
         'name' => 'Tecnic Inactivo - Luis Moreno',
+        'username' => 'tecnicluis',
         'email' => 'luis.inactivo@empresa.com',
         'password' => bcrypt('password'),
         'rol' => 'tecnic', 

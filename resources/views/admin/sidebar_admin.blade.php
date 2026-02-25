@@ -28,7 +28,7 @@
             </a>
         </li>
         <li class="nav-item">
-            <a href="#">
+            <a href="{{ route('admin.usuarios.index') }}" class="{{ request()->routeIs('admin.usuarios.*') ? 'active' : '' }}">
                 <span class="nav-icon"><i class="fa-solid fa-users"></i></span>
                 Usuarios
             </a>
@@ -61,7 +61,7 @@
         
         <form action="{{ route('logout') }}" method="POST" class="logout-form">
             @csrf
-            <button type="submit" class="btn-logout" title="Cerrar sesión">
+            <button type="submit" class="btn-logout" id="btn-logout" title="Cerrar sesión">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 <span class="logout-text">Salir</span>
             </button>

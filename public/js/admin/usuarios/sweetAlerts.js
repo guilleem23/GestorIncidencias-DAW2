@@ -1,11 +1,11 @@
 
-
-document.querySelectorAll('.btn-eliminar').forEach(btn => {
+document.getElementsByName('boton_eliminar').forEach(btn => {
     btn.addEventListener('click', function (e) {
         e.preventDefault();
         const form = this.closest('form');
         Swal.fire({
             title: '¿Estás seguro?',
+            theme: 'dark',
             text: '¡Esta acción no se puede deshacer!',
             icon: 'warning',
             showCancelButton: true,

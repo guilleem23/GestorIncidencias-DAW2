@@ -42,7 +42,6 @@
                     class="form-input @error('titol') error @enderror"
                     value="{{ old('titol') }}"
                     placeholder="Escribe un título descriptivo..."
-                    required
                 >
                 @error('titol')
                     <span class="error-message">
@@ -62,7 +61,6 @@
                     class="form-textarea @error('descripcio') error @enderror"
                     rows="5"
                     placeholder="Describe el problema con detalle..."
-                    required
                 >{{ old('descripcio') }}</textarea>
                 @error('descripcio')
                     <span class="error-message">
@@ -80,7 +78,6 @@
                     id="sede_id" 
                     name="sede_id" 
                     class="form-select @error('sede_id') error @enderror"
-                    required
                 >
                     <option value="">Selecciona una sede...</option>
                     @foreach($sedes as $sede)
@@ -105,7 +102,6 @@
                     id="categoria_id" 
                     name="categoria_id" 
                     class="form-select @error('categoria_id') error @enderror"
-                    required
                 >
                     <option value="">Selecciona una categoría...</option>
                     @foreach($categorias as $categoria)
@@ -131,7 +127,6 @@
                     name="subcategoria_id" 
                     class="form-select @error('subcategoria_id') error @enderror"
                     data-old-value="{{ old('subcategoria_id') }}"
-                    required
                     disabled
                 >
                     <option value="">Primero selecciona una categoría...</option>
@@ -157,5 +152,5 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/client-form.js') }}"></script>
+    <script src="{{ asset('js/client-form.js') }}?v={{ time() }}"></script>
 @endpush

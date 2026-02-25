@@ -13,6 +13,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
         'rol',
@@ -24,5 +25,17 @@ class User extends Authenticatable
     public function sede()
     {
         return $this->belongsTo(Sede::class);
+    }
+
+    // Relación: Incidencias donde el usuario es el cliente
+    public function incidenciasComoCliente()
+    {
+        return $this->hasMany(Incidencia::class, 'client_id');
+    }
+
+    // Relación: Incidencias donde el usuario es el técnico
+    public function incidenciasComoTecnico()
+    {
+        return $this->hasMany(Incidencia::class, 'tecnic_id');
     }
 }

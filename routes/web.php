@@ -32,7 +32,15 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
     Route::get('/admin/incidencias', [AdminIncidenciaController::class, 'index'])->name('admin.incidencias');
     Route::post('/admin/incidencias/{id}/assign', [AdminIncidenciaController::class, 'assignTecnic'])->name('admin.incidencias.assign');
 
-    Route::get('/admin/usuarios', [AdminController::class, 'index']);
+    // Gestión de usuarios
+    Route::get('/admin/usuarios', [UserController::class, 'index'])->name('admin.usuarios.index');
+    Route::get('/admin/usuarios/create', [UserController::class, 'create'])->name('admin.usuarios.create');
+    Route::post('/admin/usuarios', [UserController::class, 'store'])->name('admin.usuarios.store');
+    Route::get('/admin/usuarios/{id}/edit', [UserController::class, 'edit'])->name('admin.usuarios.edit');
+    Route::put('/admin/usuarios/{id}', [UserController::class, 'update'])->name('admin.usuarios.update');
+    Route::delete('/admin/usuarios/{id}', [UserController::class, 'destroy'])->name('admin.usuarios.destroy');
+    Route::get('/admin/usuarios/check-email', [UserController::class, 'checkEmail']);
+    Route::get('/admin/usuarios/check-username', [UserController::class, 'checkUsername']);
 
     // CRUD Categorías
     Route::get('/admin/categorias', [CategoriaController::class, 'index'])->name('admin.categorias.index');
