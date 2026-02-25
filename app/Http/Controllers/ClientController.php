@@ -76,11 +76,13 @@ class ClientController extends Controller
 
     public function crear()
     {
-        // Cargar sedes, categorías para el formulario
-        $sedes = \App\Models\Sede::all();
+        // Cargar categorías para el formulario
         $categorias = \App\Models\Categoria::with('subcategorias')->get();
         
-        return view('client.crear', compact('sedes', 'categorias'));
+        // Obtener la sede del cliente autenticado
+        $sedeCliente = Auth::user()->sede;
+        
+        return view('client.crear', compact('categorias', 'sedeCliente'));
     }
 
     public function store(Request $request)
@@ -89,7 +91,6 @@ class ClientController extends Controller
         $validated = $request->validate([
             'titol' => 'required|string|min:3|max:255',
             'descripcio' => 'required|string|min:10|max:1000',
-            'sede_id' => 'required|exists:sedes,id',
             'categoria_id' => 'required|exists:categorias,id',
             'subcategoria_id' => 'required|exists:subcategorias,id',
         ], [
@@ -102,10 +103,6 @@ class ClientController extends Controller
             'descripcio.required' => 'La descripción es obligatoria',
             'descripcio.min' => 'La descripción debe tener al menos 10 caracteres',
             'descripcio.max' => 'La descripción no puede superar 1000 caracteres',
-            
-            // Mensajes de error para sede
-            'sede_id.required' => 'Debes seleccionar una sede',
-            'sede_id.exists' => 'La sede seleccionada no es válida',
             
             // Mensajes de error para categoría
             'categoria_id.required' => 'Debes seleccionar una categoría',
@@ -120,7 +117,7 @@ class ClientController extends Controller
         $incidencia = new \App\Models\Incidencia();
         $incidencia->titol = $validated['titol'];
         $incidencia->descripcio = $validated['descripcio'];
-        $incidencia->sede_id = $validated['sede_id'];
+        $incidencia->sede_id = Auth::user()->sede_id; // La sede del cliente autenticado
         $incidencia->categoria_id = $validated['categoria_id'];
         $incidencia->subcategoria_id = $validated['subcategoria_id'];
         $incidencia->client_id = Auth::id(); // El cliente autenticado

@@ -71,26 +71,20 @@
 
             <!-- Sede -->
             <div class="form-group">
-                <label for="sede_id">
+                <label for="sede_nombre">
                     <i class="fas fa-building"></i> Sede *
                 </label>
-                <select 
-                    id="sede_id" 
-                    name="sede_id" 
-                    class="form-select @error('sede_id') error @enderror"
+                <input 
+                    type="text" 
+                    id="sede_nombre" 
+                    class="form-input" 
+                    value="{{ $sedeCliente->nom ?? 'Sin sede asignada' }}"
+                    readonly
+                    style="background-color: var(--input-disabled-bg, #1f2937); cursor: not-allowed; opacity: 0.7;"
                 >
-                    <option value="">Selecciona una sede...</option>
-                    @foreach($sedes as $sede)
-                        <option value="{{ $sede->id }}" {{ old('sede_id') == $sede->id ? 'selected' : '' }}>
-                            {{ $sede->nom }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('sede_id')
-                    <span class="error-message">
-                        <i class="fas fa-exclamation-circle"></i> {{ $message }}
-                    </span>
-                @enderror
+                <small style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+                    Esta es tu sede asignada
+                </small>
             </div>
 
             <!-- Categoría -->
