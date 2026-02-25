@@ -109,6 +109,7 @@ window.onload = function () {
 						$errorcomprobacion = true;
 						eEmail.innerText = 'Error al comprobar la disponibilidad del correo electrónico.';
 						disponibilidadEmail.innerText = '';
+						console.log('Error AJAX email:', error);
 					});
 			}
 		}

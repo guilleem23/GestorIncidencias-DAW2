@@ -1,11 +1,16 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AdminIncidenciaController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\IncidenciaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SedeController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\TecnicController;
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -22,16 +27,10 @@ Route::get('/', function () {
 
 // Solo los administradores pueden entrar aquí
 Route::middleware(['auth', 'role:administrador'])->group(function () {
-    Route::get('/admin', [AdminController::class, 'index']);
-    // Dashboard principal
-    Route::get('/admin/dashboard', function () {
-        return view('admin.admin_dashboard_principal');
-    })->name('admin.dashboard');
+    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
-    // Dashboard incidencias
-    Route::get('/admin/incidencias', function () {
-        return view('admin.admin_dashboard_incidencias');
-    })->name('admin.incidencias');
+    Route::get('/admin/incidencias', [AdminIncidenciaController::class, 'index'])->name('admin.incidencias');
+    Route::post('/admin/incidencias/{id}/assign', [AdminIncidenciaController::class, 'assignTecnic'])->name('admin.incidencias.assign');
 
     // Gestión de usuarios
     Route::get('/admin/usuarios', [UserController::class, 'index'])->name('admin.usuarios.index');
@@ -65,11 +64,23 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
 
 // Solo los clientes pueden entrar aquí
 Route::middleware(['auth', 'role:client'])->group(function () {
-    Route::get('/client/mis-incidencias', [IncidenciaController::class, 'index']);
+    Route::get('/client/mis-incidencias', [ClientController::class, 'index'])->name('client.index');
+    Route::get('/client/crear', [ClientController::class, 'crear'])->name('client.crear');
+    Route::post('/client/crear', [ClientController::class, 'store'])->name('client.store');
+    Route::post('/client/tancar/{id}', [ClientController::class, 'tancarIncidencia'])->name('client.tancar');
 });
 
 //Solo los gestores pueden entrar aquí
 Route::middleware(['auth', 'role:gestor'])->group(function () {
-    Route::get('/gestor/incidencies', [IncidenciaController::class, 'indexGestor'])->name('gestor.index');
+    Route::get('/gestor/asignar_incidencias', [IncidenciaController::class, 'indexGestor'])->name('gestor.index');
+    Route::get('/gestor/incidencias', [IncidenciaController::class, 'indexGestorTodas'])->name('gestor.incidencias');
+    Route::get('/gestor/usuarios', [UserController::class, 'indexGestor'])->name('gestor.usuarios');
     Route::post('/gestor/assignar/{id}', [IncidenciaController::class, 'assignarTecnic'])->name('gestor.assignar');
+});
+
+// Solo los técnicos pueden entrar aquí
+Route::middleware(['auth', 'role:tecnic'])->group(function () {
+    Route::get('/tecnic/tasques', [TecnicController::class, 'index'])->name('tecnic.index');
+    Route::post('/tecnic/iniciar/{id}', [TecnicController::class, 'iniciarTreball'])->name('tecnic.iniciar');
+    Route::post('/tecnic/resoldre/{id}', [TecnicController::class, 'marcarResolta'])->name('tecnic.resoldre');
 });

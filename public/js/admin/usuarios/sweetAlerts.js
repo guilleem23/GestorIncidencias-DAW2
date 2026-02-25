@@ -48,10 +48,12 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-document.getElementsByName('boton_eliminar').forEach(btn => {
-    btn.addEventListener('click', function (e) {
+// Delegación de eventos para el botón eliminar (soporta actualización AJAX)
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('[name="boton_eliminar"]');
+    if (btn) {
         e.preventDefault();
-        const form = this.closest('form');
+        const form = btn.closest('form');
         Swal.fire({
             title: '¿Estás seguro?',
             text: '¡Esta acción no se puede deshacer!',
@@ -66,5 +68,5 @@ document.getElementsByName('boton_eliminar').forEach(btn => {
                 form.submit();
             }
         });
-    });
+    }
 });

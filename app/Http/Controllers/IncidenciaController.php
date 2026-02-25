@@ -31,6 +31,19 @@ class IncidenciaController extends Controller
         return view('gestor.index', compact('incidencies', 'tecnics'));
     }
 
+    public function indexGestorTodas()
+    {
+        $user = Auth::user();
+        
+        // Fetch all incidents for this Gestor's sede, regardless of status, ordered by newest first
+        $incidencies = Incidencia::with(['tecnico'])
+            ->where('sede_id', $user->sede_id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('gestor.historial', compact('incidencies'));
+    }
+
     public function assignarTecnic(Request $request, $id)
     {
         $incidencia = Incidencia::findOrFail($id);
@@ -42,4 +55,5 @@ class IncidenciaController extends Controller
 
         return back()->with('success', 'Técnico asignado correctamente.');
     }
+
 }

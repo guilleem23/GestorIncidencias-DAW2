@@ -1,11 +1,23 @@
 <form method="POST" action="{{ route('admin.usuarios.store') }}" class="needs-validation" novalidate>
-        @csrf
-
+    @csrf
+    <div class="usuarios-form-grid">
         <div class="mb-3">
             <label class="form-label" for="nombre-usuario">Nombre completo:</label>
             <input type="text" class="form-control" id="nombre-usuario" name="name" value="{{ old('name') }}">
             <p id="error-nombre" class="text-danger small">
-                @error('name'){{ $message }}@enderror
+                @error('name')
+                    {{ $message }}
+                @enderror
+            </p>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="username">Nombre de usuario:</label>
+            <input type="text" class="form-control" id="username" name="username" value="{{ old('username') }}">
+            <p id="error-username" class="text-danger small">
+                @error('username')
+                    {{ $message }}
+                @enderror
             </p>
         </div>
 
@@ -13,7 +25,9 @@
             <label class="form-label" for="email-usuario">Email Corporativo:</label>
             <input type="email" class="form-control" id="email-usuario" name="email" value="{{ old('email') }}">
             <p id="error-email" class="text-danger small">
-                @error('email'){{ $message }}@enderror
+                @error('email')
+                    {{ $message }}
+                @enderror
             </p>
             <p id="disponibilidad-email" class="text-success small"></p>
         </div>
@@ -22,7 +36,9 @@
             <label class="form-label" for="password-usuario">Contraseña:</label>
             <input type="password" class="form-control" id="password-usuario" name="password">
             <p id="error-password" class="text-danger small">
-                @error('password'){{ $message }}@enderror
+                @error('password')
+                    {{ $message }}
+                @enderror
             </p>
         </div>
 
@@ -43,7 +59,9 @@
                 @endforeach
             </select>
             <p id="error-sede_id" class="text-danger small">
-                @error('sede_id'){{ $message }}@enderror
+                @error('sede_id')
+                    {{ $message }}
+                @enderror
             </p>
         </div>
 
@@ -58,10 +76,11 @@
                 @endforeach
             </select>
             <p id="error-rol" class="text-danger small">
-                @error('rol'){{ $message }}@enderror
+                @error('rol')
+                    {{ $message }}
+                @enderror
             </p>
         </div>
-
-
-        <button type="submit" id="boton-enviar" class="btn btn-primary">Crear Usuario</button>
-    </form>
+    </div>
+    <button type="submit" id="boton-enviar" class="btn btn-primary mt-3">Crear Usuario</button>
+</form>

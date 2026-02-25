@@ -32,5 +32,15 @@ class Incidencia extends Model
     // Relación para saber qué técnico tiene asignada la incidencia
     public function tecnico() {
         return $this->belongsTo(User::class, 'tecnic_id');
-}
+    }
+
+    // Relación con categoría
+    public function categoria() {
+        return $this->belongsTo(Categoria::class);
+    }
+
+    // Relación con subcategoría
+    public function subcategoria() {
+        return $this->belongsTo(Subcategoria::class);
+    }
 }

@@ -13,9 +13,33 @@ class UserController extends Controller
     /**
      * Muestra la lista de usuarios.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $usuarios = User::with('sede')->orderBy('name')->get();
+        $perPage = $request->input('per_page', 10);
+
+        $usuarios = User::with('sede')
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = $request->input('search');
+                $query->where(function ($q) use ($search) {
+                    $q->where('id', 'LIKE', "%{$search}%")
+                      ->orWhere('name', 'LIKE', "%{$search}%")
+                      ->orWhere('username', 'LIKE', "%{$search}%")
+                      ->orWhere('email', 'LIKE', "%{$search}%");
+                });
+            })
+            ->when($request->filled('rol'), function ($query) use ($request) {
+                $query->where('rol', $request->input('rol'));
+            })
+            ->when($request->filled('sede'), function ($query) use ($request) {
+                $query->where('sede_id', $request->input('sede'));
+            })
+            ->when($request->has('activo') && $request->input('activo') !== '', function ($query) use ($request) {
+                $query->where('actiu', $request->input('activo'));
+            })
+            ->orderBy('name')
+            ->paginate($perPage)
+            ->withQueryString();
+
         $sedes = Sede::orderBy('nom')->get();
         $roles = [
             'administrador' => 'Admin',
@@ -23,6 +47,11 @@ class UserController extends Controller
             'gestor' => 'Gestor de Equipo',
             'tecnic' => 'Tecnico de Mantenimiento',
         ];
+
+        if ($request->ajax()) {
+            return view('admin.usuarios.partial.tabla_usuarios', compact('usuarios'));
+        }
+
         return view('admin.usuarios.index', compact('usuarios', 'sedes', 'roles'));
     }
 
@@ -60,12 +89,16 @@ class UserController extends Controller
         $rolesPermitidos = ['administrador', 'client', 'gestor', 'tecnic'];
         $validated = $request->validate([
             'edit_name' => ['required', 'string', 'min:3', 'max:255'],
+            'edit_username' => ['required', 'string', 'min:3', 'max:255', 'unique:usuarios,username,' . $id],
             'edit_email' => ['required', 'email', 'max:255', 'unique:usuarios,email,' . $id],
             'edit_sede_id' => ['required', 'exists:sedes,id'],
             'edit_rol' => ['required', 'in:' . implode(',', $rolesPermitidos)],
         ], [
             'edit_name.required' => 'El nombre es obligatorio.',
             'edit_name.min' => 'El nombre debe tener al menos 3 caracteres.',
+            'edit_username.required' => 'El nombre de usuario es obligatorio.',
+            'edit_username.min' => 'El nombre de usuario debe tener al menos 3 caracteres.',
+            'edit_username.unique' => 'Ese nombre de usuario ya está registrado.',
             'edit_email.required' => 'El email es obligatorio.',
             'edit_email.email' => 'El email debe ser válido.',
             'edit_email.unique' => 'Ese email ya está registrado.',
@@ -74,30 +107,23 @@ class UserController extends Controller
             'edit_rol.required' => 'El rol es obligatorio.',
             'edit_rol.in' => 'El rol seleccionado no es válido.'
         ]);
-        // Guardar los datos editados
-        $usuario = User::findOrFail($id);
-        $usuario->name = $validated['edit_name'];
-        $usuario->email = $validated['edit_email'];
-        $usuario->sede_id = $validated['edit_sede_id'];
-        $usuario->rol = $validated['edit_rol'];
-        if ($request->filled('edit_password')) {
-            $usuario->password = Hash::make($request->input('edit_password'));
-        }
-        $usuario->save();
-        DB::commit();
-        return redirect()->route('admin.usuarios.index')->with('success', 'Usuario actualizado correctamente.');
+
         try {
             DB::beginTransaction();
             $usuario = User::findOrFail($id);
-            $usuario->name = $validated['name'];
-            $usuario->email = $validated['email'];
-            $usuario->sede_id = $validated['sede_id'];
-            $usuario->rol = $validated['rol'];
-            if ($request->filled('password')) {
-                $usuario->password = Hash::make($request->input('password'));
+            $usuario->name = $validated['edit_name'];
+            $usuario->username = $validated['edit_username'];
+            $usuario->email = $validated['edit_email'];
+            $usuario->sede_id = $validated['edit_sede_id'];
+            $usuario->rol = $validated['edit_rol'];
+            
+            if ($request->filled('edit_password')) {
+                $usuario->password = Hash::make($request->input('edit_password'));
             }
+            
             $usuario->save();
             DB::commit();
+
             return redirect()->route('admin.usuarios.index')->with('success', 'Usuario actualizado correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -148,6 +174,7 @@ class UserController extends Controller
         $rolesPermitidos = ['administrador', 'client', 'gestor', 'tecnic'];
         $validated = $request->validate([
             'name' => ['required', 'string', 'min:3', 'max:255'],
+            'username' => ['required', 'string', 'min:3', 'max:255', 'unique:usuarios,username'],
             'email' => ['required', 'email', 'max:255', 'unique:usuarios,email'],
             'password' => ['required', 'string', 'min:6'],
             'sede_id' => ['required', 'exists:sedes,id'],
@@ -155,6 +182,9 @@ class UserController extends Controller
         ], [
             'name.required' => 'El nombre es obligatorio.',
             'name.min' => 'El nombre debe tener al menos 3 caracteres.',
+            'username.required' => 'El nombre de usuario es obligatorio.',
+            'username.min' => 'El nombre de usuario debe tener al menos 3 caracteres.',
+            'username.unique' => 'Ese nombre de usuario ya está registrado.',
             'email.required' => 'El email es obligatorio.',
             'email.email' => 'El email debe ser válido.',
             'email.unique' => 'Ese email ya está registrado.',
@@ -169,6 +199,7 @@ class UserController extends Controller
             DB::beginTransaction();
             User::create([
                 'name' => $validated['name'],
+                'username' => $validated['username'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
                 'sede_id' => $validated['sede_id'],

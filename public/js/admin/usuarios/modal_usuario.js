@@ -20,25 +20,32 @@ function closeAllModals() {
     });
 }
 
-document.getElementsByName('editar_usuario').forEach(btn => {
-    btn.onclick = function () {
+// Delegación de eventos para el botón editar (soporta actualización AJAX)
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('[name="editar_usuario"]');
+    if (btn) {
         closeAllModals();
-        const id = this.value;
+        const id = btn.value;
         fetch(`/admin/usuarios/${id}/edit`)
             .then(res => res.text())
             .then(html => {
                 document.getElementById('modal-editar-content').innerHTML = html;
-                const modal = new bootstrap.Modal(document.getElementById('modalEditarUsuario'));
+                const modalEl = document.getElementById('modalEditarUsuario');
+                const modal = new bootstrap.Modal(modalEl);
                 modal.show();
             })
             .catch(error => {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'No se pudo cargar el formulario de edición.',
-                    icon: 'error',
-                    confirmButtonText: 'Aceptar'
-                });
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'No se pudo cargar el formulario de edición.',
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar'
+                    });
+                } else {
+                    alert('No se pudo cargar el formulario de edición.');
+                }
             });
-    };
+    }
 });
 
