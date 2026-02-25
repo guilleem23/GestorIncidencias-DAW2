@@ -85,19 +85,35 @@ class ClientController extends Controller
 
     public function store(Request $request)
     {
-        // Validar datos
+        // Validar datos del formulario
         $validated = $request->validate([
-            'titol' => 'required|string|max:255',
-            'descripcio' => 'required|string',
+            'titol' => 'required|string|min:3|max:255',
+            'descripcio' => 'required|string|min:10|max:1000',
             'sede_id' => 'required|exists:sedes,id',
             'categoria_id' => 'required|exists:categorias,id',
             'subcategoria_id' => 'required|exists:subcategorias,id',
         ], [
-            'titol.required' => 'El títol és obligatori',
-            'descripcio.required' => 'La descripció és obligatòria',
-            'sede_id.required' => 'Has de seleccionar una seu',
-            'categoria_id.required' => 'Has de seleccionar una categoria',
-            'subcategoria_id.required' => 'Has de seleccionar una subcategoria',
+            // Mensajes de error para título
+            'titol.required' => 'El título es obligatorio',
+            'titol.min' => 'El título debe tener al menos 3 caracteres',
+            'titol.max' => 'El título no puede superar 255 caracteres',
+            
+            // Mensajes de error para descripción
+            'descripcio.required' => 'La descripción es obligatoria',
+            'descripcio.min' => 'La descripción debe tener al menos 10 caracteres',
+            'descripcio.max' => 'La descripción no puede superar 1000 caracteres',
+            
+            // Mensajes de error para sede
+            'sede_id.required' => 'Debes seleccionar una sede',
+            'sede_id.exists' => 'La sede seleccionada no es válida',
+            
+            // Mensajes de error para categoría
+            'categoria_id.required' => 'Debes seleccionar una categoría',
+            'categoria_id.exists' => 'La categoría seleccionada no es válida',
+            
+            // Mensajes de error para subcategoría
+            'subcategoria_id.required' => 'Debes seleccionar una subcategoría',
+            'subcategoria_id.exists' => 'La subcategoría seleccionada no es válida',
         ]);
 
         // Crear la incidencia
