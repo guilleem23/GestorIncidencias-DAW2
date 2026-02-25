@@ -65,13 +65,14 @@
                             <button type="button" class="btn-info-desc"
                                 data-nombre="{{ $sede->nom }}"
                                 data-descripcion="{{ $sede->descripcion ?? 'Sin descripción disponible' }}"
+                                data-gestor="{{ $sede->gestor ? $sede->gestor->name . ' (@' . $sede->gestor->username . ')' : 'Sin gestor asignado' }}"
                                 title="Ver descripción completa">
                                 <i class="fa-solid fa-circle-info"></i>
                             </button>
                         </div>
                         <div class="sede-responsable-info">
                             <i class="fa-solid fa-user-tie"></i> 
-                            {{ $sede->gestor->name ?? 'Sin gestor asignado' }}
+                            {{ $sede->gestor ? '@' . $sede->gestor->username : 'Sin gestor' }}
                         </div>
                     </div>
                     

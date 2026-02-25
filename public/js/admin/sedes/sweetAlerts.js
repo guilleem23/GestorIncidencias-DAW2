@@ -41,10 +41,12 @@ document.querySelectorAll('.btn-info-desc').forEach(btn => {
     btn.addEventListener('click', function () {
         const nombre = this.dataset.nombre;
         const descripcion = this.dataset.descripcion;
+        const gestor = this.dataset.gestor;
 
         Swal.fire({
             title: nombre,
-            text: descripcion,
+            html: '<p style="margin-bottom:0.75rem;">' + descripcion + '</p>' +
+                '<p style="opacity:0.7; font-size:0.9rem;"><i class="fa-solid fa-user-tie"></i> Gestor: <strong>' + gestor + '</strong></p>',
             icon: 'info',
             confirmButtonColor: '#3b82f6',
             confirmButtonText: 'Cerrar',
