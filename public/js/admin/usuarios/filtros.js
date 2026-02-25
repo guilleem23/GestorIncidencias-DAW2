@@ -86,7 +86,6 @@ document.addEventListener('DOMContentLoaded', function () {
             rolFilter.value = '';
             sedeFilter.value = '';
             activoFilter.value = '';
-            // Resetear a 5 por página por defecto
             if (perPageFilter) perPageFilter.value = '5';
 
             fetchUsuarios();

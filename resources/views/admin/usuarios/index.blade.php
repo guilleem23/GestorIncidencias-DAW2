@@ -21,31 +21,31 @@
         </div>
         <div class="usuarios-filters-bar">
             <input type="text" id="search-input" class="usuarios-search-input usuarios-search-input-large"
-                placeholder="Buscar por ID, nombre, username o correo...">
-            <select id="rol-filter" class="usuarios-filter-select">
+                placeholder="Buscar por ID, nombre, username o correo..." oninput="buscarUsuariosInput()">
+            <select id="rol-filter" class="usuarios-filter-select" onchange="aplicarFiltrosCheck()">
                 <option value="">Todos los roles</option>
                 @foreach ($roles as $value => $label)
                     <option value="{{ $value }}">{{ $label }}</option>
                 @endforeach
             </select>
-            <select id="sede-filter" class="usuarios-filter-select usuarios-filter-select-large">
+            <select id="sede-filter" class="usuarios-filter-select usuarios-filter-select-large" onchange="aplicarFiltrosCheck()">
                 <option value="">Todas las sedes</option>
                 @foreach ($sedes as $sede)
                     <option value="{{ $sede->id }}">{{ $sede->nom }}</option>
                 @endforeach
             </select>
-            <select id="activo-filter" class="usuarios-filter-select usuarios-filter-select-large">
+            <select id="activo-filter" class="usuarios-filter-select usuarios-filter-select-large" onchange="aplicarFiltrosCheck()">
                 <option value="">Todos los estados</option>
                 <option value="1">Sólo Activos</option>
                 <option value="0">Sólo Inactivos</option>
             </select>
-            <select id="per-page-filter" class="usuarios-filter-select">
+            <select id="per-page-filter" class="usuarios-filter-select" onchange="aplicarFiltrosCheck()">
                 <option value="5" selected>5 por pág.</option>
                 <option value="10">10 por pág.</option>
                 <option value="25">25 por pág.</option>
                 <option value="50">50 por pág.</option>
             </select>
-            <button type="button" id="btn-limpiar-filtros" class="usuarios-btn-limpiar" title="Limpiar filtros">
+            <button type="button" id="btn-limpiar-filtros" class="usuarios-btn-limpiar" title="Limpiar filtros" onclick="limpiarFiltrosClick()">
                 <i class="fa-solid fa-eraser"></i>
             </button>
         </div>
