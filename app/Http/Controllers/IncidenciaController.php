@@ -19,9 +19,11 @@ class IncidenciaController extends Controller
         $user = Auth::user();
         
         // Ahora sí encontrará la clase Incidencia
-        $incidencies = Incidencia::where('sede_id', $user->sede_id)
-            ->where('estat', 'Sense assignar')
-            ->get();
+        $incidencies = Incidencia::with(['cliente'])
+            ->where('sede_id', $user->sede_id)
+            ->whereNull('tecnic_id')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
         $tecnics = User::where('sede_id', $user->sede_id)
             ->where('rol', 'tecnic')
@@ -32,17 +34,110 @@ class IncidenciaController extends Controller
         return view('gestor.index', compact('incidencies', 'tecnics'));
     }
 
-    public function indexGestorTodas()
+    public function indexGestorTodas(Request $request)
     {
         $user = Auth::user();
         
-        // Fetch all incidents for this Gestor's sede, regardless of status, ordered by newest first
-        $incidencies = Incidencia::with(['tecnico'])
-            ->where('sede_id', $user->sede_id)
-            ->orderBy('created_at', 'desc')
+        $query = Incidencia::with(['tecnico', 'cliente'])
+            ->where('sede_id', $user->sede_id);
+
+        // Text search
+        if ($request->filled('buscar')) {
+            $buscar = $request->buscar;
+            $query->where(function($q) use ($buscar) {
+                $q->where('titol', 'like', "%{$buscar}%")
+                  ->orWhere('descripcio', 'like', "%{$buscar}%")
+                  ->orWhereHas('cliente', function($q2) use ($buscar) {
+                      $q2->where('name', 'like', "%{$buscar}%");
+                  });
+            });
+        }
+
+        // Filters
+        if ($request->filled('estat')) {
+            $query->where('estat', $request->estat);
+        }
+
+        if ($request->filled('prioritat')) {
+            $query->where('prioritat', $request->prioritat);
+        }
+
+        if ($request->filled('tecnic_id')) {
+            $query->where('tecnic_id', $request->tecnic_id);
+        }
+
+        // Sorting
+        $orden = $request->get('orden', 'desc'); // default desc
+        $query->orderBy('created_at', $orden);
+
+        $incidencies = $query->paginate(10)->withQueryString();
+
+        $tecnicos = User::where('sede_id', $user->sede_id)
+            ->where('rol', 'tecnic')
+            ->where('actiu', true)
+            ->orderBy('name')
             ->get();
 
-        return view('gestor.historial', compact('incidencies'));
+        if ($request->ajax()) {
+            return view('gestor.partials.incidencias_table', compact('incidencies'))->render();
+        }
+
+        return view('gestor.historial', compact('incidencies', 'tecnicos'));
+    }
+
+    public function showGestor($id)
+    {
+        $user = Auth::user();
+        $incidencia = Incidencia::with(['tecnico', 'cliente', 'categoria', 'subcategoria'])->findOrFail($id);
+
+        if ($incidencia->sede_id !== $user->sede_id) {
+            abort(403, 'No tienes permiso para ver esta incidencia.');
+        }
+
+        return view('gestor.ver_incidencia', compact('incidencia'));
+    }
+
+    public function editGestor($id)
+    {
+        $user = Auth::user();
+        $incidencia = Incidencia::with(['tecnico', 'cliente', 'categoria', 'subcategoria'])->findOrFail($id);
+
+        if ($incidencia->sede_id !== $user->sede_id) {
+            abort(403, 'No tienes permiso para editar esta incidencia.');
+        }
+
+        $tecnicos = User::where('sede_id', $user->sede_id)
+            ->where('rol', 'tecnic')
+            ->where('actiu', true)
+            ->get();
+            
+        $categorias = \App\Models\Categoria::with('subcategorias')->get();
+
+        return view('gestor.editar_incidencia', compact('incidencia', 'tecnicos', 'categorias'));
+    }
+
+    public function updateGestor(Request $request, $id)
+    {
+        $user = Auth::user();
+        $incidencia = Incidencia::findOrFail($id);
+
+        if ($incidencia->sede_id !== $user->sede_id) {
+            abort(403, 'No tienes permiso para actualizar esta incidencia.');
+        }
+
+        $validated = $request->validate([
+            'titol' => 'required|string|max:255',
+            'descripcio' => 'required|string',
+            'categoria_id' => 'required|exists:categorias,id',
+            'subcategoria_id' => 'required|exists:subcategorias,id',
+            'tecnic_id' => 'nullable|exists:usuarios,id',
+            'estat' => 'required|in:Sense assignar,Assignada,En treball,Resolta,Tancada',
+            'prioritat' => 'required|in:alta,mitjana,baixa',
+        ]);
+
+        $incidencia->update($validated);
+
+        return redirect()->route('gestor.incidencias')->with('success', 'Incidencia actualizada correctamente.');
     }
 
     public function assignarTecnic(Request $request, $id)

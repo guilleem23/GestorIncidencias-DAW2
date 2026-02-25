@@ -3,7 +3,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 }
 
 .gestor-header h1 {
@@ -12,10 +12,196 @@
     font-weight: 700;
 }
 
+/* Filters */
+.filters-container {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1.25rem;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.filters-grid {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    flex-wrap: nowrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.filter-group.filter-actions {
+    flex: 0 0 auto;
+    min-width: auto;
+    justify-content: flex-end;
+}
+
+.filter-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.filter-select {
+    background-color: rgba(15, 23, 42, 0.5);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    color: var(--text-primary);
+    padding: 0.6rem 1rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+    cursor: pointer;
+    width: 100%;
+}
+
+.filter-select:focus {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.filter-select option {
+    background-color: #1e293b;
+    color: var(--text-primary);
+}
+
+.btn-clear-filters {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    color: var(--text-secondary);
+    padding: 0.6rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.btn-clear-filters:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+/* Search Input */
+.filter-search {
+    flex: 2;
+}
+
+.filter-input {
+    background-color: rgba(15, 23, 42, 0.5);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    color: var(--text-primary);
+    padding: 0.6rem 1rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+}
+
+.filter-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
+.filter-input:focus {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Empty State */
+.empty-state-box {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.empty-state-box i {
+    opacity: 0.4;
+}
+
+.empty-state-box p {
+    font-size: 1.05rem;
+    margin: 0;
+}
+
+/* Date cell */
+.date-cell {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+/* Pagination */
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 1.5rem 0 0.5rem;
+}
+
+.pagination-wrapper nav p {
+    color: var(--text-secondary) !important;
+}
+
+.pagination-wrapper .pagination {
+    gap: 0.25rem;
+}
+
+.pagination-wrapper .page-link {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: 0.5rem !important;
+    padding: 0.5rem 0.85rem;
+    transition: all 0.2s;
+}
+
+.pagination-wrapper .page-link:hover {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: var(--neon-blue);
+    color: var(--neon-blue);
+}
+
+.pagination-wrapper .page-item.active .page-link {
+    background-color: var(--neon-blue);
+    border-color: var(--neon-blue);
+    color: white;
+}
+
+.pagination-wrapper .page-item.disabled .page-link {
+    background-color: transparent;
+    border-color: var(--border-color);
+    color: rgba(156, 163, 175, 0.4);
+}
+
+.pagination-wrapper svg {
+    width: 1rem;
+    height: 1rem;
+    fill: currentColor;
+}
+
 .table-container {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
+    border-radius: 1.25rem;
+    /* More rounded */
     padding: 1.5rem;
     overflow-x: auto;
 }
@@ -95,7 +281,7 @@
 /* Priority Badges */
 .priority-badge {
     padding: 0.25rem 0.6rem;
-    border-radius: var(--radius-sm);
+    border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 600;
     display: inline-flex;
@@ -133,4 +319,79 @@
 .info-sub {
     font-size: 0.85rem;
     color: var(--text-secondary);
+}
+
+/* Action Buttons */
+.actions-cell {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    /* Fully round */
+    text-decoration: none;
+    transition: transform 0.2s, color 0.2s, background-color 0.2s;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    font-size: 1.1rem;
+}
+
+.btn-view {
+    color: var(--neon-blue);
+}
+
+.btn-view:hover {
+    background-color: rgba(59, 130, 246, 0.1);
+    transform: scale(1.1);
+}
+
+.btn-edit {
+    color: #f59e0b;
+    /* Admin usually uses orange/yellow for edit or delete */
+}
+
+.btn-edit:hover {
+    background-color: rgba(245, 158, 11, 0.1);
+    transform: scale(1.1);
+}
+
+/* Assign Form */
+.assign-form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.assign-select {
+    min-width: 160px;
+    max-width: 200px;
+    padding: 0.45rem 0.75rem !important;
+    font-size: 0.85rem !important;
+}
+
+.btn-assign {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.btn-assign:hover {
+    background-color: rgba(16, 185, 129, 0.2);
+    transform: scale(1.1);
 }
