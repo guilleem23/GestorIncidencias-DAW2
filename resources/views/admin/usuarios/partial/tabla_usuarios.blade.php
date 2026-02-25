@@ -31,7 +31,7 @@
                         <button type="button" class="btn btn-secondary btn-editar-usuario"
                             name="editar_usuario" value="{{ $usuario->id }}"><i
                                 class="fa-solid fa-pen-to-square"></i></button>
-                        @if ($usuario->rol !== 'administrador')
+                        @if ($usuario->rol !== 'administrador' && $usuario->actiu)
                             <form action="{{ route('admin.usuarios.destroy', $usuario->id) }}" method="POST"
                                 style="display:inline">
                                 @csrf

@@ -40,14 +40,17 @@
                 <option value="0">Sólo Inactivos</option>
             </select>
             <select id="per-page-filter" class="usuarios-filter-select">
-                <option value="5">5 por pág.</option>
-                <option value="10" selected>10 por pág.</option>
+                <option value="5" selected>5 por pág.</option>
+                <option value="10">10 por pág.</option>
                 <option value="25">25 por pág.</option>
                 <option value="50">50 por pág.</option>
             </select>
+            <button type="button" id="btn-limpiar-filtros" class="usuarios-btn-limpiar" title="Limpiar filtros">
+                <i class="fa-solid fa-eraser"></i>
+            </button>
         </div>
         @if (session('success'))
-            <div class="alert alert-success" style="max-width: 900px; margin: 1rem auto;">
+            <div class="alert alert-success mt-1 mb-2">
                 {{ session('success') }}
             </div>
         @endif
@@ -62,7 +65,7 @@
             </script>
         @endif
         @if ($hayErroresEditar)
-            <div class="alert alert-danger" style="max-width:900px; margin:1rem auto;">
+            <div class="alert alert-danger mt-1 mb-2">
                 <strong>Error al editar usuario:</strong>
                 <ul style="margin-bottom:0;">
                     @if ($errors->has('error_editar'))
@@ -77,7 +80,7 @@
             </div>
         @endif
         @if ($errors->has('error_eliminar'))
-            <div class="alert alert-danger" style="max-width:900px; margin:1rem auto;">
+            <div class="alert alert-danger mt-1 mb-2">
                 <strong>Error al eliminar usuario</strong>
                 <p style="margin-bottom:0;">{{ $errors->first('error_eliminar') }}</p>
             </div>
@@ -123,6 +126,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/admin/usuarios/sweetAlerts.js') }}"></script>
     <script src="{{ asset('js/admin/usuarios/modal_usuario.js') }}"></script>
-    <script src="{{ asset('js/admin/usuarios/validacion_crear_usuario.js') }}"></script>
+    <script src="{{ asset('js/admin/usuarios/validar_crear_usuario.js') }}"></script>
+    <script src="{{ asset('js/admin/usuarios/validar_editar_usuario.js') }}"></script>
     <script src="{{ asset('js/admin/usuarios/filtros.js') }}"></script>
 @endsection

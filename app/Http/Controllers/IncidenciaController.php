@@ -26,6 +26,7 @@ class IncidenciaController extends Controller
         $tecnics = User::where('sede_id', $user->sede_id)
             ->where('rol', 'tecnic')
             ->where('actiu', true)
+            ->orderBy('name')
             ->get();
 
         return view('gestor.index', compact('incidencies', 'tecnics'));

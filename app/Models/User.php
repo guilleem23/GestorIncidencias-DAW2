@@ -26,4 +26,16 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Sede::class);
     }
+
+    // Relación: Incidencias donde el usuario es el cliente
+    public function incidenciasComoCliente()
+    {
+        return $this->hasMany(Incidencia::class, 'client_id');
+    }
+
+    // Relación: Incidencias donde el usuario es el técnico
+    public function incidenciasComoTecnico()
+    {
+        return $this->hasMany(Incidencia::class, 'tecnic_id');
+    }
 }

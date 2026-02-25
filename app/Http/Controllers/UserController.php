@@ -15,28 +15,38 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
+        $perPage = $request->input('per_page', 5);
 
-        $usuarios = User::with('sede')
-            ->when($request->filled('search'), function ($query) use ($request) {
-                $search = $request->input('search');
-                $query->where(function ($q) use ($search) {
-                    $q->where('id', 'LIKE', "%{$search}%")
-                      ->orWhere('name', 'LIKE', "%{$search}%")
-                      ->orWhere('username', 'LIKE', "%{$search}%")
-                      ->orWhere('email', 'LIKE', "%{$search}%");
-                });
-            })
-            ->when($request->filled('rol'), function ($query) use ($request) {
-                $query->where('rol', $request->input('rol'));
-            })
-            ->when($request->filled('sede'), function ($query) use ($request) {
-                $query->where('sede_id', $request->input('sede'));
-            })
-            ->when($request->has('activo') && $request->input('activo') !== '', function ($query) use ($request) {
-                $query->where('actiu', $request->input('activo'));
-            })
-            ->orderBy('name')
+        $query = User::with('sede');
+
+        // Búsqueda
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'LIKE', "%{$search}%")
+                  ->orWhere('name', 'LIKE', "%{$search}%")
+                  ->orWhere('username', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Filtro por Rol
+        if ($request->filled('rol')) {
+            $query->where('rol', $request->input('rol'));
+        }
+
+        // Filtro por Sede
+        if ($request->filled('sede')) {
+            $query->where('sede_id', $request->input('sede'));
+        }
+
+        // Filtro por Estado (Activo/Inactivo)
+        if ($request->has('activo') && $request->input('activo') !== '') {
+            $query->where('actiu', $request->input('activo'));
+        }
+
+        // Ordenar siempre por nombre alfabéticamente (limpiando cualquier orden previo)
+        $usuarios = $query->reorder('name', 'asc')
             ->paginate($perPage)
             ->withQueryString();
 
@@ -61,7 +71,27 @@ class UserController extends Controller
     public function checkEmail(Request $request)
     {
         $email = $request->query('email');
-        $disponible = !User::where('email', $email)->exists();
+        $id = $request->query('exclude_id');
+        $query = User::where('email', $email);
+        if ($id) {
+            $query->where('id', '!=', $id);
+        }
+        $disponible = !$query->exists();
+        return response()->json(['disponible' => $disponible]);
+    }
+
+    /**
+     * Comprobar disponibilidad de nombre de usuario para AJAX
+     */
+    public function checkUsername(Request $request)
+    {
+        $username = $request->query('username');
+        $id = $request->query('exclude_id');
+        $query = User::where('username', $username);
+        if ($id) {
+            $query->where('id', '!=', $id);
+        }
+        $disponible = !$query->exists();
         return response()->json(['disponible' => $disponible]);
     }
 
@@ -93,6 +123,7 @@ class UserController extends Controller
             'edit_email' => ['required', 'email', 'max:255', 'unique:usuarios,email,' . $id],
             'edit_sede_id' => ['required', 'exists:sedes,id'],
             'edit_rol' => ['required', 'in:' . implode(',', $rolesPermitidos)],
+            'edit_activo' => ['required', 'boolean'],
         ], [
             'edit_name.required' => 'El nombre es obligatorio.',
             'edit_name.min' => 'El nombre debe tener al menos 3 caracteres.',
@@ -105,7 +136,9 @@ class UserController extends Controller
             'edit_sede_id.required' => 'La sede es obligatoria.',
             'edit_sede_id.exists' => 'La sede seleccionada no existe.',
             'edit_rol.required' => 'El rol es obligatorio.',
-            'edit_rol.in' => 'El rol seleccionado no es válido.'
+            'edit_rol.in' => 'El rol seleccionado no es válido.',
+            'edit_activo.required' => 'El estado es obligatorio.',
+            'edit_activo.boolean' => 'El estado seleccionado no es válido.'
         ]);
 
         try {
@@ -116,6 +149,7 @@ class UserController extends Controller
             $usuario->email = $validated['edit_email'];
             $usuario->sede_id = $validated['edit_sede_id'];
             $usuario->rol = $validated['edit_rol'];
+            $usuario->actiu = $validated['edit_activo'];
             
             if ($request->filled('edit_password')) {
                 $usuario->password = Hash::make($request->input('edit_password'));
@@ -147,6 +181,19 @@ class UserController extends Controller
         }
         try {
             DB::beginTransaction();
+            
+            // Verificar si tiene incidencias como cliente o técnico
+            $tieneIncidencias = $usuario->incidenciasComoCliente()->exists() || $usuario->incidenciasComoTecnico()->exists();
+
+            if ($tieneIncidencias) {
+                // Si tiene historial, solo lo desactivamos para no romper la integridad referencial
+                $usuario->actiu = false;
+                $usuario->save();
+                DB::commit();
+                return redirect()->route('admin.usuarios.index')->with('success', 'El usuario tiene incidencias asociadas, por lo que se ha desactivado en lugar de eliminarse para conservar el historial.');
+            }
+
+            // Si no tiene historial, eliminación física
             $usuario->delete();
             DB::commit();
             return redirect()->route('admin.usuarios.index')->with('success', 'Usuario eliminado correctamente.');
@@ -216,5 +263,19 @@ class UserController extends Controller
                 ->route('admin.usuarios.index')
                 ->withErrors(['error' => 'Error al crear el usuario: ' . $e->getMessage()]);
         }
+    }
+
+    /**
+     * Muestra la lista de técnicos para el gestor de la sede.
+     */
+    public function indexGestor()
+    {
+        $user = auth()->user();
+        $tecnicos = User::where('sede_id', $user->sede_id)
+            ->where('rol', 'tecnic')
+            ->orderBy('name')
+            ->get();
+
+        return view('gestor.usuarios', compact('tecnicos'));
     }
 }

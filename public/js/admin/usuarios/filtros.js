@@ -78,6 +78,21 @@ document.addEventListener('DOMContentLoaded', function () {
         filter.addEventListener('change', () => fetchUsuarios());
     });
 
+    // Botón de limpiar filtros
+    const btnLimpiar = document.getElementById('btn-limpiar-filtros');
+    if (btnLimpiar) {
+        btnLimpiar.addEventListener('click', function () {
+            searchInput.value = '';
+            rolFilter.value = '';
+            sedeFilter.value = '';
+            activoFilter.value = '';
+            // Resetear a 5 por página por defecto
+            if (perPageFilter) perPageFilter.value = '5';
+
+            fetchUsuarios();
+        });
+    }
+
     // Delegación de eventos para la paginación
     tableContainer.addEventListener('click', function (e) {
         const link = e.target.closest('.pagination a');

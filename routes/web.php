@@ -40,6 +40,7 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
     Route::put('/admin/usuarios/{id}', [UserController::class, 'update'])->name('admin.usuarios.update');
     Route::delete('/admin/usuarios/{id}', [UserController::class, 'destroy'])->name('admin.usuarios.destroy');
     Route::get('/admin/usuarios/check-email', [UserController::class, 'checkEmail']);
+    Route::get('/admin/usuarios/check-username', [UserController::class, 'checkUsername']);
 
     // CRUD Categorías
     Route::get('/admin/categorias', [CategoriaController::class, 'index'])->name('admin.categorias.index');
