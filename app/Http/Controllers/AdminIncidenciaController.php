@@ -58,7 +58,7 @@ class AdminIncidenciaController extends Controller
      */
     public function show($id)
     {
-        $incidencia = Incidencia::with(['cliente', 'sede', 'tecnico', 'categoria', 'subcategoria'])->findOrFail($id);
+        $incidencia = Incidencia::with(['cliente', 'sede', 'tecnico', 'categoria', 'subcategoria', 'comentarios.usuario'])->findOrFail($id);
         return view('admin.ver_incidencia', compact('incidencia'));
     }
 

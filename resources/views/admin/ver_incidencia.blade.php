@@ -114,6 +114,29 @@
                         {!! nl2br(e($incidencia->descripcio)) !!}
                     </div>
                 </div>
+
+                <div class="description-block" style="margin-top: 1.5rem;">
+                    <span class="info-label">Comentarios</span>
+                    @if($incidencia->comentarios && $incidencia->comentarios->count())
+                        <div style="margin-top: 0.75rem; display:flex; flex-direction:column; gap:0.75rem;">
+                            @foreach($incidencia->comentarios as $comentario)
+                                <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.85rem 1rem; background: rgba(15, 23, 42, 0.25);">
+                                    <div style="display:flex; justify-content:space-between; gap: 1rem; align-items: baseline;">
+                                        <span style="font-weight: 600;">{{ $comentario->usuario?->name ?? 'Usuario' }}</span>
+                                        <span style="color: var(--text-secondary); font-size: 0.85rem; white-space: nowrap;">{{ $comentario->created_at?->format('d/m/Y H:i') }}</span>
+                                    </div>
+                                    <div style="margin-top: 0.4rem; color: var(--text-secondary);">
+                                        {!! nl2br(e($comentario->missatge)) !!}
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div style="margin-top: 0.5rem; color: var(--text-secondary);">
+                            Sin comentarios.
+                        </div>
+                    @endif
+                </div>
                 
                 <div class="form-actions" style="margin-top: 2rem;">
                     <a href="{{ route('admin.incidencias.edit', $incidencia->id) }}" class="btn-primary">
