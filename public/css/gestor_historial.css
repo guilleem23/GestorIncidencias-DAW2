@@ -232,8 +232,18 @@
     border-bottom: none;
 }
 
-.historial-table tbody tr:hover td {
-    background-color: rgba(255, 255, 255, 0.02);
+.historial-table tbody tr:hover {
+    background-color: var(--card-bg-hover, #2d3748);
+}
+
+.historial-table tbody tr.row-closed {
+    opacity: 0.6;
+    background-color: rgba(31, 41, 55, 0.4);
+}
+
+.historial-table tbody tr.row-closed:hover {
+    opacity: 0.8;
+    background-color: rgba(31, 41, 55, 0.7);
 }
 
 .status-badge {
@@ -360,6 +370,30 @@
 .btn-edit:hover {
     background-color: rgba(245, 158, 11, 0.1);
     transform: scale(1.1);
+}
+
+.btn-delete {
+    color: #ef4444;
+}
+
+.btn-delete:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    transform: scale(1.1);
+}
+
+/* Username tag */
+.username-tag {
+    color: var(--neon-blue, #3b82f6);
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+/* Truncated cell */
+.cell-truncate {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* Assign Form */
