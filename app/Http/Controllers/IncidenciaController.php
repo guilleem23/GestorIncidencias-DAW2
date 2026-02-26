@@ -45,7 +45,8 @@ class IncidenciaController extends Controller
         if ($request->filled('buscar')) {
             $buscar = $request->buscar;
             $query->where(function($q) use ($buscar) {
-                $q->where('titol', 'like', "%{$buscar}%")
+                $q->where('id', $buscar)
+                  ->orWhere('titol', 'like', "%{$buscar}%")
                   ->orWhere('descripcio', 'like', "%{$buscar}%")
                   ->orWhereHas('cliente', function($q2) use ($buscar) {
                       $q2->where('name', 'like', "%{$buscar}%");

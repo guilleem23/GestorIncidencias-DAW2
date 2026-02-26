@@ -20,7 +20,8 @@ class AdminIncidenciaController extends Controller
         if ($request->filled('buscar')) {
             $buscar = $request->buscar;
             $query->where(function ($q) use ($buscar) {
-                $q->where('titol', 'LIKE', "%{$buscar}%")
+                $q->where('id', $buscar)
+                  ->orWhere('titol', 'LIKE', "%{$buscar}%")
                   ->orWhere('descripcio', 'LIKE', "%{$buscar}%")
                   ->orWhereHas('cliente', fn($q2) => $q2->where('name', 'LIKE', "%{$buscar}%"));
             });
