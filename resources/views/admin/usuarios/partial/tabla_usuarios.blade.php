@@ -68,10 +68,7 @@
 
         @if($usuarios->hasPages())
             <div class="pagination-wrapper" style="margin-top: 2rem;">
-                {{ $usuarios->links() }}
-            </div>
-            <div style="text-align: center; color: var(--text-secondary); margin-top: 1rem; font-size: 0.9rem;">
-                Mostrando {{ $usuarios->firstItem() }} a {{ $usuarios->lastItem() }} de {{ $usuarios->total() }} usuarios
+                {{ $usuarios->links('pagination::bootstrap-5') }}
             </div>
         @endif
     @endif

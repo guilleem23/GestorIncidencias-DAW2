@@ -44,6 +44,10 @@ class AdminIncidenciaController extends Controller
 
         $incidencias = $query->paginate(10)->withQueryString();
 
+        if ($request->ajax()) {
+            return view('admin.partials.tabla_incidencias', compact('incidencias'));
+        }
+
         $sedes = \App\Models\Sede::orderBy('nom')->get();
 
         return view('admin.admin_dashboard_incidencias', compact('incidencias', 'sedes'));

@@ -12,9 +12,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const filterTecnic = document.getElementById('filter-tecnic');
     const filterOrden = document.getElementById('filter-orden');
     const btnClear = document.getElementById('btn-clear-filters');
+    const tableContainer = document.getElementById('incidencias-table-wrapper');
     let searchTimeout = null;
 
-    function applyFilters() {
+    function applyFilters(url = null) {
         const params = new URLSearchParams();
 
         if (filterBuscar && filterBuscar.value.trim()) {
@@ -33,28 +34,76 @@ document.addEventListener('DOMContentLoaded', function () {
             params.set('orden', filterOrden.value);
         }
 
-        // Recarga la página con los filtros (page=1 implícito al no incluirlo)
-        window.location.href = '/gestor/incidencias?' + params.toString();
+        let finalUrl = url || '/gestor/incidencias?' + params.toString();
+
+        if (url) {
+            const tempUrl = new URL(url, window.location.origin);
+            for (const [key, value] of params.entries()) {
+                tempUrl.searchParams.set(key, value);
+            }
+            finalUrl = tempUrl.toString();
+        }
+
+        if (tableContainer) {
+            tableContainer.style.opacity = '0.5';
+
+            fetch(finalUrl, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.text())
+                .then(html => {
+                    tableContainer.innerHTML = html;
+                    tableContainer.style.opacity = '1';
+                    if (url) {
+                        tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al filtrar incidencias:', error);
+                    tableContainer.style.opacity = '1';
+                });
+        } else {
+            // Fallback just in case
+            window.location.href = finalUrl;
+        }
     }
 
-    // Select filters: reload page on change
-    if (filterEstat) filterEstat.addEventListener('change', applyFilters);
-    if (filterPrioritat) filterPrioritat.addEventListener('change', applyFilters);
-    if (filterTecnic) filterTecnic.addEventListener('change', applyFilters);
-    if (filterOrden) filterOrden.addEventListener('change', applyFilters);
+    // Select filters: reload table on change
+    if (filterEstat) filterEstat.addEventListener('change', () => applyFilters());
+    if (filterPrioritat) filterPrioritat.addEventListener('change', () => applyFilters());
+    if (filterTecnic) filterTecnic.addEventListener('change', () => applyFilters());
+    if (filterOrden) filterOrden.addEventListener('change', () => applyFilters());
 
-    // Search input: debounce 500ms then reload
+    // Search input: debounce 500ms then reload table
     if (filterBuscar) {
         filterBuscar.addEventListener('input', function () {
             clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(applyFilters, 500);
+            searchTimeout = setTimeout(() => applyFilters(), 500);
         });
     }
 
     // Clear all filters
     if (btnClear) {
         btnClear.addEventListener('click', function () {
-            window.location.href = '/gestor/incidencias';
+            if (filterBuscar) filterBuscar.value = '';
+            if (filterEstat) filterEstat.value = '';
+            if (filterPrioritat) filterPrioritat.value = '';
+            if (filterTecnic) filterTecnic.value = '';
+            if (filterOrden) filterOrden.value = 'desc';
+            applyFilters();
+        });
+    }
+
+    // Delegación de eventos para la paginación (AJAX)
+    if (tableContainer) {
+        tableContainer.addEventListener('click', function (e) {
+            const link = e.target.closest('.pagination a');
+            if (link) {
+                e.preventDefault();
+                applyFilters(link.href);
+            }
         });
     }
 
