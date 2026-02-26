@@ -68,6 +68,7 @@ class IncidenciaController extends Controller
 
         // Sorting
         $orden = $request->get('orden', 'desc'); // default desc
+        $orden = in_array($orden, ['asc', 'desc'], true) ? $orden : 'desc';
         $query->orderBy('created_at', $orden);
 
         $incidencies = $query->paginate(10)->withQueryString();
@@ -142,11 +143,38 @@ class IncidenciaController extends Controller
 
     public function assignarTecnic(Request $request, $id)
     {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'tecnic_id' => ['required', 'integer', 'exists:usuarios,id'],
+        ]);
+
         $incidencia = Incidencia::findOrFail($id);
-        
+
+        if ((int) $incidencia->sede_id !== (int) $user->sede_id) {
+            abort(403, 'No tienes permiso para modificar esta incidencia.');
+        }
+
+        $tecnic = User::where('id', $validated['tecnic_id'])
+            ->where('rol', 'tecnic')
+            ->where('actiu', true)
+            ->first();
+
+        if (!$tecnic) {
+            return back()->withErrors([
+                'tecnic_id' => 'El técnico seleccionado no es válido o no está activo.',
+            ]);
+        }
+
+        if ((int) $tecnic->sede_id !== (int) $incidencia->sede_id) {
+            return back()->withErrors([
+                'tecnic_id' => 'No puedes asignar un técnico de otra sede a esta incidencia.',
+            ]);
+        }
+
         $incidencia->update([
-            'tecnic_id' => $request->tecnic_id,
-            'estat' => 'Assignada'
+            'tecnic_id' => $tecnic->id,
+            'estat' => 'Assignada',
         ]);
 
         return back()->with('success', 'Técnico asignado correctamente.');

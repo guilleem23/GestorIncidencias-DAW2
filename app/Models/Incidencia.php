@@ -11,6 +11,7 @@ class Incidencia extends Model
         'titol', 
         'descripcio', 
         'estat', 
+        'prioritat',
         'sede_id', 
         'categoria_id',
         'subcategoria_id', 

@@ -39,6 +39,7 @@ class AdminIncidenciaController extends Controller
 
         // Sorting
         $orden = $request->get('orden', 'desc');
+        $orden = in_array($orden, ['asc', 'desc'], true) ? $orden : 'desc';
         $query->orderBy('created_at', $orden);
 
         $incidencias = $query->paginate(10)->withQueryString();
