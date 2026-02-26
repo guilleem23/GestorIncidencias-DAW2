@@ -50,6 +50,15 @@ class CategoriaSubcategoriaSeeder extends Seeder
                     ['nom' => 'Mobiliario', 'descripcion' => 'Sillas rotas, mesas inestables, armarios atascados o pizarras defectuosas.'],
                     ['nom' => 'Limpieza y Suministros', 'descripcion' => 'Falta de material en baños, salas de reuniones sucias o papeleras llenas.']
                 ]
+            ],
+            [
+                'nom' => 'Otros',
+                'descripcion' => 'Incidencias que no encajan en las categorías anteriores, como sugerencias o consultas generales.',
+                'subcategorias' => [
+                    ['nom' => 'Sugerencias de Mejora', 'descripcion' => 'Propuestas para optimizar procesos, herramientas o el entorno de trabajo.'],
+                    ['nom' => 'Consultas Generales', 'descripcion' => 'Dudas sobre políticas de TI, uso de recursos o procedimientos internos.'],
+                    ['nom' => 'Incidencias No Clasificadas', 'descripcion' => 'Problemas que no encajan en ninguna categoría específica.']
+                ]
             ]
         ];
 
