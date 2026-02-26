@@ -44,6 +44,11 @@
                         </td>
                         <td>
                             <div class="actions-cell">
+                                @if ($usuario->rol === 'client')
+                                    <a href="{{ route('admin.usuarios.show', $usuario->id) }}" class="btn-icon btn-edit" title="Ver Detalle">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </a>
+                                @endif
                                 <button type="button" class="btn-icon btn-edit btn-editar-usuario"
                                     name="editar_usuario" title="Editar Usuario" value="{{ $usuario->id }}">
                                     <i class="fa-solid fa-pen"></i>
