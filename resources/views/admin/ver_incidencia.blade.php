@@ -23,6 +23,10 @@
                     <h2 class="incidencia-title-large">{{ $incidencia->titol }}</h2>
                     <div class="incidencia-meta-top">
                         <div class="meta-item">
+                            <i class="fa-solid fa-hashtag"></i>
+                            ID: {{ $incidencia->id }}
+                        </div>
+                        <div class="meta-item">
                             <i class="fa-solid fa-calendar"></i>
                             {{ $incidencia->created_at->format('d/m/Y H:i') }}
                         </div>

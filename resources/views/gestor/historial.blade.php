@@ -17,7 +17,7 @@
         <div class="filters-grid">
             <div class="filter-group filter-search">
                 <label class="filter-label"><i class="fa-solid fa-magnifying-glass"></i> Buscar</label>
-                <input type="text" id="filter-buscar" class="filter-input" placeholder="Título, descripción, cliente..." value="{{ request('buscar') }}">
+                <input type="text" id="filter-buscar" class="filter-input" placeholder="ID, Título, descripción, cliente..." value="{{ request('buscar') }}">
             </div>
             <div class="filter-group">
                 <label class="filter-label"><i class="fa-solid fa-filter"></i> Estado</label>
