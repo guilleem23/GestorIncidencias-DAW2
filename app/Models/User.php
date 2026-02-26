@@ -38,4 +38,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Incidencia::class, 'tecnic_id');
     }
+
+    public function comentarios()
+    {
+        return $this->hasMany(Comentario::class, 'usuario_id');
+    }
 }

@@ -44,4 +44,9 @@ class Incidencia extends Model
     public function subcategoria() {
         return $this->belongsTo(Subcategoria::class);
     }
+
+    public function comentarios()
+    {
+        return $this->hasMany(Comentario::class, 'incidencia_id')->orderBy('created_at', 'asc');
+    }
 }

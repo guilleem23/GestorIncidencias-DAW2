@@ -89,7 +89,7 @@ class IncidenciaController extends Controller
     public function showGestor($id)
     {
         $user = Auth::user();
-        $incidencia = Incidencia::with(['tecnico', 'cliente', 'categoria', 'subcategoria'])->findOrFail($id);
+        $incidencia = Incidencia::with(['tecnico', 'cliente', 'categoria', 'subcategoria', 'comentarios.usuario'])->findOrFail($id);
 
         if ($incidencia->sede_id !== $user->sede_id) {
             abort(403, 'No tienes permiso para ver esta incidencia.');
@@ -101,7 +101,7 @@ class IncidenciaController extends Controller
     public function editGestor($id)
     {
         $user = Auth::user();
-        $incidencia = Incidencia::with(['tecnico', 'cliente', 'categoria', 'subcategoria'])->findOrFail($id);
+        $incidencia = Incidencia::with(['tecnico', 'cliente', 'categoria', 'subcategoria', 'comentarios.usuario'])->findOrFail($id);
 
         if ($incidencia->sede_id !== $user->sede_id) {
             abort(403, 'No tienes permiso para editar esta incidencia.');

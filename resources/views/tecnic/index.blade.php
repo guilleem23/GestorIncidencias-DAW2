@@ -93,6 +93,37 @@
                     {{ $incidencia->descripcio }}
                 </div>
 
+                <div class="incidencia-description" style="margin-top: 1rem;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap: 1rem;">
+                        <strong style="font-size: 0.95rem;">Comentarios del cliente</strong>
+                        @if($incidencia->comentarios && $incidencia->comentarios->count())
+                            <span style="color: var(--texto-secundario); font-size: 0.85rem;">
+                                {{ $incidencia->comentarios->count() }}
+                            </span>
+                        @endif
+                    </div>
+
+                    @if($incidencia->comentarios && $incidencia->comentarios->count())
+                        <div style="margin-top: 0.75rem; display:flex; flex-direction:column; gap:0.75rem;">
+                            @foreach($incidencia->comentarios as $comentario)
+                                <div style="border: 1px solid var(--borde, rgba(148, 163, 184, 0.2)); border-radius: 0.75rem; padding: 0.75rem 0.9rem; background: rgba(15, 23, 42, 0.25);">
+                                    <div style="display:flex; justify-content:space-between; gap: 1rem; align-items: baseline;">
+                                        <span style="font-weight: 600; font-size: 0.9rem;">{{ $comentario->usuario?->name ?? 'Usuario' }}</span>
+                                        <span style="color: var(--texto-secundario); font-size: 0.8rem; white-space: nowrap;">{{ $comentario->created_at?->format('d/m/Y H:i') }}</span>
+                                    </div>
+                                    <div style="margin-top: 0.4rem; color: var(--texto-secundario);">
+                                        {!! nl2br(e($comentario->missatge)) !!}
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div style="margin-top: 0.5rem; color: var(--texto-secundario); font-size: 0.9rem;">
+                            <i class="fas fa-comment-dots"></i> Sin comentarios todavía
+                        </div>
+                    @endif
+                </div>
+
                 <div class="incidencia-actions">
                     @if($incidencia->estat === 'Assignada')
                         <form method="POST" action="{{ route('tecnic.iniciar', $incidencia->id) }}">
