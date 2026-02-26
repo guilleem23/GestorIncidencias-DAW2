@@ -49,11 +49,6 @@
                 <i class="fa-solid fa-eraser"></i>
             </button>
         </div>
-        @if (session('success'))
-            <div class="alert alert-success mt-1 mb-2">
-                {{ session('success') }}
-            </div>
-        @endif
         @php
             $erroresEditar = collect(['edit_name', 'edit_email', 'edit_sede_id', 'edit_rol', 'edit_password']);
             $hayErroresEditar =
@@ -88,6 +83,11 @@
         <div id="usuarios-table-container" class="usuarios-table-container">
             @include('admin.usuarios.partial.tabla_usuarios')
         </div>
+
+        {{-- Contenedores para SweetAlert --}}
+        @if (session('success'))
+            <div id="swal-success" data-message="{{ session('success') }}"></div>
+        @endif
     </div>
 
     <!-- Modal Bootstrap para crear usuario -->

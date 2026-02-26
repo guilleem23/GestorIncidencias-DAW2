@@ -27,6 +27,19 @@
     border: 1px solid var(--border-color);
     border-radius: 6px;
 }
+
+.usuarios-modal-body input::placeholder {
+    color: rgba(255, 255, 255, 0.7) !important;
+    opacity: 1; /* Firefox */
+}
+
+.usuarios-modal-body input:-ms-input-placeholder {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.usuarios-modal-body input::-ms-input-placeholder {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
 .modal-content.bg-dark {
     background-color: #181818 !important;
     color: #fff !important;

@@ -5,6 +5,7 @@ function iniciarValidacionEditarUsuario() {
     const eUsuario = document.getElementById("error-edit-username");
     const eEmail = document.getElementById("error-edit-email");
     const ePassword = document.getElementById("error-edit-password");
+    const eConfirmPassword = document.getElementById("error-edit-password-confirmation");
     const eSede = document.getElementById("error-edit-sede_id");
     const eRol = document.getElementById("error-edit-rol");
     const eActivo = document.getElementById("error-edit-activo");
@@ -18,6 +19,7 @@ function iniciarValidacionEditarUsuario() {
     const usuarioInput = document.getElementById("edit-username-usuario");
     const emailInput = document.getElementById("edit-email-usuario");
     const passwordInput = document.getElementById("edit-password-usuario");
+    const confirmPasswordInput = document.getElementById("edit-password-confirmation-usuario");
     const sedeInput = document.getElementById("edit-sede-usuario");
     const rolInput = document.getElementById("edit-rol-usuario");
     const activoInput = document.getElementById("edit-activo-usuario");
@@ -44,7 +46,12 @@ function iniciarValidacionEditarUsuario() {
         timeoutEmail = setTimeout(comprobarEmail, 100);
     };
 
-    passwordInput.oninput = comprobarPassword;
+    passwordInput.oninput = () => {
+        comprobarPassword();
+        comprobarConfirmPassword();
+    };
+
+    confirmPasswordInput.oninput = comprobarConfirmPassword;
 
     sedeInput.onchange = comprobarSede;
     rolInput.onchange = comprobarRol;
@@ -65,11 +72,19 @@ function iniciarValidacionEditarUsuario() {
         let usuarioValido = usuario !== "" && usuario.length >= 3 && usuarioDisponible;
         let emailValido = email !== "" && emailFormato.test(email) && emailDisponible;
         let passwordValido = password === "" || password.length >= 6;
+        let confirmPasswordValido = true;
+        
+        if (password !== "") {
+            confirmPasswordValido = password === confirmPasswordInput.value.trim();
+        } else if (confirmPasswordInput.value.trim() !== "") {
+            confirmPasswordValido = false;
+        }
+
         let sedeValido = sede !== "";
         let rolValido = rol !== "";
         let activoValido = activo !== "";
 
-        if (nombreValido && usuarioValido && emailValido && passwordValido && sedeValido && rolValido && activoValido) {
+        if (nombreValido && usuarioValido && emailValido && passwordValido && confirmPasswordValido && sedeValido && rolValido && activoValido) {
             botonEnviar.disabled = false;
             botonEnviar.classList.remove("btn-login-desabilitado");
         } else {
@@ -169,6 +184,22 @@ function iniciarValidacionEditarUsuario() {
         }
 
         ePassword.innerText = "";
+        comprobarBoton();
+    }
+
+    function comprobarConfirmPassword() {
+        const password = passwordInput.value.trim();
+        const confirmacion = confirmPasswordInput.value.trim();
+
+        if (password !== "" && confirmacion === "") {
+            eConfirmPassword.innerText = "Repite la contraseña.";
+        } else if (password !== "" && password !== confirmacion) {
+            eConfirmPassword.innerText = "Las contraseñas no coinciden.";
+        } else if (password === "" && confirmacion !== "") {
+            eConfirmPassword.innerText = "La contraseña está vacía.";
+        } else {
+            eConfirmPassword.innerText = "";
+        }
         comprobarBoton();
     }
 
