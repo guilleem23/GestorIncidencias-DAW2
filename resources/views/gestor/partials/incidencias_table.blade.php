@@ -80,8 +80,8 @@
     </table>
 
     @if($incidencies->hasPages())
-        <div class="pagination-wrapper">
-            {{ $incidencies->links() }}
+        <div class="pagination-wrapper" style="margin-top: 2rem;">
+            {{ $incidencies->links('pagination::bootstrap-5') }}
         </div>
     @endif
 @endif

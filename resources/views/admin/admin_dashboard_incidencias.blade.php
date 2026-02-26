@@ -80,96 +80,8 @@
     </div>
 
     {{-- Tabla --}}
-    <div class="table-container">
-        @if($incidencias->isEmpty())
-            <div class="empty-state-box">
-                <i class="fa-solid fa-folder-open fa-3x"></i>
-                <p>No se encontraron incidencias con los filtros seleccionados.</p>
-            </div>
-        @else
-            <table class="historial-table">
-                <thead>
-                    <tr>
-                        <th>Incidencia</th>
-                        <th>Cliente</th>
-                        <th>Sede</th>
-                        <th>Técnico</th>
-                        <th>Prioridad</th>
-                        <th>Estado</th>
-                        <th>Fecha</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($incidencias as $incidencia)
-                    <tr class="{{ $incidencia->estat === 'Tancada' ? 'row-closed' : '' }}">
-                        <td class="cell-truncate">{{ Str::limit($incidencia->titol, 40) }}</td>
-                        <td>
-                            @if($incidencia->cliente)
-                                <span class="username-tag">{{ '@' . $incidencia->cliente->username }}</span>
-                            @else
-                                <span class="text-secondary">-</span>
-                            @endif
-                        </td>
-                        <td>{{ $incidencia->sede?->nom ?? '-' }}</td>
-                        <td>
-                            @if($incidencia->tecnico)
-                                <span class="username-tag">{{ '@' . $incidencia->tecnico->username }}</span>
-                            @else
-                                <div style="text-align: center;"><span class="text-secondary" title="Sin asignar"><i class="fa-solid fa-user-minus"></i></span></div>
-                            @endif
-                        </td>
-                        <td>
-                            @if($incidencia->prioritat === 'alta')
-                                <span class="priority-badge priority-alta"><i class="fa-solid fa-arrow-up"></i> Alta</span>
-                            @elseif($incidencia->prioritat === 'mitjana')
-                                <span class="priority-badge priority-mitjana"><i class="fa-solid fa-minus"></i> Media</span>
-                            @elseif($incidencia->prioritat === 'baixa')
-                                <span class="priority-badge priority-baixa"><i class="fa-solid fa-arrow-down"></i> Baja</span>
-                            @else
-                                <span class="text-secondary">-</span>
-                            @endif
-                        </td>
-                        <td>
-                            @if($incidencia->estat === 'Sense assignar')
-                                <span class="status-badge badge-inactive">Sin asignar</span>
-                            @elseif($incidencia->estat === 'Assignada')
-                                <span class="status-badge status-assignada">Asignada</span>
-                            @elseif($incidencia->estat === 'En treball')
-                                <span class="status-badge status-treball">En trabajo</span>
-                            @elseif($incidencia->estat === 'Resolta')
-                                <span class="status-badge status-resolta">Resuelta</span>
-                            @elseif($incidencia->estat === 'Tancada')
-                                <span class="status-badge badge-active">Cerrada</span>
-                            @else
-                                <span class="status-badge badge-active">{{ $incidencia->estat }}</span>
-                            @endif
-                        </td>
-                        <td class="date-cell">{{ $incidencia->created_at?->format('d/m/Y') }}</td>
-                        <td>
-                            <div class="actions-cell">
-                                <a href="{{ route('admin.incidencias.show', $incidencia->id) }}" class="btn-icon btn-view" title="Ver Detalles">
-                                    <i class="fa-solid fa-eye"></i>
-                                </a>
-                                <a href="{{ route('admin.incidencias.edit', $incidencia->id) }}" class="btn-icon btn-edit" title="Editar">
-                                    <i class="fa-solid fa-pen"></i>
-                                </a>
-                                <button type="button" class="btn-icon btn-delete" title="Eliminar" data-id="{{ $incidencia->id }}">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
-            @if($incidencias->hasPages())
-                <div class="pagination-wrapper">
-                    {{ $incidencias->links() }}
-                </div>
-            @endif
-        @endif
+    <div id="incidencias-table-container">
+        @include('admin.partials.tabla_incidencias')
     </div>
 </div>
 @endsection
@@ -177,42 +89,73 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const baseUrl = '{{ route("admin.incidencias") }}';
+            let timeout = null;
+            const tableContainer = document.getElementById('incidencias-table-container');
 
-            function applyFilters() {
-                const params = new URLSearchParams();
-
+            function fetchIncidencias(url = null) {
                 const buscar = document.getElementById('filter-buscar').value;
                 const estat = document.getElementById('filter-estat').value;
                 const prioritat = document.getElementById('filter-prioritat').value;
                 const sede = document.getElementById('filter-sede').value;
                 const orden = document.getElementById('filter-orden').value;
 
-                if (buscar) params.set('buscar', buscar);
-                if (estat) params.set('estat', estat);
-                if (prioritat) params.set('prioritat', prioritat);
-                if (sede) params.set('sede_id', sede);
-                if (orden && orden !== 'desc') params.set('orden', orden);
+                const paramsObj = {};
+                if (buscar) paramsObj.buscar = buscar;
+                if (estat) paramsObj.estat = estat;
+                if (prioritat) paramsObj.prioritat = prioritat;
+                if (sede) paramsObj.sede_id = sede;
+                if (orden && orden !== 'desc') paramsObj.orden = orden;
 
-                const queryString = params.toString();
-                window.location.href = baseUrl + (queryString ? '?' + queryString : '');
+                const params = new URLSearchParams(paramsObj);
+                let finalUrl = url || `{{ route('admin.incidencias') }}?${params.toString()}`;
+
+                if (url) {
+                    const tempUrl = new URL(url, window.location.origin);
+                    Object.keys(paramsObj).forEach(key => tempUrl.searchParams.set(key, paramsObj[key]));
+                    finalUrl = tempUrl.toString();
+                }
+
+                tableContainer.style.opacity = '0.5';
+
+                fetch(finalUrl, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    tableContainer.innerHTML = html;
+                    tableContainer.style.opacity = '1';
+                    if (url) tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                })
+                .catch(error => {
+                    console.error('Error al filtrar incidencias:', error);
+                    tableContainer.style.opacity = '1';
+                });
             }
 
-            // Dropdowns trigger navigation immediately
-            ['filter-estat', 'filter-prioritat', 'filter-sede', 'filter-orden'].forEach(function(id) {
-                document.getElementById(id).addEventListener('change', applyFilters);
-            });
-
-            // Search with debounce
-            let searchTimeout;
             document.getElementById('filter-buscar').addEventListener('input', function() {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(applyFilters, 400);
+                clearTimeout(timeout);
+                timeout = setTimeout(() => fetchIncidencias(), 400);
             });
 
-            // Clear filters
+            ['filter-estat', 'filter-prioritat', 'filter-sede', 'filter-orden'].forEach(function(id) {
+                document.getElementById(id).addEventListener('change', () => fetchIncidencias());
+            });
+
             document.getElementById('btn-clear-filters').addEventListener('click', function() {
-                window.location.href = baseUrl;
+                document.getElementById('filter-buscar').value = '';
+                document.getElementById('filter-estat').value = '';
+                document.getElementById('filter-prioritat').value = '';
+                document.getElementById('filter-sede').value = '';
+                document.getElementById('filter-orden').value = 'desc';
+                fetchIncidencias();
+            });
+
+            tableContainer.addEventListener('click', function(e) {
+                const link = e.target.closest('.pagination a');
+                if (link) {
+                    e.preventDefault();
+                    fetchIncidencias(link.href);
+                }
             });
         });
     </script>
