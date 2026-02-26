@@ -3,91 +3,120 @@
 @section('title', 'Nexton Admin - Gestión de Usuarios')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/admin_usuario.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin_categorias.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/gestor_historial.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/gestor_incidencia_detail.css') }}">
 @endpush
 
 @section('content')
-    <div class="usuarios-container">
-        <div class="usuarios-header-layout">
-            <div class="usuarios-header-title">
-                <h1><i class="fa-solid fa-users"></i> Gestión de Usuarios</h1>
+<div class="categorias-container">
+    <div class="categorias-header">
+        <h1><i class="fa-solid fa-users"></i> Gestión de Usuarios</h1>
+        <div class="header-actions">
+            <button type="button" class="btn-crear btn-crear-categoria" data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">
+                <i class="fa-solid fa-plus"></i> Crear Usuario
+            </button>
+        </div>
+    </div>
+
+    {{-- Filtros --}}
+    <div class="filters-container">
+        <div class="filters-grid">
+            <div class="filter-group filter-search">
+                <label class="filter-label"><i class="fa-solid fa-magnifying-glass"></i> Buscar</label>
+                <input type="text" id="search-input" class="filter-input" placeholder="ID, nombre, username o correo...">
             </div>
-            <div class="usuarios-header-actions">
-                <button type="button" class="usuarios-btn-crear btn-crear-usuario" data-bs-toggle="modal"
-                    data-bs-target="#modalCrearUsuario">
-                    Crear Usuario
+            <div class="filter-group">
+                <label class="filter-label"><i class="fa-solid fa-user-tag"></i> Rol</label>
+                <select id="rol-filter" class="filter-select">
+                    <option value="">Todos los roles</option>
+                    @foreach ($roles as $value => $label)
+                        <option value="{{ $value }}">{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label"><i class="fa-solid fa-building"></i> Sede</label>
+                <select id="sede-filter" class="filter-select">
+                    <option value="">Todas las sedes</option>
+                    @foreach ($sedes as $sede)
+                        <option value="{{ $sede->id }}">{{ $sede->nom }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label"><i class="fa-solid fa-circle-check"></i> Estado</label>
+                <select id="activo-filter" class="filter-select">
+                    <option value="">Todos</option>
+                    <option value="1">Sólo Activos</option>
+                    <option value="0">Sólo Inactivos</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label"><i class="fa-solid fa-list-ol"></i> Mostrar</label>
+                <select id="per-page-filter" class="filter-select">
+                    <option value="5" selected>5 por pág.</option>
+                    <option value="10">10 por pág.</option>
+                    <option value="25">25 por pág.</option>
+                    <option value="50">50 por pág.</option>
+                </select>
+            </div>
+            <div class="filter-group filter-actions">
+                <button type="button" id="btn-limpiar-filtros" class="btn-clear-filters" title="Limpiar filtros">
+                    <i class="fa-solid fa-xmark"></i> Limpiar
                 </button>
             </div>
         </div>
-        <div class="usuarios-filters-bar">
-            <input type="text" id="search-input" class="usuarios-search-input usuarios-search-input-large"
-                placeholder="Buscar por ID, nombre, username o correo..." oninput="buscarUsuariosInput()">
-            <select id="rol-filter" class="usuarios-filter-select" onchange="aplicarFiltrosCheck()">
-                <option value="">Todos los roles</option>
-                @foreach ($roles as $value => $label)
-                    <option value="{{ $value }}">{{ $label }}</option>
-                @endforeach
-            </select>
-            <select id="sede-filter" class="usuarios-filter-select usuarios-filter-select-large" onchange="aplicarFiltrosCheck()">
-                <option value="">Todas las sedes</option>
-                @foreach ($sedes as $sede)
-                    <option value="{{ $sede->id }}">{{ $sede->nom }}</option>
-                @endforeach
-            </select>
-            <select id="activo-filter" class="usuarios-filter-select usuarios-filter-select-large" onchange="aplicarFiltrosCheck()">
-                <option value="">Todos los estados</option>
-                <option value="1">Sólo Activos</option>
-                <option value="0">Sólo Inactivos</option>
-            </select>
-            <select id="per-page-filter" class="usuarios-filter-select" onchange="aplicarFiltrosCheck()">
-                <option value="5" selected>5 por pág.</option>
-                <option value="10">10 por pág.</option>
-                <option value="25">25 por pág.</option>
-                <option value="50">50 por pág.</option>
-            </select>
-            <button type="button" id="btn-limpiar-filtros" class="usuarios-btn-limpiar" title="Limpiar filtros" onclick="limpiarFiltrosClick()">
-                <i class="fa-solid fa-eraser"></i>
-            </button>
+    </div>
+
+    {{-- Mensajes --}}
+    @if (session('success'))
+        <div class="alert-custom alert-success-custom" style="margin-bottom: 1.5rem;">
+            <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
         </div>
-        @if (session('success'))
-            <div class="alert alert-success mt-1 mb-2">
-                {{ session('success') }}
-            </div>
-        @endif
-        @php
-            $erroresEditar = collect(['edit_name', 'edit_email', 'edit_sede_id', 'edit_rol', 'edit_password']);
-            $hayErroresEditar =
-                $errors->has('error_editar') || collect($errors->keys())->intersect($erroresEditar)->isNotEmpty();
-        @endphp
+    @endif
+
+    @php
+        $erroresEditar = collect(['edit_name', 'edit_email', 'edit_sede_id', 'edit_rol', 'edit_password']);
+        $hayErroresEditar = $errors->has('error_editar') || collect($errors->keys())->intersect($erroresEditar)->isNotEmpty();
+    @endphp
         @if ($errors->any() && !$hayErroresEditar && !$errors->has('error_eliminar'))
             <script>
                 window.modalUsuarioOpen = true;
             </script>
         @endif
         @if ($hayErroresEditar)
-            <div class="alert alert-danger mt-1 mb-2">
-                <strong>Error al editar usuario:</strong>
-                <ul style="margin-bottom:0;">
+            <div class="alert-custom alert-error-custom" style="margin-bottom: 1.5rem;">
+                <i class="fa-solid fa-circle-xmark"></i>
+                <div style="display:flex; flex-direction:column; gap:0.25rem;">
+                    <strong>Error al editar usuario:</strong>
                     @if ($errors->has('error_editar'))
-                        <li>{{ $errors->first('error_editar') }}</li>
+                        <span>{{ $errors->first('error_editar') }}</span>
                     @endif
                     @foreach ($erroresEditar as $campo)
                         @if ($errors->has($campo))
-                            <li>{{ $errors->first($campo) }}</li>
+                            <span>{{ $errors->first($campo) }}</span>
                         @endif
                     @endforeach
-                </ul>
+                </div>
             </div>
         @endif
         @if ($errors->has('error_eliminar'))
-            <div class="alert alert-danger mt-1 mb-2">
-                <strong>Error al eliminar usuario</strong>
-                <p style="margin-bottom:0;">{{ $errors->first('error_eliminar') }}</p>
+            <div class="alert-custom alert-error-custom" style="margin-bottom: 1.5rem;">
+                <i class="fa-solid fa-circle-xmark"></i>
+                <div style="display:flex; flex-direction:column; gap:0.25rem;">
+                    <strong>Error al eliminar usuario</strong>
+                    <span>{{ $errors->first('error_eliminar') }}</span>
+                </div>
             </div>
         @endif
-        <div id="usuarios-table-container" class="usuarios-table-container">
+
+        <div id="usuarios-table-container">
             @include('admin.usuarios.partial.tabla_usuarios')
         </div>
+    </div>
+
+
     </div>
 
     <!-- Modal Bootstrap para crear usuario -->

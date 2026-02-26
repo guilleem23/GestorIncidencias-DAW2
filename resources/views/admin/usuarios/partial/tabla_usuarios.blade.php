@@ -1,67 +1,78 @@
-<table class="usuarios-table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Rol</th>
-            <th>Sede</th>
-            <th>Activo</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach ($usuarios as $usuario)
-            <tr>
-                <td>{{ $usuario->id }}</td>
-                <td>{{ $usuario->name }}</td>
-                <td>{{ $usuario->username }}</td>
-                <td>{{ $usuario->email }}</td>
-                <td><span class="usuarios-badge usuarios-badge-{{ $usuario->rol }}">{{ $usuario->rol }}</span>
-                </td>
-                <td>{{ $usuario->sede->nom ?? '-' }}</td>
-                <td>
-                    <span class="usuarios-badge usuarios-badge-{{ $usuario->actiu ? 'activo' : 'inactivo' }}">
-                        {{ $usuario->actiu ? 'Sí' : 'No' }}
-                    </span>
-                </td>
-                <td>
-                    <div class="usuarios-actions-flex">
-                        <button type="button" class="btn btn-secondary btn-editar-usuario"
-                            name="editar_usuario" value="{{ $usuario->id }}"><i
-                                class="fa-solid fa-pen-to-square"></i></button>
-                        @if ($usuario->rol !== 'administrador' && $usuario->actiu)
-                            <form action="{{ route('admin.usuarios.destroy', $usuario->id) }}" method="POST"
-                                style="display:inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="button" name="boton_eliminar" class="btn btn-danger btn-eliminar"
-                                    value="{{ $usuario->id }}"><i class="fa-solid fa-trash"></i></button>
-                            </form>
-                        @endif
-                    </div>
-                </td>
-            </tr>
-        @endforeach
-        @if($usuarios->isEmpty())
-            <tr>
-                <td colspan="8" style="text-align: center; padding: 2rem;">No se encontraron usuarios con los filtros aplicados.</td>
-            </tr>
-        @endif
-    </tbody>
-</table>
+<div class="table-container">
+    @if($usuarios->isEmpty())
+        <div class="empty-state-box">
+            <i class="fa-solid fa-users fa-3x"></i>
+            <p>No se encontraron usuarios con los filtros aplicados.</p>
+        </div>
+    @else
+        <table class="historial-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Sede</th>
+                    <th>Activo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($usuarios as $usuario)
+                    <tr>
+                        <td>{{ $usuario->id }}</td>
+                        <td class="cell-truncate">{{ Str::limit($usuario->name, 35) }}</td>
+                        <td><span class="username-tag">{{ '@' . $usuario->username }}</span></td>
+                        <td class="cell-truncate">{{ $usuario->email }}</td>
+                        <td>
+                            @if($usuario->rol === 'administrador')
+                                <span class="priority-badge priority-alta"><i class="fa-solid fa-shield-halved"></i> Admin</span>
+                            @elseif($usuario->rol === 'gestor')
+                                <span class="priority-badge priority-mitjana"><i class="fa-solid fa-user-tie"></i> Gestor</span>
+                            @else
+                                <span class="priority-badge priority-baixa"><i class="fa-solid fa-wrench"></i> Técnico</span>
+                            @endif
+                        </td>
+                        <td>{{ $usuario->sede?->nom ?? '-' }}</td>
+                        <td>
+                            @if($usuario->actiu)
+                                <span class="status-badge status-resolta"><i class="fa-solid fa-check"></i> Sí</span>
+                            @else
+                                <span class="status-badge badge-inactive"><i class="fa-solid fa-xmark"></i> No</span>
+                            @endif
+                        </td>
+                        <td>
+                            <div class="actions-cell">
+                                <button type="button" class="btn-icon btn-edit btn-editar-usuario"
+                                    name="editar_usuario" title="Editar Usuario" value="{{ $usuario->id }}">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                @if ($usuario->rol !== 'administrador' && $usuario->actiu)
+                                    <form action="{{ route('admin.usuarios.destroy', $usuario->id) }}" method="POST"
+                                        style="display:inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button" name="boton_eliminar" class="btn-icon btn-delete btn-eliminar"
+                                            title="Eliminar" value="{{ $usuario->id }}">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
 
-<div class="usuarios-pagination-wrapper">
-    {{-- Links de paginación (usamos bootstrap-4 para evitar el texto de info integrado de bootstrap-5 de Laravel si es muy intrusivo, o simplemente lo envolvemos) --}}
-    {{ $usuarios->links('pagination::bootstrap-4') }}
-
-    {{-- Mensaje de información en español debajo --}}
-    <div class="usuarios-pagination-info">
-        @if ($usuarios->total() > 0)
-            Mostrando {{ $usuarios->firstItem() }} a {{ $usuarios->lastItem() }} de {{ $usuarios->total() }} usuarios
-        @else
-            No se encontraron usuarios
+        @if($usuarios->hasPages())
+            <div class="pagination-wrapper" style="margin-top: 2rem;">
+                {{ $usuarios->links() }}
+            </div>
+            <div style="text-align: center; color: var(--text-secondary); margin-top: 1rem; font-size: 0.9rem;">
+                Mostrando {{ $usuarios->firstItem() }} a {{ $usuarios->lastItem() }} de {{ $usuarios->total() }} usuarios
+            </div>
         @endif
-    </div>
+    @endif
 </div>

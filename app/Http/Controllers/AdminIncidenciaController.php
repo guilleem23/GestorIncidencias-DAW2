@@ -12,19 +12,49 @@ class AdminIncidenciaController extends Controller
     /**
      * Muestra la lista global de incidencias para el panel de admin.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $incidencias = Incidencia::with(['cliente', 'sede', 'tecnico'])
-            ->orderByDesc('created_at')
-            ->get();
+        $query = Incidencia::with(['cliente', 'sede', 'tecnico']);
 
-        $tecnicsBySede = User::where('rol', 'tecnic')
-            ->where('actiu', true)
-            ->orderBy('name')
-            ->get()
-            ->groupBy('sede_id');
+        // Search
+        if ($request->filled('buscar')) {
+            $buscar = $request->buscar;
+            $query->where(function ($q) use ($buscar) {
+                $q->where('titol', 'LIKE', "%{$buscar}%")
+                  ->orWhere('descripcio', 'LIKE', "%{$buscar}%")
+                  ->orWhereHas('cliente', fn($q2) => $q2->where('name', 'LIKE', "%{$buscar}%"));
+            });
+        }
 
-        return view('admin.admin_dashboard_incidencias', compact('incidencias', 'tecnicsBySede'));
+        // Filters
+        if ($request->filled('estat')) {
+            $query->where('estat', $request->estat);
+        }
+        if ($request->filled('prioritat')) {
+            $query->where('prioritat', $request->prioritat);
+        }
+        if ($request->filled('sede_id')) {
+            $query->where('sede_id', $request->sede_id);
+        }
+
+        // Sorting
+        $orden = $request->get('orden', 'desc');
+        $query->orderBy('created_at', $orden);
+
+        $incidencias = $query->paginate(10)->withQueryString();
+
+        $sedes = \App\Models\Sede::orderBy('nom')->get();
+
+        return view('admin.admin_dashboard_incidencias', compact('incidencias', 'sedes'));
+    }
+
+    /**
+     * Muestra el detalle de una incidencia.
+     */
+    public function show($id)
+    {
+        $incidencia = Incidencia::with(['cliente', 'sede', 'tecnico', 'categoria', 'subcategoria'])->findOrFail($id);
+        return view('admin.ver_incidencia', compact('incidencia'));
     }
 
     /**
@@ -74,5 +104,44 @@ class AdminIncidenciaController extends Controller
                 'error' => 'Error al asignar técnico: ' . $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Muestra el formulario de edición de una incidencia.
+     */
+    public function edit($id)
+    {
+        $incidencia = Incidencia::with(['tecnico', 'cliente', 'categoria', 'subcategoria'])->findOrFail($id);
+
+        $tecnicos = User::where('sede_id', $incidencia->sede_id)
+            ->where('rol', 'tecnic')
+            ->where('actiu', true)
+            ->get();
+
+        $categorias = \App\Models\Categoria::with('subcategorias')->get();
+
+        return view('admin.editar_incidencia', compact('incidencia', 'tecnicos', 'categorias'));
+    }
+
+    /**
+     * Actualiza una incidencia.
+     */
+    public function update(Request $request, $id)
+    {
+        $incidencia = Incidencia::findOrFail($id);
+
+        $validated = $request->validate([
+            'titol' => 'required|string|max:255',
+            'descripcio' => 'required|string',
+            'categoria_id' => 'required|exists:categorias,id',
+            'subcategoria_id' => 'required|exists:subcategorias,id',
+            'tecnic_id' => 'nullable|exists:usuarios,id',
+            'estat' => 'required|in:Sense assignar,Assignada,En treball,Resolta,Tancada',
+            'prioritat' => 'required|in:alta,mitjana,baixa',
+        ]);
+
+        $incidencia->update($validated);
+
+        return redirect()->route('admin.incidencias')->with('success', 'Incidencia actualizada correctamente.');
     }
 }

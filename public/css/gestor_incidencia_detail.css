@@ -225,3 +225,24 @@ textarea.form-control {
     background-color: #2563eb;
     transform: translateY(-1px);
 }
+
+/* User Modals - Two Column Layout */
+.usuarios-modal .modal-dialog {
+    max-width: 800px;
+}
+
+.usuarios-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .usuarios-modal .modal-dialog {
+        max-width: 95vw;
+    }
+
+    .usuarios-form-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -30,6 +30,9 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
     Route::get('/admin/incidencias', [AdminIncidenciaController::class, 'index'])->name('admin.incidencias');
+    Route::get('/admin/incidencias/{id}', [AdminIncidenciaController::class, 'show'])->name('admin.incidencias.show');
+    Route::get('/admin/incidencias/{id}/edit', [AdminIncidenciaController::class, 'edit'])->name('admin.incidencias.edit');
+    Route::put('/admin/incidencias/{id}', [AdminIncidenciaController::class, 'update'])->name('admin.incidencias.update');
     Route::post('/admin/incidencias/{id}/assign', [AdminIncidenciaController::class, 'assignTecnic'])->name('admin.incidencias.assign');
 
     // Gestión de usuarios
