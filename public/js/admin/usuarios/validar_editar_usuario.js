@@ -1,5 +1,4 @@
 function iniciarValidacionEditarUsuario() {
-    console.log("Iniciando validación de edición de usuario...");
     // Referencias a mensajes de error/estado
     const eNombre = document.getElementById("error-edit-nombre");
     const eUsuario = document.getElementById("error-edit-username");
@@ -73,7 +72,7 @@ function iniciarValidacionEditarUsuario() {
         let emailValido = email !== "" && emailFormato.test(email) && emailDisponible;
         let passwordValido = password === "" || password.length >= 6;
         let confirmPasswordValido = true;
-        
+
         if (password !== "") {
             confirmPasswordValido = password === confirmPasswordInput.value.trim();
         } else if (confirmPasswordInput.value.trim() !== "") {
@@ -123,11 +122,9 @@ function iniciarValidacionEditarUsuario() {
         // Limpiamos el error de longitud antes de ir al servidor
         eUsuario.innerText = "";
 
-        console.log("Comprobando usuario (edit):", valor);
         fetch(`/admin/usuarios/check-username?username=${encodeURIComponent(valor)}&exclude_id=${userIdInput.value}`)
             .then(r => r.json())
             .then(data => {
-                console.log("Respuesta usuario (edit):", data);
                 if (data.disponible) {
                     eUsuario.innerText = "";
                     sUsuario.innerText = "Disponible.";
@@ -139,7 +136,7 @@ function iniciarValidacionEditarUsuario() {
                 }
                 comprobarBoton();
             })
-            .catch(err => console.error("Error comprobando usuario (edit):", err));
+            .catch(err => { });
     }
 
     function comprobarEmail() {
@@ -156,11 +153,9 @@ function iniciarValidacionEditarUsuario() {
         // Limpiamos el error de formato antes de ir al servidor
         eEmail.innerText = "";
 
-        console.log("Comprobando email (edit):", valor);
         fetch(`/admin/usuarios/check-email?email=${encodeURIComponent(valor)}&exclude_id=${userIdInput.value}`)
             .then(r => r.json())
             .then(data => {
-                console.log("Respuesta email (edit):", data);
                 if (data.disponible) {
                     eEmail.innerText = "";
                     sEmail.innerText = "Disponible.";

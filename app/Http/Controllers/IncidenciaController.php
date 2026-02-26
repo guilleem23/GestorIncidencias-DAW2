@@ -78,8 +78,9 @@ class IncidenciaController extends Controller
             ->orderBy('name')
             ->get();
 
-        if ($request->ajax()) {
-            return view('gestor.partials.incidencias_table', compact('incidencies'))->render();
+        // Soporte para AJAX (Filtros y Paginación)
+        if ($request->ajax() || $request->wantsJson() || $request->has('ajax')) {
+            return view('gestor.partials.incidencias_table', compact('incidencies'));
         }
 
         return view('gestor.historial', compact('incidencies', 'tecnicos'));

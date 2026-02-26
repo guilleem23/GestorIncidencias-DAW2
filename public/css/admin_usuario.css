@@ -7,10 +7,29 @@
     gap: 0.5rem 1rem; /* Menos espacio vertical, mantenemos horizontal */
 }
 .usuarios-modal-body p {
-    margin-bottom: 0.25rem !important;
+    margin: 0 !important;
 }
+
+.usuarios-feedback-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    margin-top: 0.30rem;
+}
+
+.usuarios-feedback-container p {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 1.2rem;
+    line-height: 1.2;
+}
+
+.usuarios-modal-body .text-danger.small,
+.usuarios-modal-body .text-success.small {
+    font-size: 0.82rem !important;
+}
+
 .usuarios-modal-body label {
-    margin-bottom: 0.2rem !important;
+    margin-bottom: 0.15rem !important;
 }
 @media (max-width: 768px) {
     .usuarios-modal .modal-dialog {
@@ -18,6 +37,10 @@
     }
     .usuarios-modal-body .usuarios-form-grid {
         grid-template-columns: 1fr;
+    }
+    /* Filtros en una sola columna */
+    .filters-grid {
+        grid-template-columns: 1fr !important;
     }
 }
 .usuarios-modal-body input,
@@ -29,23 +52,46 @@
 }
 
 .usuarios-modal-body input::placeholder {
-    color: rgba(255, 255, 255, 0.7) !important;
-    opacity: 1; /* Firefox */
+    color: #ffffff !important;
+    opacity: 0.8; /* Un poco menos de 1 para que se vea que es un placeholder */
 }
 
 .usuarios-modal-body input:-ms-input-placeholder {
-    color: rgba(255, 255, 255, 0.7) !important;
+    color: #ffffff !important;
 }
 
 .usuarios-modal-body input::-ms-input-placeholder {
-    color: rgba(255, 255, 255, 0.7) !important;
+    color: #ffffff !important;
 }
-.modal-content.bg-dark {
+.usuarios-modal .modal-content,
+.usuarios-modal .modal-content.bg-dark {
     background-color: #181818 !important;
     color: #fff !important;
-    border-radius: 12px;
-    overflow: hidden; /* Asegura que las esquinas de los hijos no sobresalgan */
+    border-radius: 12px !important;
+    border: 1px solid #374151 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
 }
+
+/* Forzamos el redondeado en las esquinas inferiores del modal-body si no hay footer */
+.usuarios-modal .modal-body {
+    border-bottom-left-radius: 12px !important;
+    border-bottom-right-radius: 12px !important;
+    border: none !important;
+}
+
+.usuarios-modal .modal-header {
+    border-bottom: 1px solid #374151 !important;
+    border-top-left-radius: 12px !important;
+    border-top-right-radius: 12px !important;
+}
+
+.usuarios-modal .modal-footer {
+    border-top: 1px solid #374151 !important;
+    border-bottom-left-radius: 12px !important;
+    border-bottom-right-radius: 12px !important;
+}
+
 .modal-header.bg-dark {
     background-color: #181818 !important;
     color: #fff !important;
@@ -345,7 +391,7 @@ body {
     font-weight: 600;
 }
 
-/* Paginación Dark y Centrada */
+Paginación Dark y Centrada
 .usuarios-pagination-wrapper {
     display: flex;
     flex-direction: column;

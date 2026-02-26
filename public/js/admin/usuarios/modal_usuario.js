@@ -37,10 +37,10 @@ document.addEventListener('click', function (e) {
                 const modal = new bootstrap.Modal(modalEl);
                 modal.show();
 
-                console.log("Formulario de edición inyectado. Buscando función de validación...");
+
                 // Lanzar validación JS de editar usuario
                 if (typeof window.iniciarValidacionEditarUsuario === 'function') {
-                    console.log("Llamando a iniciarValidacionEditarUsuario()");
+
                     window.iniciarValidacionEditarUsuario();
                 } else {
                     console.warn("La función iniciarValidacionEditarUsuario no existe globalmente.");

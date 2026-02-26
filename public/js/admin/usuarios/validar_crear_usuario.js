@@ -122,11 +122,9 @@ function iniciarValidacionCrearUsuario() {
         // Limpiamos el error de longitud antes de ir al servidor
         eUsuario.innerText = "";
 
-        console.log("Comprobando usuario:", valor);
         fetch(`/admin/usuarios/check-username?username=${encodeURIComponent(valor)}`)
             .then(r => r.json())
             .then(data => {
-                console.log("Respuesta usuario:", data);
                 if (data.disponible) {
                     eUsuario.innerText = "";
                     sUsuario.innerText = "Disponible.";
@@ -160,11 +158,9 @@ function iniciarValidacionCrearUsuario() {
         // Limpiamos el error de formato antes de ir al servidor
         eEmail.innerText = "";
 
-        console.log("Comprobando email:", valor);
         fetch(`/admin/usuarios/check-email?email=${encodeURIComponent(valor)}`)
             .then(r => r.json())
             .then(data => {
-                console.log("Respuesta email:", data);
                 if (data.disponible) {
                     eEmail.innerText = "";
                     sEmail.innerText = "Disponible.";

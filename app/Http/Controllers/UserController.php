@@ -161,10 +161,10 @@ class UserController extends Controller
             $usuario->save();
             DB::commit();
 
-            return redirect()->route('admin.usuarios.index')->with('success', 'El usuario ' . $usuario->username . ' se ha editado correctamente.');
+            return redirect()->route('admin.usuarios.index')->with('success', 'El usuario @' . $usuario->username . ' se ha editado correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('admin.usuarios.index')->withErrors(['error_editar' => 'Error al actualizar el usuario: ' . $e->getMessage()]);
+            return redirect()->route('admin.usuarios.index')->withErrors(['error_editar' => 'Error al actualizar el usuario @' . $usuario->username . ' . ' . $e->getMessage()]);
         }
     }
 
@@ -193,16 +193,16 @@ class UserController extends Controller
                 $usuario->actiu = false;
                 $usuario->save();
                 DB::commit();
-                return redirect()->route('admin.usuarios.index')->with('success', 'El usuario ' . $usuario->username . ' tiene incidencias asociadas, por tanto se ha desactivado.');
+                return redirect()->route('admin.usuarios.index')->with('success', 'El usuario @' . $usuario->username . ' tiene incidencias asociadas, por tanto se ha desactivado.');
             }
 
             // Si no tiene historial, eliminación física
             $usuario->delete();
             DB::commit();
-            return redirect()->route('admin.usuarios.index')->with('success', 'El usuario ' . $usuario->username . ' se ha eliminado correctamente.');
+            return redirect()->route('admin.usuarios.index')->with('success', 'El usuario @' . $usuario->username . ' se ha eliminado correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('admin.usuarios.index')->withErrors(['error_eliminar' => 'Error al eliminar el usuario: ' . $e->getMessage()]);
+            return redirect()->route('admin.usuarios.index')->withErrors(['error_eliminar' => 'Error al eliminar el usuario @' . $usuario->username . ' . ' . $e->getMessage()]);
         }
     }
 
@@ -259,7 +259,7 @@ class UserController extends Controller
             DB::commit();
             return redirect()
                 ->route('admin.usuarios.index')
-                ->with('success', 'El usuario ' . $validated['username'] . ' se ha creado correctamente.');
+                ->with('success', 'El usuario @' . $validated['username'] . ' se ha creado correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()
