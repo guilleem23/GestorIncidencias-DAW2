@@ -145,6 +145,14 @@ class AdminIncidenciaController extends Controller
             'prioritat' => 'required|in:alta,mitjana,baixa',
         ]);
 
+        if (!empty($validated['tecnic_id']) && $validated['estat'] === 'Sense assignar') {
+            return back()->withErrors(['estat' => 'El estado no puede ser "Sin asignar" si hay un técnico asignado.'])->withInput();
+        }
+
+        if (empty($validated['tecnic_id']) && $validated['estat'] !== 'Sense assignar') {
+            return back()->withErrors(['tecnic_id' => 'Debe asignar un técnico si el estado no es "Sin asignar".'])->withInput();
+        }
+
         $incidencia->update($validated);
 
         return redirect()->route('admin.incidencias')->with('success', 'Incidencia actualizada correctamente.');

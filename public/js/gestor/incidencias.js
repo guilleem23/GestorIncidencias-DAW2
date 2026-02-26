@@ -231,6 +231,37 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            // Custom Validation: Technician vs Status
+            const selectTecnic = document.getElementById('tecnic_id');
+            const selectEstat = document.getElementById('estat');
+
+            if (selectTecnic && selectEstat) {
+                const isTecnicAssigned = selectTecnic.value !== "";
+                const isStatusSenseAssignar = selectEstat.value === "Sense assignar";
+
+                if (isTecnicAssigned && isStatusSenseAssignar) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de Validación',
+                        text: 'El estado no puede ser "Sin asignar" si hay un técnico asignado.',
+                        background: '#1e293b',
+                        color: '#f8fafc'
+                    });
+                    return;
+                }
+
+                if (!isTecnicAssigned && !isStatusSenseAssignar) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de Validación',
+                        text: 'Debe asignar un técnico si el estado no es "Sin asignar".',
+                        background: '#1e293b',
+                        color: '#f8fafc'
+                    });
+                    return;
+                }
+            }
+
             Swal.fire({
                 title: '¿Guardar los cambios?',
                 text: "Los datos de la incidencia serán actualizados en el sistema.",

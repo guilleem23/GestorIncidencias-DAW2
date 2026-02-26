@@ -71,7 +71,10 @@
                     <option value="asc" {{ request('orden') === 'asc' ? 'selected' : '' }}>Más antiguas primero</option>
                 </select>
             </div>
-            <div class="filter-group filter-actions">
+            <div class="filter-group filter-actions" style="gap: 0.5rem;">
+                <button type="button" id="btn-toggle-closed" class="btn-toggle-closed" title="Mostrar/Ocultar cerradas">
+                    <i class="fa-solid fa-eye-slash"></i> Mostrar cerradas
+                </button>
                 <button type="button" id="btn-clear-filters" class="btn-clear-filters">
                     <i class="fa-solid fa-xmark"></i> Limpiar filtros
                 </button>
@@ -91,6 +94,29 @@
         document.addEventListener('DOMContentLoaded', function() {
             let timeout = null;
             const tableContainer = document.getElementById('incidencias-table-container');
+
+            let showingClosed = false;
+            const btnToggleClosed = document.getElementById('btn-toggle-closed');
+
+            function updateToggleButton() {
+                if (!btnToggleClosed) return;
+                if (showingClosed) {
+                    btnToggleClosed.innerHTML = '<i class="fa-solid fa-eye"></i> Ocultar cerradas';
+                    btnToggleClosed.classList.add('active');
+                    if (tableContainer) tableContainer.classList.add('show-closed');
+                } else {
+                    btnToggleClosed.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Mostrar cerradas';
+                    btnToggleClosed.classList.remove('active');
+                    if (tableContainer) tableContainer.classList.remove('show-closed');
+                }
+            }
+
+            if (btnToggleClosed) {
+                btnToggleClosed.addEventListener('click', function() {
+                    showingClosed = !showingClosed;
+                    updateToggleButton();
+                });
+            }
 
             function fetchIncidencias(url = null) {
                 const buscar = document.getElementById('filter-buscar').value;
@@ -124,6 +150,9 @@
                 .then(html => {
                     tableContainer.innerHTML = html;
                     tableContainer.style.opacity = '1';
+                    if (showingClosed) {
+                        tableContainer.classList.add('show-closed');
+                    }
                     if (url) tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 })
                 .catch(error => {
@@ -138,7 +167,8 @@
             });
 
             ['filter-estat', 'filter-prioritat', 'filter-sede', 'filter-orden'].forEach(function(id) {
-                document.getElementById(id).addEventListener('change', () => fetchIncidencias());
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('change', () => fetchIncidencias());
             });
 
             document.getElementById('btn-clear-filters').addEventListener('click', function() {
