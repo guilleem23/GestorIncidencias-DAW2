@@ -55,7 +55,10 @@
                     <option value="asc" {{ request('orden') === 'asc' ? 'selected' : '' }}>Más antiguas primero</option>
                 </select>
             </div>
-            <div class="filter-group filter-actions">
+            <div class="filter-group filter-actions" style="gap: 0.5rem;">
+                <button type="button" id="btn-toggle-closed" class="btn-toggle-closed" title="Mostrar/Ocultar cerradas">
+                    <i class="fa-solid fa-eye-slash"></i> Mostrar cerradas
+                </button>
                 <button type="button" id="btn-clear-filters" class="btn-clear-filters">
                     <i class="fa-solid fa-xmark"></i> Limpiar filtros
                 </button>

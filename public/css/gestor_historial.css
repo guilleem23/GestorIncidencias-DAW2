@@ -236,14 +236,48 @@
     background-color: var(--card-bg-hover, #2d3748);
 }
 
+/* Hidden by default; revealed when parent has .show-closed */
 .historial-table tbody tr.row-closed {
+    display: none;
     opacity: 0.6;
     background-color: rgba(31, 41, 55, 0.4);
+}
+
+.show-closed .historial-table tbody tr.row-closed {
+    display: table-row;
 }
 
 .historial-table tbody tr.row-closed:hover {
     opacity: 0.8;
     background-color: rgba(31, 41, 55, 0.7);
+}
+
+/* Toggle closed button */
+.btn-toggle-closed {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    color: var(--text-secondary);
+    padding: 0.6rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'Inter', sans-serif;
+}
+
+.btn-toggle-closed:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.btn-toggle-closed.active {
+    border-color: var(--neon-blue);
+    color: var(--neon-blue);
+    background: rgba(59, 130, 246, 0.08);
 }
 
 .status-badge {
