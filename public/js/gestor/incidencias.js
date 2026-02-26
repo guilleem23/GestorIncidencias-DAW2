@@ -108,6 +108,91 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ----------------------------------------------------------------
+    // Toggle Mostrar/Ocultar incidencias cerradas
+    // ----------------------------------------------------------------
+    let showingClosed = false;
+    const btnToggleClosed = document.getElementById('btn-toggle-closed');
+
+    function updateToggleButton() {
+        if (!btnToggleClosed) return;
+        if (showingClosed) {
+            btnToggleClosed.innerHTML = '<i class="fa-solid fa-eye"></i> Ocultar cerradas';
+            btnToggleClosed.classList.add('active');
+            if (tableContainer) tableContainer.classList.add('show-closed');
+        } else {
+            btnToggleClosed.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Mostrar cerradas';
+            btnToggleClosed.classList.remove('active');
+            if (tableContainer) tableContainer.classList.remove('show-closed');
+        }
+    }
+
+    if (btnToggleClosed) {
+        btnToggleClosed.addEventListener('click', function () {
+            showingClosed = !showingClosed;
+            updateToggleButton();
+        });
+    }
+
+    // Override applyFilters to restore show-closed state after AJAX reload
+    applyFilters = function (url) {
+        const params = new URLSearchParams();
+
+        if (filterBuscar && filterBuscar.value.trim()) {
+            params.set('buscar', filterBuscar.value.trim());
+        }
+        if (filterEstat && filterEstat.value) {
+            params.set('estat', filterEstat.value);
+        }
+        if (filterPrioritat && filterPrioritat.value) {
+            params.set('prioritat', filterPrioritat.value);
+        }
+        if (filterTecnic && filterTecnic.value) {
+            params.set('tecnic_id', filterTecnic.value);
+        }
+        if (filterOrden && filterOrden.value && filterOrden.value !== 'desc') {
+            params.set('orden', filterOrden.value);
+        }
+
+        let finalUrl = url || '/gestor/incidencias?' + params.toString();
+
+        if (url) {
+            const tempUrl = new URL(url, window.location.origin);
+            for (const [key, value] of params.entries()) {
+                tempUrl.searchParams.set(key, value);
+            }
+            finalUrl = tempUrl.toString();
+        }
+
+        if (tableContainer) {
+            tableContainer.style.opacity = '0.5';
+
+            fetch(finalUrl, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.text())
+                .then(html => {
+                    tableContainer.innerHTML = html;
+                    tableContainer.style.opacity = '1';
+                    // Restore show-closed state after reload
+                    if (showingClosed) {
+                        tableContainer.classList.add('show-closed');
+                    }
+                    if (url) {
+                        tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al filtrar incidencias:', error);
+                    tableContainer.style.opacity = '1';
+                });
+        } else {
+            window.location.href = finalUrl;
+        }
+    };
+
+    // ----------------------------------------------------------------
     // 2. Manejo dinámico de las Subcategorías al cambiar de Categoría
     // ----------------------------------------------------------------
     const categoriaSelect = document.getElementById('categoria_id');
