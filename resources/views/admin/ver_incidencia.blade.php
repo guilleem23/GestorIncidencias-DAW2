@@ -71,7 +71,9 @@
                             <div class="user-profile-mini">
                                 <div class="avatar-mini">{{ substr($incidencia->cliente->name, 0, 1) }}</div>
                                 <div class="user-text-mini">
-                                    <span class="user-name-mini">{{ $incidencia->cliente->name }}</span>
+                                    <a class="user-name-mini" href="{{ route('admin.usuarios.show', $incidencia->cliente->id) }}" style="text-decoration:none; color: inherit;">
+                                        {{ $incidencia->cliente->name }}
+                                    </a>
                                     <span class="user-email-mini">{{ $incidencia->cliente->email }}</span>
                                 </div>
                             </div>
