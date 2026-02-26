@@ -33,6 +33,7 @@
             <div class="user-info">
                 <span class="user-name">{{ Auth::user()->name ?? 'Gestor Equipo' }}</span>
                 <span class="user-role">Gestor de Equipo</span>
+                <span class="user-email" style="font-size: 0.75rem; opacity: 0.7;">{{ Auth::user()->email ?? '' }}</span>
             </div>
         </div>
         
