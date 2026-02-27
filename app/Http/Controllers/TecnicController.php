@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Comentario;
 use App\Models\Incidencia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +24,31 @@ class TecnicController extends Controller
             ->get();
 
         return view('tecnic.index', compact('incidencies'));
+    }
+
+    public function storeComentario(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'missatge' => ['required', 'string', 'min:2', 'max:2000'],
+        ], [
+            'missatge.required' => 'El comentario es obligatorio.',
+            'missatge.min' => 'El comentario debe tener al menos 2 caracteres.',
+            'missatge.max' => 'El comentario no puede superar 2000 caracteres.',
+        ]);
+
+        $incidencia = Incidencia::findOrFail($id);
+
+        if ((int) $incidencia->tecnic_id !== (int) Auth::id()) {
+            abort(403, 'No tienes permiso para comentar esta incidencia.');
+        }
+
+        Comentario::create([
+            'incidencia_id' => $incidencia->id,
+            'usuario_id' => Auth::id(),
+            'missatge' => $validated['missatge'],
+        ]);
+
+        return back()->with('success', 'Comentario añadido correctamente.');
     }
 
     public function iniciarTreball($id)

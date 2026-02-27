@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Incidencia;
 use App\Models\User;
+use App\Models\Comentario;
 use Illuminate\Support\Facades\Auth;
 
 class IncidenciaController extends Controller
@@ -97,6 +98,32 @@ class IncidenciaController extends Controller
         }
 
         return view('gestor.ver_incidencia', compact('incidencia'));
+    }
+
+    public function storeComentarioGestor(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'missatge' => ['required', 'string', 'min:2', 'max:2000'],
+        ], [
+            'missatge.required' => 'El comentario es obligatorio.',
+            'missatge.min' => 'El comentario debe tener al menos 2 caracteres.',
+            'missatge.max' => 'El comentario no puede superar 2000 caracteres.',
+        ]);
+
+        $user = Auth::user();
+        $incidencia = Incidencia::findOrFail($id);
+
+        if ((int) $incidencia->sede_id !== (int) $user->sede_id) {
+            abort(403, 'No tienes permiso para comentar esta incidencia.');
+        }
+
+        Comentario::create([
+            'incidencia_id' => $incidencia->id,
+            'usuario_id' => $user->id,
+            'missatge' => $validated['missatge'],
+        ]);
+
+        return back()->with('success', 'Comentario añadido correctamente.');
     }
 
     public function editGestor($id)

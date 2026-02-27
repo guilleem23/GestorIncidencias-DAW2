@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Incidencia;
 use App\Models\User;
+use App\Models\Comentario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class AdminIncidenciaController extends Controller
 {
@@ -61,6 +63,27 @@ class AdminIncidenciaController extends Controller
     {
         $incidencia = Incidencia::with(['cliente', 'sede', 'tecnico', 'categoria', 'subcategoria', 'comentarios.usuario'])->findOrFail($id);
         return view('admin.ver_incidencia', compact('incidencia'));
+    }
+
+    public function storeComentario(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'missatge' => ['required', 'string', 'min:2', 'max:2000'],
+        ], [
+            'missatge.required' => 'El comentario es obligatorio.',
+            'missatge.min' => 'El comentario debe tener al menos 2 caracteres.',
+            'missatge.max' => 'El comentario no puede superar 2000 caracteres.',
+        ]);
+
+        $incidencia = Incidencia::findOrFail($id);
+
+        Comentario::create([
+            'incidencia_id' => $incidencia->id,
+            'usuario_id' => Auth::id(),
+            'missatge' => $validated['missatge'],
+        ]);
+
+        return back()->with('success', 'Comentario añadido correctamente.');
     }
 
     /**

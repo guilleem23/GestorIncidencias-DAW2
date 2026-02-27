@@ -95,7 +95,7 @@
 
                 <div class="incidencia-description" style="margin-top: 1rem;">
                     <div style="display:flex; align-items:center; justify-content:space-between; gap: 1rem;">
-                        <strong style="font-size: 0.95rem;">Comentarios del cliente</strong>
+                        <strong style="font-size: 0.95rem;">Comentarios</strong>
                         @if($incidencia->comentarios && $incidencia->comentarios->count())
                             <span style="color: var(--texto-secundario); font-size: 0.85rem;">
                                 {{ $incidencia->comentarios->count() }}
@@ -106,13 +106,16 @@
                     @if($incidencia->comentarios && $incidencia->comentarios->count())
                         <div style="margin-top: 0.75rem; display:flex; flex-direction:column; gap:0.75rem;">
                             @foreach($incidencia->comentarios as $comentario)
-                                <div style="border: 1px solid var(--borde, rgba(148, 163, 184, 0.2)); border-radius: 0.75rem; padding: 0.75rem 0.9rem; background: rgba(15, 23, 42, 0.25);">
+                                @php $isMine = (int)($comentario->usuario_id ?? 0) === (int)auth()->id(); @endphp
+                                <div style="display:flex;">
+                                    <div style="max-width: 92%; margin-left: {{ $isMine ? 'auto' : '0' }}; border: 1px solid var(--borde, rgba(148, 163, 184, 0.2)); border-radius: 0.75rem; padding: 0.75rem 0.9rem; background: {{ $isMine ? 'rgba(15, 23, 42, 0.40)' : 'rgba(15, 23, 42, 0.25)' }};">
                                     <div style="display:flex; justify-content:space-between; gap: 1rem; align-items: baseline;">
                                         <span style="font-weight: 600; font-size: 0.9rem;">{{ $comentario->usuario?->name ?? 'Usuario' }}</span>
                                         <span style="color: var(--texto-secundario); font-size: 0.8rem; white-space: nowrap;">{{ $comentario->created_at?->format('d/m/Y H:i') }}</span>
                                     </div>
                                     <div style="margin-top: 0.4rem; color: var(--texto-secundario);">
                                         {!! nl2br(e($comentario->missatge)) !!}
+                                    </div>
                                     </div>
                                 </div>
                             @endforeach
@@ -122,6 +125,23 @@
                             <i class="fas fa-comment-dots"></i> Sin comentarios todavía
                         </div>
                     @endif
+
+                    <form method="POST" action="{{ route('tecnic.incidencias.comentarios.store', $incidencia->id) }}" style="margin-top: 0.9rem;">
+                        @csrf
+                        <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                            <textarea name="missatge" rows="3" class="comment-textarea" placeholder="Responder en la incidencia..."></textarea>
+                            @error('missatge')
+                                <span class="error-message" style="margin-top: 0;">
+                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                </span>
+                            @enderror
+                            <div style="display:flex; justify-content:flex-end;">
+                                <button type="submit" class="btn btn-primary" style="padding: 0.55rem 1rem;">
+                                    <i class="fas fa-paper-plane"></i> Enviar
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
 
                 <div class="incidencia-actions">
