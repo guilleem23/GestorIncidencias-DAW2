@@ -36,7 +36,7 @@
                     <div class="info-grid">
                         <div class="form-group">
                             <label class="form-label" for="titol">Título de la Incidencia</label>
-                            <input type="text" id="titol" name="titol" class="form-control" value="{{ old('titol', $incidencia->titol) }}" required>
+                            <input type="text" id="titol" name="titol" class="form-control" value="{{ old('titol', $incidencia->titol) }}">
                         </div>
                         
                         <div class="form-group">
@@ -55,7 +55,7 @@
                     <div class="info-grid">
                         <div class="form-group">
                             <label class="form-label" for="categoria_id">Categoría</label>
-                            <select id="categoria_id" name="categoria_id" class="form-select" required>
+                            <select id="categoria_id" name="categoria_id" class="form-select">
                                 @foreach($categorias as $cat)
                                     <option value="{{ $cat->id }}" {{ (old('categoria_id', $incidencia->categoria_id) == $cat->id) ? 'selected' : '' }}>
                                         {{ $cat->nom }}
@@ -66,7 +66,7 @@
                         
                         <div class="form-group">
                             <label class="form-label" for="subcategoria_id">Subcategoría</label>
-                            <select id="subcategoria_id" name="subcategoria_id" class="form-select" required>
+                            <select id="subcategoria_id" name="subcategoria_id" class="form-select">
                                 <!-- Se cargarán vía JS o se asume cargado -->
                                 @foreach($categorias->firstWhere('id', old('categoria_id', $incidencia->categoria_id))->subcategorias as $sub)
                                     <option value="{{ $sub->id }}" {{ (old('subcategoria_id', $incidencia->subcategoria_id) == $sub->id) ? 'selected' : '' }}>
@@ -80,7 +80,7 @@
                     <div class="info-grid">
                         <div class="form-group">
                             <label class="form-label" for="estat">Estado</label>
-                            <select id="estat" name="estat" class="form-select" required>
+                            <select id="estat" name="estat" class="form-select">
                                 <option value="Sense assignar" {{ (old('estat', $incidencia->estat) === 'Sense assignar') ? 'selected' : '' }}>Sense assignar</option>
                                 <option value="Assignada" {{ (old('estat', $incidencia->estat) === 'Assignada') ? 'selected' : '' }}>Assignada</option>
                                 <option value="En treball" {{ (old('estat', $incidencia->estat) === 'En treball') ? 'selected' : '' }}>En treball</option>
@@ -91,7 +91,7 @@
                         
                         <div class="form-group">
                             <label class="form-label" for="prioritat">Prioridad</label>
-                            <select id="prioritat" name="prioritat" class="form-select" required>
+                            <select id="prioritat" name="prioritat" class="form-select">
                                 <option value="alta" {{ (old('prioritat', $incidencia->prioritat) === 'alta') ? 'selected' : '' }}>Alta</option>
                                 <option value="mitjana" {{ (old('prioritat', $incidencia->prioritat) === 'mitjana') ? 'selected' : '' }}>Media</option>
                                 <option value="baixa" {{ (old('prioritat', $incidencia->prioritat) === 'baixa') ? 'selected' : '' }}>Baja</option>
@@ -101,7 +101,7 @@
 
                     <div class="form-group">
                         <label class="form-label" for="descripcio">Descripción de la Incidencia</label>
-                        <textarea id="descripcio" name="descripcio" class="form-control" required>{{ old('descripcio', $incidencia->descripcio) }}</textarea>
+                        <textarea id="descripcio" name="descripcio" class="form-control">{{ old('descripcio', $incidencia->descripcio) }}</textarea>
                     </div>
 
                     <div class="form-actions">

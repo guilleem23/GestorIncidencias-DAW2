@@ -33,18 +33,6 @@
                 Usuarios
             </a>
         </li>
-        <li class="nav-item">
-            <a href="#">
-                <span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span>
-                Estadísticas
-            </a>
-        </li>
-        <li class="nav-item" style="margin-top: auto;">
-            <a href="#">
-                <span class="nav-icon"><i class="fa-solid fa-gear"></i></span>
-                Configuración
-            </a>
-        </li>
     </ul>
 
     <!-- Footer de Sidebar: Perfil de Usuario y Logout -->
@@ -56,6 +44,7 @@
             <div class="user-info">
                 <span class="user-name">{{ Auth::user()->name ?? 'Administrador' }}</span>
                 <span class="user-role">Administrador</span>
+                <span class="user-email" style="font-size: 0.75rem; opacity: 0.7;">{{ Auth::user()->email ?? '' }}</span>
             </div>
         </div>
         

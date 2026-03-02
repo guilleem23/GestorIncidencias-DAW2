@@ -39,9 +39,14 @@ class AdminIncidenciaController extends Controller
 
         // Sorting
         $orden = $request->get('orden', 'desc');
+        $orden = in_array($orden, ['asc', 'desc'], true) ? $orden : 'desc';
         $query->orderBy('created_at', $orden);
 
         $incidencias = $query->paginate(10)->withQueryString();
+
+        if ($request->ajax()) {
+            return view('admin.partials.tabla_incidencias', compact('incidencias'));
+        }
 
         $sedes = \App\Models\Sede::orderBy('nom')->get();
 
@@ -53,7 +58,7 @@ class AdminIncidenciaController extends Controller
      */
     public function show($id)
     {
-        $incidencia = Incidencia::with(['cliente', 'sede', 'tecnico', 'categoria', 'subcategoria'])->findOrFail($id);
+        $incidencia = Incidencia::with(['cliente', 'sede', 'tecnico', 'categoria', 'subcategoria', 'comentarios.usuario'])->findOrFail($id);
         return view('admin.ver_incidencia', compact('incidencia'));
     }
 

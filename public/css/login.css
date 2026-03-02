@@ -251,6 +251,14 @@ input.input-error:focus {
     transform: translateY(1px);
 }
 
+.boton-login.btn-login-disabled {
+    background-color: #4b5563 !important;
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none !important;
+    pointer-events: none;
+}
+
 /* Alerta General de Error */
 .error-general {
     display: none;

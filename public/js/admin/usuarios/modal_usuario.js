@@ -22,10 +22,11 @@ function closeAllModals() {
 
 // Delegación de eventos usando addEventListener para evitar conflictos
 document.addEventListener('click', function (e) {
-    const btn = e.target.closest('[name="editar_usuario"]');
-    if (btn) {
+    // BOTÓN EDITAR
+    const btnEdit = e.target.closest('[name="editar_usuario"]');
+    if (btnEdit) {
         closeAllModals();
-        const id = btn.value;
+        const id = btnEdit.value;
         fetch(`/admin/usuarios/${id}/edit`)
             .then(res => {
                 if (!res.ok) throw new Error('Error al cargar');
@@ -37,13 +38,8 @@ document.addEventListener('click', function (e) {
                 const modal = new bootstrap.Modal(modalEl);
                 modal.show();
 
-
-                // Lanzar validación JS de editar usuario
                 if (typeof window.iniciarValidacionEditarUsuario === 'function') {
-
                     window.iniciarValidacionEditarUsuario();
-                } else {
-                    console.warn("La función iniciarValidacionEditarUsuario no existe globalmente.");
                 }
             })
             .catch(error => {
@@ -51,6 +47,38 @@ document.addEventListener('click', function (e) {
                 Swal.fire({
                     title: 'Error',
                     text: 'No se pudo cargar el formulario para editar el usuario.',
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+            });
+    }
+
+    // BOTÓN VER (NUEVO)
+    const btnView = e.target.closest('[name="ver_usuario"]');
+    if (btnView) {
+        closeAllModals();
+        const id = btnView.value;
+        // Animación de carga opcional o estado visual
+        fetch(`/admin/usuarios/${id}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('Error al cargar detalle');
+                return res.text();
+            })
+            .then(html => {
+                document.getElementById('modal-ver-content').innerHTML = html;
+                const modalEl = document.getElementById('modalVerUsuario');
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            })
+            .catch(error => {
+                console.error(error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No se pudo cargar el detalle del usuario.',
                     icon: 'error',
                     confirmButtonText: 'Aceptar'
                 });

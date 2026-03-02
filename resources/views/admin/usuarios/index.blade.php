@@ -150,6 +150,21 @@
             </div>
         </div>
     </div>
+    <!-- Modal Bootstrap para ver usuario -->
+    <div class="modal fade usuarios-modal" id="modalVerUsuario" tabindex="-1" aria-labelledby="modalVerUsuarioLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark text-white shadow-lg" style="border: 1px solid rgba(255,255,255,0.1);">
+                <div class="modal-header bg-dark text-white border-bottom-0">
+                    <h5 class="modal-title" id="modalVerUsuarioLabel">Detalle del Usuario</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body usuarios-modal-body bg-dark text-white p-0" id="modal-ver-content">
+                    <!-- El contenido del detalle se cargará dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Asegúrate de tener Bootstrap JS y CSS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

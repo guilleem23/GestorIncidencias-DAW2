@@ -75,7 +75,7 @@
                         <td>
                             <form action="{{ route('gestor.assignar', $incidencia->id) }}" method="POST" class="assign-form">
                                 @csrf
-                                <select name="tecnic_id" class="filter-select assign-select" required>
+                                <select name="tecnic_id" class="filter-select assign-select">
                                     <option value="" disabled selected>Seleccionar técnico...</option>
                                     @foreach($tecnics as $t)
                                         <option value="{{ $t->id }}">{{ $t->name }}</option>

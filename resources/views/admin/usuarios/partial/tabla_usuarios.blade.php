@@ -44,6 +44,11 @@
                         </td>
                         <td>
                             <div class="actions-cell">
+                                @if ($usuario->rol === 'client')
+                                    <button type="button" class="btn-icon btn-view" title="Ver Detalle" name="ver_usuario" value="{{ $usuario->id }}">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                @endif
                                 <button type="button" class="btn-icon btn-edit btn-editar-usuario"
                                     name="editar_usuario" title="Editar Usuario" value="{{ $usuario->id }}">
                                     <i class="fa-solid fa-pen"></i>
@@ -68,7 +73,7 @@
 
         @if($usuarios->hasPages())
             <div class="pagination-wrapper" style="margin-top: 2rem;">
-                {{ $usuarios->links() }}
+                {{ $usuarios->links('pagination::bootstrap-5') }}
             </div>
             <div style="text-align: center; color: var(--text-secondary); margin-top: 1rem; font-size: 0.9rem;">
                 Mostrando {{ $usuarios->firstItem() }} a {{ $usuarios->lastItem() }} de {{ $usuarios->total() }} usuarios

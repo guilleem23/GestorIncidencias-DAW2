@@ -2,7 +2,7 @@
     @csrf
     <div class="mb-3">
         <label class="form-label text-light">Nombre de la Sede:</label>
-        <input type="text" class="form-control form-control-dark" name="nom" value="{{ old('nom') }}" placeholder="Ej: Barcelona, Madrid..." required>
+        <input type="text" class="form-control form-control-dark" name="nom" value="{{ old('nom') }}" placeholder="Ej: Barcelona, Madrid...">
         <div class="text-danger small">@error('nom'){{ $message }}@enderror</div>
     </div>
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Incidencia;
 use App\Models\Sede;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -280,5 +281,41 @@ class UserController extends Controller
             ->get();
 
         return view('gestor.usuarios', compact('tecnicos'));
+    }
+
+    /**
+     * Detalle de un cliente (solo admin).
+     */
+    public function show($id)
+    {
+        $usuario = User::with('sede')
+            ->findOrFail($id);
+
+        $totalIncidencias = Incidencia::where('client_id', $usuario->id)->count();
+
+        if (request()->ajax()) {
+            return view('admin.usuarios.partial.ver_usuario', compact('usuario', 'totalIncidencias'));
+        }
+
+        return view('admin.usuarios.show_full', compact('usuario', 'totalIncidencias'));
+    }
+
+    /**
+     * Detalle de un cliente (solo gestor de la misma sede).
+     */
+    public function showGestor($id)
+    {
+        $gestor = auth()->user();
+
+        $usuario = User::with('sede')
+            ->where('rol', 'client')
+            ->where('sede_id', $gestor->sede_id)
+            ->findOrFail($id);
+
+        $totalIncidencias = Incidencia::where('client_id', $usuario->id)
+            ->where('sede_id', $gestor->sede_id)
+            ->count();
+
+        return view('gestor.cliente_show', compact('usuario', 'totalIncidencias'));
     }
 }

@@ -1,14 +1,18 @@
 /**
- * Gestión de filtros AJAX para la tabla de incidencias (historial)
+ * Gestión de filtros AJAX para la tabla de incidencias (Admin y Gestor)
+ * Siguiendo el patrón de admin/usuarios/filtros.js
  */
 document.addEventListener('DOMContentLoaded', function () {
     const filterBuscar = document.getElementById('filter-buscar');
     const filterEstat = document.getElementById('filter-estat');
     const filterPrioritat = document.getElementById('filter-prioritat');
     const filterTecnic = document.getElementById('filter-tecnic');
+    const filterSede = document.getElementById('filter-sede');
     const filterOrden = document.getElementById('filter-orden');
     const btnLimpiar = document.getElementById('btn-clear-filters');
-    const tableContainer = document.getElementById('incidencias-table-wrapper');
+
+    // Contenedor dinámico según el panel
+    const tableContainer = document.getElementById('incidencias-table-container') || document.getElementById('incidencias-table-wrapper');
 
     let timeout = null;
 
@@ -16,109 +20,105 @@ document.addEventListener('DOMContentLoaded', function () {
      * Realiza la petición AJAX al servidor
      */
     function fetchIncidencias(url = null) {
+        if (!tableContainer) return;
+
+        const buscarVal = filterBuscar ? filterBuscar.value.trim() : '';
+        const estatVal = filterEstat ? filterEstat.value : '';
+        const prioritatVal = filterPrioritat ? filterPrioritat.value : '';
+        const tecnicVal = filterTecnic ? filterTecnic.value : '';
+        const sedeVal = filterSede ? filterSede.value : '';
+        const ordenVal = filterOrden ? filterOrden.value : 'desc';
+
         const paramsObj = {};
-        if (filterBuscar && filterBuscar.value.trim()) paramsObj.buscar = filterBuscar.value.trim();
-        if (filterEstat && filterEstat.value) paramsObj.estat = filterEstat.value;
-        if (filterPrioritat && filterPrioritat.value) paramsObj.prioritat = filterPrioritat.value;
-        if (filterTecnic && filterTecnic.value) paramsObj.tecnic_id = filterTecnic.value;
-        if (filterOrden && filterOrden.value) paramsObj.orden = filterOrden.value;
+        if (buscarVal) paramsObj.buscar = buscarVal;
+        if (estatVal) paramsObj.estat = estatVal;
+        if (prioritatVal) paramsObj.prioritat = prioritatVal;
+        if (tecnicVal) paramsObj.tecnic_id = tecnicVal;
+        if (sedeVal) paramsObj.sede_id = sedeVal;
+        if (ordenVal && ordenVal !== 'desc') paramsObj.orden = ordenVal;
+
+        // El controlador espera 'ajax' para devolver el partial
+        paramsObj.ajax = '1';
 
         const params = new URLSearchParams(paramsObj);
-        // Base URL limpia (sin query string previo)
-        const baseUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
-        let finalUrl = url || `${baseUrl}?${params.toString()}`;
+        let finalUrl = url || `${window.location.pathname}?${params.toString()}`;
 
-        // Para el fetch, añadimos siempre ajax=1 para forzar la respuesta parcial del controlador
-        const fetchParams = new URLSearchParams(paramsObj);
-        fetchParams.set('ajax', '1');
-
-        let fetchUrl = finalUrl;
+        // Inyectar filtros actuales en la URL de paginación
         if (url) {
             const tempUrl = new URL(url, window.location.origin);
-            Object.keys(paramsObj).forEach(key => tempUrl.searchParams.set(key, paramsObj[key]));
-            tempUrl.searchParams.set('ajax', '1');
-            fetchUrl = tempUrl.toString();
-        } else {
-            fetchUrl = `${baseUrl}?${fetchParams.toString()}`;
-        }
-
-        // Actualizar URL en el navegador sin recargar (URL limpia sin ajax=1)
-        if (!url) {
-            history.pushState(null, '', `${baseUrl}?${params.toString()}`);
-        } else {
-            const historyUrl = new URL(url, window.location.origin);
-            Object.keys(paramsObj).forEach(key => historyUrl.searchParams.set(key, paramsObj[key]));
-            history.pushState(null, '', historyUrl.toString());
+            Object.keys(paramsObj).forEach(key => {
+                tempUrl.searchParams.set(key, paramsObj[key]);
+            });
+            finalUrl = tempUrl.toString();
         }
 
         // Estado de carga
-        if (tableContainer) tableContainer.style.opacity = '0.5';
+        tableContainer.style.opacity = '0.5';
 
-        fetch(fetchUrl, {
+        fetch(finalUrl, {
             headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'text/html'
+                'X-Requested-With': 'XMLHttpRequest'
             }
         })
-            .then(response => {
-                if (!response.ok) throw new Error('Error en el servidor');
-                return response.text();
-            })
+            .then(response => response.text())
             .then(html => {
-                if (tableContainer) {
-                    tableContainer.innerHTML = html;
-                    tableContainer.style.opacity = '1';
-                    // Scroll suave hacia arriba si es paginación o filtros
-                    if (url) {
-                        tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
+                tableContainer.innerHTML = html;
+                tableContainer.style.opacity = '1';
+                // Scroll suave si es paginación
+                if (url) {
+                    tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             })
             .catch(error => {
                 console.error('Error al filtrar incidencias:', error);
-                if (tableContainer) tableContainer.style.opacity = '1';
+                tableContainer.style.opacity = '1';
             });
     }
 
-    // Eventos (EventListener para mayor robustez)
+    // Buscador (oninput con debounce de 100ms como en usuarios)
     if (filterBuscar) {
-        filterBuscar.addEventListener('input', function () {
+        filterBuscar.oninput = function () {
             clearTimeout(timeout);
             timeout = setTimeout(fetchIncidencias, 100);
-        });
-        filterBuscar.addEventListener('keydown', function (e) {
+        };
+        // Prevenir Enter
+        filterBuscar.onkeydown = function (e) {
             if (e.key === 'Enter') e.preventDefault();
-        });
+        };
     }
 
-    [filterEstat, filterPrioritat, filterTecnic, filterOrden].filter(Boolean).forEach(filter => {
-        filter.addEventListener('change', () => fetchIncidencias());
+    // Selectores (onchange instantáneo)
+    [filterEstat, filterPrioritat, filterTecnic, filterSede, filterOrden].filter(Boolean).forEach(filter => {
+        filter.onchange = () => fetchIncidencias();
     });
 
+    // Botón Limpiar (onclick)
     if (btnLimpiar) {
-        btnLimpiar.addEventListener('click', function (e) {
-            e.preventDefault();
+        btnLimpiar.onclick = function () {
             if (filterBuscar) filterBuscar.value = '';
             if (filterEstat) filterEstat.value = '';
             if (filterPrioritat) filterPrioritat.value = '';
             if (filterTecnic) filterTecnic.value = '';
+            if (filterSede) filterSede.value = '';
             if (filterOrden) filterOrden.value = 'desc';
+
             fetchIncidencias();
-        });
+        };
     }
 
+    // Delegación de eventos para la paginación (onclick)
     if (tableContainer) {
-        tableContainer.addEventListener('click', function (e) {
+        tableContainer.onclick = function (e) {
             const link = e.target.closest('.pagination a');
             if (link) {
                 e.preventDefault();
                 fetchIncidencias(link.href);
             }
-        });
+        };
     }
 
     // ----------------------------------------------------------------
-    // Lógica de Categorías y Edición (Mantenida)
+    // Lógica adicional (Categorías / Edición) - Si aplica
     // ----------------------------------------------------------------
     const categoriaSelect = document.getElementById('categoria_id');
     const subcategoriaSelect = document.getElementById('subcategoria_id');
@@ -148,29 +148,33 @@ document.addEventListener('DOMContentLoaded', function () {
                 formEditar.reportValidity();
                 return;
             }
-            Swal.fire({
-                title: '¿Guardar los cambios?',
-                text: "Los datos de la incidencia serán actualizados en el sistema.",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#3b82f6',
-                cancelButtonColor: '#4b5563',
-                confirmButtonText: 'Sí, guardar',
-                cancelButtonText: 'No, cancelar',
-                background: '#1e293b',
-                color: '#f8fafc'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'Guardando...',
-                        allowOutsideClick: false,
-                        didOpen: () => { Swal.showLoading(); },
-                        background: '#1e293b',
-                        color: '#f8fafc'
-                    });
-                    formEditar.submit();
-                }
-            });
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: '¿Guardar los cambios?',
+                    text: "Los datos de la incidencia serán actualizados en el sistema.",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3b82f6',
+                    cancelButtonColor: '#4b5563',
+                    confirmButtonText: 'Sí, guardar',
+                    cancelButtonText: 'No, cancelar',
+                    background: '#1e293b',
+                    color: '#f8fafc'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Guardando...',
+                            allowOutsideClick: false,
+                            didOpen: () => { Swal.showLoading(); },
+                            background: '#1e293b',
+                            color: '#f8fafc'
+                        });
+                        formEditar.submit();
+                    }
+                });
+            } else {
+                formEditar.submit();
+            }
         };
     }
 });

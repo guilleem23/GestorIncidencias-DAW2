@@ -17,7 +17,7 @@ class TecnicController extends Controller
         // Filtrar por defecto para no mostrar las cerradas
         $incidencies = Incidencia::where('tecnic_id', $tecnic->id)
             ->whereIn('estat', ['Assignada', 'En treball', 'Resolta'])
-            ->with(['cliente', 'categoria', 'subcategoria'])
+            ->with(['cliente', 'categoria', 'subcategoria', 'comentarios.usuario'])
             ->orderBy('prioritat', 'desc')
             ->orderBy('created_at', 'asc')
             ->get();

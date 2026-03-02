@@ -11,6 +11,7 @@ class Incidencia extends Model
         'titol', 
         'descripcio', 
         'estat', 
+        'prioritat',
         'sede_id', 
         'categoria_id',
         'subcategoria_id', 
@@ -42,5 +43,10 @@ class Incidencia extends Model
     // Relación con subcategoría
     public function subcategoria() {
         return $this->belongsTo(Subcategoria::class);
+    }
+
+    public function comentarios()
+    {
+        return $this->hasMany(Comentario::class, 'incidencia_id')->orderBy('created_at', 'asc');
     }
 }

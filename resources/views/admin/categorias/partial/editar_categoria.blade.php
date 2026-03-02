@@ -3,7 +3,7 @@
     @method('PUT')
     <div class="mb-3">
         <label class="form-label text-light">Nombre:</label>
-        <input type="text" class="form-control form-control-dark" name="nom" value="{{ old('nom', $categoria->nom) }}" required>
+        <input type="text" class="form-control form-control-dark" name="nom" value="{{ old('nom', $categoria->nom) }}">
         @error('nom')
             <div class="text-danger small">{{ $message }}</div>
         @enderror
