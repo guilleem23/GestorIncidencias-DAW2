@@ -39,7 +39,7 @@
             <div class="sede-card">
                 <div class="sede-image-wrapper-banner">
                     @if($sede->imagen)
-                        <img src="{{ asset('storage/' . $sede->imagen) }}" alt="Imagen Sede" class="sede-img-banner">
+                        <img src="{{ asset($sede->imagen) }}" alt="Imagen Sede" class="sede-img-banner">
                     @else
                         <img src="{{ asset('img/sede_default.jpg') }}" alt="Sede Default" class="sede-img-banner">
                     @endif

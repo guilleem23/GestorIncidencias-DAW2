@@ -36,7 +36,7 @@
         <label class="form-label text-light">Imagen:</label>
         @if($sede->imagen)
             <div class="mb-2">
-                <img src="{{ asset('storage/' . $sede->imagen) }}" alt="Imagen actual" style="max-height: 100px; border-radius: 5px;">
+                <img src="{{ asset($sede->imagen) }}" alt="Imagen actual" style="max-height: 100px; border-radius: 5px;">
             </div>
         @endif
         <input type="file" class="form-control form-control-dark" name="imagen" accept="image/*">
