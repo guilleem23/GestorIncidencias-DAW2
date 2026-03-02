@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Incidencia;
 use App\Models\User;
+use App\Models\Comentario;
 use Illuminate\Support\Facades\Auth;
 
 class IncidenciaController extends Controller
@@ -45,7 +46,8 @@ class IncidenciaController extends Controller
         if ($request->filled('buscar')) {
             $buscar = $request->buscar;
             $query->where(function($q) use ($buscar) {
-                $q->where('titol', 'like', "%{$buscar}%")
+                $q->where('id', $buscar)
+                  ->orWhere('titol', 'like', "%{$buscar}%")
                   ->orWhere('descripcio', 'like', "%{$buscar}%")
                   ->orWhereHas('cliente', function($q2) use ($buscar) {
                       $q2->where('name', 'like', "%{$buscar}%");
@@ -99,6 +101,32 @@ class IncidenciaController extends Controller
         return view('gestor.ver_incidencia', compact('incidencia'));
     }
 
+    public function storeComentarioGestor(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'missatge' => ['required', 'string', 'min:2', 'max:2000'],
+        ], [
+            'missatge.required' => 'El comentario es obligatorio.',
+            'missatge.min' => 'El comentario debe tener al menos 2 caracteres.',
+            'missatge.max' => 'El comentario no puede superar 2000 caracteres.',
+        ]);
+
+        $user = Auth::user();
+        $incidencia = Incidencia::findOrFail($id);
+
+        if ((int) $incidencia->sede_id !== (int) $user->sede_id) {
+            abort(403, 'No tienes permiso para comentar esta incidencia.');
+        }
+
+        Comentario::create([
+            'incidencia_id' => $incidencia->id,
+            'usuario_id' => $user->id,
+            'missatge' => $validated['missatge'],
+        ]);
+
+        return back()->with('success', 'Comentario añadido correctamente.');
+    }
+
     public function editGestor($id)
     {
         $user = Auth::user();
@@ -136,6 +164,14 @@ class IncidenciaController extends Controller
             'estat' => 'required|in:Sense assignar,Assignada,En treball,Resolta,Tancada',
             'prioritat' => 'required|in:alta,mitjana,baixa',
         ]);
+
+        if (!empty($validated['tecnic_id']) && $validated['estat'] === 'Sense assignar') {
+            return back()->withErrors(['estat' => 'El estado no puede ser "Sense assignar" si hay un técnico asignado.'])->withInput();
+        }
+
+        if (empty($validated['tecnic_id']) && $validated['estat'] !== 'Sense assignar') {
+            return back()->withErrors(['tecnic_id' => 'Debe asignar un técnico si el estado no es "Sense assignar".'])->withInput();
+        }
 
         $incidencia->update($validated);
 

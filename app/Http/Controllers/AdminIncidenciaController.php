@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Incidencia;
 use App\Models\User;
+use App\Models\Comentario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class AdminIncidenciaController extends Controller
 {
@@ -20,7 +22,8 @@ class AdminIncidenciaController extends Controller
         if ($request->filled('buscar')) {
             $buscar = $request->buscar;
             $query->where(function ($q) use ($buscar) {
-                $q->where('titol', 'LIKE', "%{$buscar}%")
+                $q->where('id', $buscar)
+                  ->orWhere('titol', 'LIKE', "%{$buscar}%")
                   ->orWhere('descripcio', 'LIKE', "%{$buscar}%")
                   ->orWhereHas('cliente', fn($q2) => $q2->where('name', 'LIKE', "%{$buscar}%"));
             });
@@ -60,6 +63,27 @@ class AdminIncidenciaController extends Controller
     {
         $incidencia = Incidencia::with(['cliente', 'sede', 'tecnico', 'categoria', 'subcategoria', 'comentarios.usuario'])->findOrFail($id);
         return view('admin.ver_incidencia', compact('incidencia'));
+    }
+
+    public function storeComentario(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'missatge' => ['required', 'string', 'min:2', 'max:2000'],
+        ], [
+            'missatge.required' => 'El comentario es obligatorio.',
+            'missatge.min' => 'El comentario debe tener al menos 2 caracteres.',
+            'missatge.max' => 'El comentario no puede superar 2000 caracteres.',
+        ]);
+
+        $incidencia = Incidencia::findOrFail($id);
+
+        Comentario::create([
+            'incidencia_id' => $incidencia->id,
+            'usuario_id' => Auth::id(),
+            'missatge' => $validated['missatge'],
+        ]);
+
+        return back()->with('success', 'Comentario añadido correctamente.');
     }
 
     /**
@@ -144,6 +168,14 @@ class AdminIncidenciaController extends Controller
             'estat' => 'required|in:Sense assignar,Assignada,En treball,Resolta,Tancada',
             'prioritat' => 'required|in:alta,mitjana,baixa',
         ]);
+
+        if (!empty($validated['tecnic_id']) && $validated['estat'] === 'Sense assignar') {
+            return back()->withErrors(['estat' => 'El estado no puede ser "Sin asignar" si hay un técnico asignado.'])->withInput();
+        }
+
+        if (empty($validated['tecnic_id']) && $validated['estat'] !== 'Sense assignar') {
+            return back()->withErrors(['tecnic_id' => 'Debe asignar un técnico si el estado no es "Sin asignar".'])->withInput();
+        }
 
         $incidencia->update($validated);
 
