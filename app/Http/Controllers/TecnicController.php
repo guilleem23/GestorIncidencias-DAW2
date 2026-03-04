@@ -14,16 +14,102 @@ class TecnicController extends Controller
         // Obtener el técnico autenticado
         $tecnic = Auth::user();
         
-        // Obtener incidencias asignadas a este técnico
-        // Filtrar por defecto para no mostrar las cerradas
+        // Solo tareas activas (sin cerradas)
         $incidencies = Incidencia::where('tecnic_id', $tecnic->id)
             ->whereIn('estat', ['Assignada', 'En treball', 'Resolta'])
             ->with(['cliente', 'categoria', 'subcategoria', 'comentarios.usuario'])
             ->orderBy('prioritat', 'desc')
             ->orderBy('created_at', 'asc')
             ->get();
+        
+        // Contador de incidencias cerradas
+        $incidenciesTancades = Incidencia::where('tecnic_id', $tecnic->id)
+            ->where('estat', 'Tancada')
+            ->count();
 
-        return view('tecnic.index', compact('incidencies'));
+        return view('tecnic.index', compact('incidencies', 'incidenciesTancades'));
+    }
+
+    public function totesTasques(Request $request)
+    {
+        // Obtener el técnico autenticado
+        $tecnic = Auth::user();
+        
+        // Obtener filtros
+        $estatFilter = $request->get('estat');
+        
+        // Construir query base - TODAS las incidencias del técnico
+        $query = Incidencia::where('tecnic_id', $tecnic->id)
+            ->with(['cliente', 'categoria', 'subcategoria', 'comentarios.usuario']);
+        
+        // Aplicar filtro por estado si existe
+        if ($estatFilter) {
+            $query->where('estat', $estatFilter);
+        }
+        
+        // Ordenar
+        $query->orderBy('prioritat', 'desc')
+              ->orderBy('created_at', 'asc');
+        
+        $incidencies = $query->get();
+        
+        // Contador de incidencias cerradas
+        $incidenciesTancades = Incidencia::where('tecnic_id', $tecnic->id)
+            ->where('estat', 'Tancada')
+            ->count();
+        
+        // Estados disponibles
+        $estats = [
+            'Assignada' => 'Asignada',
+            'En treball' => 'En trabajo',
+            'Resolta' => 'Resuelta',
+            'Tancada' => 'Cerrada',
+        ];
+        
+        // Si es petición AJAX, devolver JSON
+        if ($request->ajax()) {
+            $fullHtml = view('tecnic.totes', compact('incidencies', 'incidenciesTancades', 'estats', 'estatFilter'))->render();
+            
+            // Extraer el contenido del div incidencias-container
+            if (preg_match('/<div id="incidencias-container">(.*?)<\/div>\s*<!--\s*Loader AJAX/s', $fullHtml, $matches)) {
+                $html = $matches[1];
+            } else {
+                $html = '';
+            }
+            
+            // Calcular estadísticas
+            $stats = [
+                'assignades' => Incidencia::where('tecnic_id', $tecnic->id)->where('estat', 'Assignada')->count(),
+                'enTreball' => Incidencia::where('tecnic_id', $tecnic->id)->where('estat', 'En treball')->count(),
+                'resoltes' => Incidencia::where('tecnic_id', $tecnic->id)->where('estat', 'Resolta')->count(),
+                'tancades' => $incidenciesTancades,
+                'total' => $incidencies->count(),
+            ];
+            
+            return response()->json([
+                'success' => true,
+                'html' => $html,
+                'stats' => $stats,
+                'count' => $incidencies->count()
+            ]);
+        }
+
+        return view('tecnic.totes', compact('incidencies', 'incidenciesTancades', 'estats', 'estatFilter'));
+    }
+
+    /**
+     * Muestra el detalle de una incidencia.
+     */
+    public function show($id)
+    {
+        $incidencia = Incidencia::with(['cliente', 'sede', 'tecnico', 'categoria', 'subcategoria', 'comentarios.usuario'])->findOrFail($id);
+        
+        // Verificar que la incidencia pertenece al técnico autenticado
+        if ($incidencia->tecnic_id !== Auth::id()) {
+            abort(403, 'No tienes permiso para ver esta incidencia.');
+        }
+
+        return view('tecnic.ver_incidencia', compact('incidencia'));
     }
 
     public function iniciarTreball($id)
