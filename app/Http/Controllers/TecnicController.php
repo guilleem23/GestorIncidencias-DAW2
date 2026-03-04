@@ -65,34 +65,6 @@ class TecnicController extends Controller
             'Resolta' => 'Resuelta',
             'Tancada' => 'Cerrada',
         ];
-        
-        // Si es petición AJAX, devolver JSON
-        if ($request->ajax()) {
-            $fullHtml = view('tecnic.totes', compact('incidencies', 'incidenciesTancades', 'estats', 'estatFilter'))->render();
-            
-            // Extraer el contenido del div incidencias-container
-            if (preg_match('/<div id="incidencias-container">(.*?)<\/div>\s*<!--\s*Loader AJAX/s', $fullHtml, $matches)) {
-                $html = $matches[1];
-            } else {
-                $html = '';
-            }
-            
-            // Calcular estadísticas
-            $stats = [
-                'assignades' => Incidencia::where('tecnic_id', $tecnic->id)->where('estat', 'Assignada')->count(),
-                'enTreball' => Incidencia::where('tecnic_id', $tecnic->id)->where('estat', 'En treball')->count(),
-                'resoltes' => Incidencia::where('tecnic_id', $tecnic->id)->where('estat', 'Resolta')->count(),
-                'tancades' => $incidenciesTancades,
-                'total' => $incidencies->count(),
-            ];
-            
-            return response()->json([
-                'success' => true,
-                'html' => $html,
-                'stats' => $stats,
-                'count' => $incidencies->count()
-            ]);
-        }
 
         return view('tecnic.totes', compact('incidencies', 'incidenciesTancades', 'estats', 'estatFilter'));
     }

@@ -26,7 +26,7 @@
 
     <!-- Filtros -->
     <div class="filters-container">
-        <form method="GET" action="{{ route('tecnic.totes') }}" id="filtros-form">
+        <form method="GET" action="{{ route('tecnic.totes') }}">
             <div class="filters-grid">
                 <!-- Filtro por Estado -->
                 <div class="filter-group">
@@ -57,29 +57,29 @@
     <!-- Estadísticas -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-number" id="stat-assignades">{{ $incidencies->where('estat', 'Assignada')->count() }}</div>
+            <div class="stat-number">{{ $incidencies->where('estat', 'Assignada')->count() }}</div>
             <div class="stat-label">Pendientes de iniciar</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number" id="stat-entreball">{{ $incidencies->where('estat', 'En treball')->count() }}</div>
+            <div class="stat-number">{{ $incidencies->where('estat', 'En treball')->count() }}</div>
             <div class="stat-label">En trabajo</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number" id="stat-resoltes">{{ $incidencies->where('estat', 'Resolta')->count() }}</div>
+            <div class="stat-number">{{ $incidencies->where('estat', 'Resolta')->count() }}</div>
             <div class="stat-label">Resueltas</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number" id="stat-tancades">{{ $incidenciesTancades }}</div>
+            <div class="stat-number">{{ $incidenciesTancades }}</div>
             <div class="stat-label">Completadas</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number" id="stat-total">{{ $incidencies->count() }}</div>
+            <div class="stat-number">{{ $incidencies->count() }}</div>
             <div class="stat-label">Total mostradas</div>
         </div>
     </div>
 
     <!-- Lista de Incidencias -->
-    <div id="incidencias-container">
+    <div>
     @if($incidencies->count() > 0)
         @foreach($incidencies as $incidencia)
             <div class="incidencia-card">
@@ -244,16 +244,4 @@
         </div>
     @endif
     </div>
-    
-    <!-- Loader AJAX -->
-    <div id="loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
-        <div style="background: var(--card-bg); padding: 2rem; border-radius: var(--radius-lg); text-align: center;">
-            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary-color);"></i>
-            <p style="margin-top: 1rem; color: var(--text-primary);">Cargando...</p>
-        </div>
-    </div>
 @endsection
-
-@push('scripts')
-    <script src="{{ asset('js/tecnic-actions.js') }}"></script>
-@endpush
