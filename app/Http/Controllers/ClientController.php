@@ -51,6 +51,34 @@ class ClientController extends Controller
             'Tancada' => 'Tancada',
         ];
 
+        // Si es petición AJAX, devolver JSON
+        if ($request->ajax()) {
+            // Renderizar la vista completa
+            $fullHtml = view('client.index', compact('incidencies', 'estats', 'estatFilter', 'ordenFilter', 'ocultarResoltes'))->render();
+            
+            // Extraer el contenido entre <div id="incidencias-container"> y su cierre antes de <!-- Loader AJAX -->
+            if (preg_match('/<div id="incidencias-container">(.*?)<\/div>\s*<!--\s*Loader AJAX/s', $fullHtml, $matches)) {
+                $html = $matches[1];
+            } else {
+                $html = '';
+            }
+            
+            // Calcular estadísticas
+            $stats = [
+                'senseAssignar' => $incidencies->where('estat', 'Sense assignar')->count(),
+                'enProces' => $incidencies->whereIn('estat', ['Assignada', 'En treball'])->count(),
+                'resoltes' => $incidencies->where('estat', 'Resolta')->count(),
+                'tancades' => $incidencies->where('estat', 'Tancada')->count(),
+            ];
+            
+            return response()->json([
+                'success' => true,
+                'html' => $html,
+                'stats' => $stats,
+                'count' => $incidencies->count()
+            ]);
+        }
+
         return view('client.index', compact('incidencies', 'estats', 'estatFilter', 'ordenFilter', 'ocultarResoltes'));
     }
 
