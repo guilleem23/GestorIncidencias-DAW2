@@ -54,7 +54,7 @@
                             </div>
                             <div class="meta-item">
                                 <i class="fas fa-tag"></i>
-                                <span>{{ $incidencia->categoria->nom }} / {{ $incidencia->subcategoria->nom }}</span>
+                                <span>{{ $incidencia->categoria?->nom ?? 'Sin categoría' }} / {{ $incidencia->subcategoria?->nom ?? 'Sin subcategoría' }}</span>
                             </div>
                             <div class="meta-item">
                                 <i class="fas fa-calendar"></i>
