@@ -1,0 +1,36 @@
+/* Animaciones para operaciones AJAX del Gestor */
+
+.fade-out-left {
+    transition: all 0.5s ease-in-out;
+    opacity: 0;
+    transform: translateX(-30px);
+}
+
+.fade-out-right {
+    transition: all 0.3s ease-in-out;
+    opacity: 0;
+    transform: translateX(30px);
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        /* trasnlateY  */
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estado de carga para botones */
+.btn-loading {
+    pointer-events: none;
+    opacity: 0.7;
+}

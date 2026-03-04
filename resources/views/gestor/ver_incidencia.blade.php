@@ -127,7 +127,7 @@
                             <textarea id="missatge-comentario" name="missatge" rows="3" class="comment-textarea" placeholder="Añadir comentario..."></textarea>
                             <div id="error-comentario" style="display: none;"></div>
                             <div style="display:flex; justify-content:flex-end;">
-                                <button type="submit" class="btn-primary" style="padding: 0.65rem 1rem;">
+                                <button type="submit" id="btn-submit-comentario" class="btn-primary" style="padding: 0.65rem 1rem;">
                                     <i class="fa-solid fa-paper-plane"></i> Enviar
                                 </button>
                             </div>
@@ -136,8 +136,8 @@
                 </div>
                 
                 <div class="form-actions" style="margin-top: 2rem;">
-                    <button type="button" class="btn-primary" name="editar_incidencia" data-id="{{ $incidencia->id }}">
-                        <i class="fa-solid fa-pen"></i> Editar Incidencia
+                    <button type="button" id="btn-edit-incidencia-{{ $incidencia->id }}" name="editar_incidencia" class="btn-primary btn-editar-incidencia" data-id="{{ $incidencia->id }}" style="padding: 0.5rem 1rem;">
+                        <i class="fa-solid fa-pen-to-square"></i> Editar Incidencia
                     </button>
                 </div>
             </div>

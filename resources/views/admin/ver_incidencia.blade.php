@@ -123,40 +123,29 @@
 
                 <div class="description-block" style="margin-top: 1.5rem;">
                     <span class="info-label">Comentarios</span>
-                    @if($incidencia->comentarios && $incidencia->comentarios->count())
-                        <div style="margin-top: 0.75rem; display:flex; flex-direction:column; gap:0.75rem;">
+                    <div id="comments-container" style="margin-top: 0.75rem; display:flex; flex-direction:column; gap:0.75rem;">
+                        @if($incidencia->comentarios && $incidencia->comentarios->count())
                             @foreach($incidencia->comentarios as $comentario)
-                                @php $isMine = (int)($comentario->usuario_id ?? 0) === (int)auth()->id(); @endphp
-                                <div style="display:flex;">
-                                    <div style="max-width: 92%; margin-left: {{ $isMine ? 'auto' : '0' }}; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.85rem 1rem; background: {{ $isMine ? 'rgba(15, 23, 42, 0.40)' : 'rgba(15, 23, 42, 0.25)' }};">
-                                    <div style="display:flex; justify-content:space-between; gap: 1rem; align-items: baseline;">
-                                        <span style="font-weight: 600;">{{ $comentario->usuario?->name ?? 'Usuario' }}</span>
-                                        <span style="color: var(--text-secondary); font-size: 0.85rem; white-space: nowrap;">{{ $comentario->created_at?->format('d/m/Y H:i') }}</span>
-                                    </div>
-                                    <div style="margin-top: 0.4rem; color: var(--text-secondary);">
-                                        {!! nl2br(e($comentario->missatge)) !!}
-                                    </div>
-                                    </div>
-                                </div>
+                                @include('admin.partials.comentario_item', ['comentario' => $comentario])
                             @endforeach
-                        </div>
-                    @else
-                        <div style="margin-top: 0.5rem; color: var(--text-secondary);">
-                            Sin comentarios.
-                        </div>
-                    @endif
+                        @else
+                            <div id="no-comments-msg" class="fade-in-up" style="margin-top: 0.5rem; color: var(--text-secondary);">
+                                Sin comentarios.
+                            </div>
+                        @endif
+                    </div>
 
-                    <form method="POST" action="{{ route('admin.incidencias.comentarios.store', $incidencia->id) }}" style="margin-top: 0.9rem;">
+                    <form id="form-comentario" method="POST" action="{{ route('admin.incidencias.comentarios.store', $incidencia->id) }}" style="margin-top: 0.9rem;">
                         @csrf
                         <div style="display:flex; flex-direction:column; gap:0.5rem;">
-                            <textarea name="missatge" rows="3" class="comment-textarea" placeholder="Añadir comentario..."></textarea>
+                            <textarea id="missatge-comentario" name="missatge" rows="3" class="comment-textarea" placeholder="Añadir comentario..." required minlength="2" maxlength="2000"></textarea>
                             @error('missatge')
                                 <div class="alert-custom alert-error-custom" style="margin: 0;">
                                     <i class="fa-solid fa-circle-xmark"></i> {{ $message }}
                                 </div>
                             @enderror
                             <div style="display:flex; justify-content:flex-end;">
-                                <button type="submit" class="btn-primary" style="padding: 0.65rem 1rem;">
+                                <button type="submit" id="btn-submit-comentario" class="btn-primary" style="padding: 0.65rem 1rem;">
                                     <i class="fa-solid fa-paper-plane"></i> Enviar
                                 </button>
                             </div>
@@ -174,3 +163,9 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('js/admin/ver_incidencia.js') }}"></script>
+@endpush
+

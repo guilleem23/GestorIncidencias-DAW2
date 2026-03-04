@@ -77,13 +77,56 @@ class AdminIncidenciaController extends Controller
 
         $incidencia = Incidencia::findOrFail($id);
 
-        Comentario::create([
+        $comentario = Comentario::create([
             'incidencia_id' => $incidencia->id,
             'usuario_id' => Auth::id(),
             'missatge' => $validated['missatge'],
         ]);
 
+        // Cargar la relación del usuario
+        $comentario->load('usuario');
+
+        // Si es una petición AJAX, retornar JSON
+        if ($request->ajax() || $request->wantsJson()) {
+            $html = view('admin.partials.comentario_item', compact('comentario'))->render();
+            return response()->json([
+                'success' => true,
+                'message' => 'Comentario añadido correctamente.',
+                'html' => $html,
+            ]);
+        }
+
         return back()->with('success', 'Comentario añadido correctamente.');
+    }
+
+    /**
+     * Elimina un comentario.
+     */
+    public function destroyComentario($id)
+    {
+        $comentario = Comentario::findOrFail($id);
+
+        // Verificar que el usuario es el dueño del comentario o es admin
+        if ($comentario->usuario_id !== Auth::id() && Auth::user()->rol !== 'admin') {
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No tienes permiso para eliminar este comentario.',
+                ], 403);
+            }
+            return back()->withErrors(['error' => 'No tienes permiso para eliminar este comentario.']);
+        }
+
+        $comentario->delete();
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Comentario eliminado correctamente.',
+            ]);
+        }
+
+        return back()->with('success', 'Comentario eliminado correctamente.');
     }
 
     /**
@@ -170,14 +213,36 @@ class AdminIncidenciaController extends Controller
         ]);
 
         if (!empty($validated['tecnic_id']) && $validated['estat'] === 'Sense assignar') {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El estado no puede ser "Sin asignar" si hay un técnico asignado.',
+                    'errors' => ['estat' => ['El estado no puede ser "Sin asignar" si hay un técnico asignado.']]
+                ], 422);
+            }
             return back()->withErrors(['estat' => 'El estado no puede ser "Sin asignar" si hay un técnico asignado.'])->withInput();
         }
 
         if (empty($validated['tecnic_id']) && $validated['estat'] !== 'Sense assignar') {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Debe asignar un técnico si el estado no es "Sin asignar".',
+                    'errors' => ['tecnic_id' => ['Debe asignar un técnico si el estado no es "Sin asignar".']]
+                ], 422);
+            }
             return back()->withErrors(['tecnic_id' => 'Debe asignar un técnico si el estado no es "Sin asignar".'])->withInput();
         }
 
         $incidencia->update($validated);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Incidencia actualizada correctamente.',
+                'redirect' => route('admin.incidencias.show', $incidencia->id)
+            ]);
+        }
 
         return redirect()->route('admin.incidencias')->with('success', 'Incidencia actualizada correctamente.');
     }

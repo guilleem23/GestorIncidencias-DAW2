@@ -123,5 +123,5 @@
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{{ asset('js/gestor/incidencias.js') }}"></script>
+    <script src="{{ asset('js/admin/editar_incidencia.js') }}"></script>
 @endpush

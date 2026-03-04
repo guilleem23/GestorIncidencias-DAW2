@@ -20,6 +20,7 @@
 
     <!-- Shared Styles (Gestor specíficos) -->
     <link rel="stylesheet" href="{{ asset('css/gestor_sidebar.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/gestor/gestor_animations.css') }}">
     
     <!-- Page Specific Styles -->
     @stack('styles')

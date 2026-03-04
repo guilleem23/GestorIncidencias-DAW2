@@ -227,6 +227,7 @@
     const formComentario = document.getElementById('form-comentario');
     const commentsContainer = document.getElementById('comments-container');
     const missatgeInput = document.getElementById('missatge-comentario');
+    const btnSubmitComentario = document.getElementById('btn-submit-comentario');
     const noCommentsMsg = document.getElementById('no-comments-msg');
 
     if (formComentario && commentsContainer) {
@@ -249,9 +250,10 @@
             const url = this.action;
 
             // Deshabilitar botón para evitar doble envío
-            const btnSubmit = this.querySelector('button[type="submit"]');
-            btnSubmit.disabled = true;
-            btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
+            if (btnSubmitComentario) {
+                btnSubmitComentario.disabled = true;
+                btnSubmitComentario.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
+            }
 
             fetch(url, {
                 method: 'POST',
@@ -304,18 +306,24 @@
                     Swal.fire('Error', 'No se pudo enviar el comentario.', 'error');
                 })
                 .finally(() => {
-                    btnSubmit.disabled = false;
-                    btnSubmit.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar';
+                    if (btnSubmitComentario) {
+                        btnSubmitComentario.disabled = false;
+                        btnSubmitComentario.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar';
+                    }
                 });
         });
     }
 
     // 5. Borrar Comentarios vía AJAX
-    document.addEventListener('click', function (e) {
-        const btnDelete = e.target.closest('.btn-delete-comment');
-        if (btnDelete) {
-            const id = btnDelete.dataset.id;
-            const commentItem = btnDelete.closest('.comment-item-wrapper');
+    document.onclick = function (e) {
+        // Usamos una clase para detectar el clic y luego getElementById si necesitamos buscar algo específico por ID
+        const btnDelegado = e.target.closest('.btn-delete-comment-action');
+        if (btnDelegado) {
+            const id = btnDelegado.dataset.id;
+            // Para encontrar el botón exacto por ID usamos getElementById como pide el usuario
+            const btnDelete = document.getElementById(`btn-delete-comment-${id}`);
+            const commentItem = btnDelete ? btnDelete.closest('.comment-item-wrapper') : null;
+            if (!commentItem) return;
 
             Swal.fire({
                 title: '¿Eliminar comentario?',
@@ -330,6 +338,8 @@
                 color: '#f8fafc'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    btnDelete.classList.add('btn-loading');
+
                     fetch(`/gestor/comentarios/${id}`, {
                         method: 'DELETE',
                         headers: {
@@ -340,18 +350,16 @@
                         .then(res => res.json())
                         .then(data => {
                             if (data.success) {
-                                // Animación de salida
-                                commentItem.style.transition = 'all 0.3s ease';
-                                commentItem.style.opacity = '0';
-                                commentItem.style.transform = 'translateX(20px)';
+                                // Animación de salida vía CSS
+                                commentItem.classList.add('fade-out-right');
 
                                 setTimeout(() => {
                                     commentItem.remove();
 
                                     // Si ya no hay comentarios, mostrar el mensaje de "Sin comentarios"
-                                    if (commentsContainer && commentsContainer.querySelectorAll('.comment-item-wrapper').length === 0) {
+                                    if (commentsContainer && commentsContainer.getElementsByClassName('comment-item-wrapper').length === 0) {
                                         commentsContainer.innerHTML = `
-                                        <div id="no-comments-msg" style="margin-top: 0.5rem; color: var(--text-secondary);">
+                                        <div id="no-comments-msg" class="fade-in-up" style="margin-top: 0.5rem; color: var(--text-secondary);">
                                             Sin comentarios.
                                         </div>
                                     `;
@@ -376,14 +384,16 @@
                                     background: '#1e293b',
                                     color: '#f8fafc'
                                 });
+                                btnDelete.classList.remove('btn-loading');
                             }
                         })
                         .catch(error => {
                             console.error('Error al borrar comentario:', error);
                             Swal.fire('Error', 'No se pudo eliminar el comentario.', 'error');
+                            btnDelete.classList.remove('btn-loading');
                         });
                 }
             });
         }
-    });
+    };
 })();

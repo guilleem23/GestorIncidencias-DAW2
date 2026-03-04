@@ -35,6 +35,7 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
     Route::put('/admin/incidencias/{id}', [AdminIncidenciaController::class, 'update'])->name('admin.incidencias.update');
     Route::post('/admin/incidencias/{id}/assign', [AdminIncidenciaController::class, 'assignTecnic'])->name('admin.incidencias.assign');
     Route::post('/admin/incidencias/{id}/comentarios', [AdminIncidenciaController::class, 'storeComentario'])->name('admin.incidencias.comentarios.store');
+    Route::delete('/admin/comentarios/{id}', [AdminIncidenciaController::class, 'destroyComentario'])->name('admin.comentarios.destroy');
 
     // Gestión de usuarios
     Route::get('/admin/usuarios/check-email', [UserController::class, 'checkEmail']);
@@ -77,6 +78,7 @@ Route::middleware(['auth', 'role:client'])->group(function () {
     Route::post('/client/crear', [ClientController::class, 'store'])->name('client.store');
     Route::post('/client/tancar/{id}', [ClientController::class, 'tancarIncidencia'])->name('client.tancar');
     Route::post('/client/incidencias/{id}/comentarios', [ClientController::class, 'storeComentario'])->name('client.incidencias.comentarios.store');
+    Route::delete('/client/comentarios/{id}', [ClientController::class, 'destroyComentario'])->name('client.comentarios.destroy');
 });
 
 //Solo los gestores pueden entrar aquí
@@ -87,6 +89,7 @@ Route::middleware(['auth', 'role:gestor'])->group(function () {
     Route::get('/gestor/incidencias/{id}/edit', [IncidenciaController::class, 'editGestor'])->name('gestor.incidencias.edit');
     Route::put('/gestor/incidencias/{id}', [IncidenciaController::class, 'updateGestor'])->name('gestor.incidencias.update');
     Route::post('/gestor/incidencias/{id}/comentarios', [IncidenciaController::class, 'storeComentarioGestor'])->name('gestor.incidencias.comentarios.store');
+    Route::delete('/gestor/incidencias/{id}', [IncidenciaController::class, 'destroyGestor'])->name('gestor.incidencias.destroy');
     Route::delete('/gestor/comentarios/{id}', [IncidenciaController::class, 'destroyComentarioGestor'])->name('gestor.comentarios.destroy');
     Route::get('/gestor/usuarios', [UserController::class, 'indexGestor'])->name('gestor.usuarios');
     Route::get('/gestor/usuarios/{id}', [UserController::class, 'showGestor'])->name('gestor.usuarios.show');

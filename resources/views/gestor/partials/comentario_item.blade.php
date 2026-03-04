@@ -8,7 +8,7 @@
             <div style="display: flex; align-items: center; gap: 0.75rem;">
                 <span style="color: var(--text-secondary); font-size: 0.85rem; white-space: nowrap;">{{ $comentario->created_at?->format('d/m/Y H:i') }}</span>
                 @if($isMine)
-                    <button type="button" class="btn-delete-comment" data-id="{{ $comentario->id }}" title="Eliminar comentario" style="background: none; border: none; color: #ef4444; padding: 0; cursor: pointer; font-size: 0.85rem; opacity: 0.6; transition: opacity 0.2s;">
+                    <button type="button" id="btn-delete-comment-{{ $comentario->id }}" class="btn-delete-comment btn-delete-comment-action" data-id="{{ $comentario->id }}" title="Eliminar comentario" style="background: none; border: none; color: #ef4444; padding: 0; cursor: pointer; font-size: 0.85rem; opacity: 0.6; transition: opacity 0.2s;">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 @endif

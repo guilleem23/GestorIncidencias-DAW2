@@ -10,11 +10,13 @@ function closeAllModals() {
 
 // Delegación de eventos para el botón editar
 document.addEventListener('click', function (e) {
-    const btnEdit = e.target.closest('[name="editar_incidencia"]');
-    if (btnEdit) {
+    const btnDelegado = e.target.closest('.btn-editar-incidencia');
+    if (btnDelegado) {
         e.preventDefault();
         closeAllModals();
-        const id = btnEdit.dataset.id;
+        const id = btnDelegado.dataset.id;
+        // Obtenemos el botón exacto por ID como pide el usuario
+        const btnEdit = document.getElementById(`btn-edit-incidencia-${id}`);
 
         // Mostrar estado de carga (opcional)
         document.getElementById('modal-editar-content').innerHTML = '<div class="text-center p-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-white">Cargando formulario...</p></div>';
@@ -82,13 +84,13 @@ function inicializarLogicaCategorias() {
         formEditar.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            // Validaciones de negocio (Técnico vs Estado) - Reutilizamos la lógica si fuera necesario
-            // Pero aquí vamos directo al Fetch y dejamos que el server valide o el JS nativo
-
             if (!this.checkValidity()) {
                 this.reportValidity();
                 return;
             }
+
+            const btnSave = document.getElementById('btn-save-incidencia');
+            const originalContent = btnSave ? btnSave.innerHTML : '';
 
             Swal.fire({
                 title: '¿Guardar cambios?',
@@ -103,8 +105,12 @@ function inicializarLogicaCategorias() {
                     const formData = new FormData(formEditar);
                     const url = formEditar.action;
 
+                    if (btnSave) {
+                        btnSave.disabled = true;
+                    }
+
                     fetch(url, {
-                        method: 'POST', // Laravel usa _method PUT en el FormData
+                        method: 'POST',
                         body: formData,
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
@@ -115,7 +121,8 @@ function inicializarLogicaCategorias() {
                         .then(data => {
                             if (data.success) {
                                 const modalEl = document.getElementById('modalEditarIncidencia');
-                                bootstrap.Modal.getInstance(modalEl).hide();
+                                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                                if (modalInstance) modalInstance.hide();
 
                                 Swal.fire({
                                     icon: 'success',
@@ -127,17 +134,12 @@ function inicializarLogicaCategorias() {
                                     color: '#f8fafc'
                                 });
 
-                                // Refrescar la UI
                                 if (window.fetchIncidencias) {
-                                    // Estamos en el historial
                                     window.fetchIncidencias();
                                 } else {
-                                    // Estamos en ver detalle, recargamos para ver los nuevos datos
-                                    // (O podríamos actualizar campos específicos, pero reload es más seguro para asegurar consistencia total)
                                     setTimeout(() => window.location.reload(), 2000);
                                 }
                             } else {
-                                // Errores de validación
                                 let errorMsg = 'Error en los datos:\n';
                                 if (data.errors) {
                                     Object.values(data.errors).forEach(err => errorMsg += `- ${err}\n`);
@@ -154,6 +156,12 @@ function inicializarLogicaCategorias() {
                         .catch(error => {
                             console.error(error);
                             Swal.fire('Error', 'Ocurrió un error inesperado.', 'error');
+                        })
+                        .finally(() => {
+                            if (btnSave) {
+                                btnSave.disabled = false;
+                                btnSave.innerHTML = originalContent;
+                            }
                         });
                 }
             });

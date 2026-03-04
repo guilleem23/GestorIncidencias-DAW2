@@ -212,10 +212,24 @@ class IncidenciaController extends Controller
         ]);
 
         if (!empty($validated['tecnic_id']) && $validated['estat'] === 'Sense assignar') {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El estado no puede ser "Sense assignar" si hay un técnico asignado.',
+                    'errors' => ['estat' => ['El estado no puede ser "Sense assignar" si hay un técnico asignado.']]
+                ], 422);
+            }
             return back()->withErrors(['estat' => 'El estado no puede ser "Sense assignar" si hay un técnico asignado.'])->withInput();
         }
 
         if (empty($validated['tecnic_id']) && $validated['estat'] !== 'Sense assignar') {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Debe asignar un técnico si el estado no es "Sense assignar".',
+                    'errors' => ['tecnic_id' => ['Debe asignar un técnico si el estado no es "Sense assignar".']]
+                ], 422);
+            }
             return back()->withErrors(['tecnic_id' => 'Debe asignar un técnico si el estado no es "Sense assignar".'])->withInput();
         }
 
@@ -251,15 +265,27 @@ class IncidenciaController extends Controller
             ->first();
 
         if (!$tecnic) {
-            return back()->withErrors([
-                'tecnic_id' => 'El técnico seleccionado no es válido o no está activo.',
-            ]);
+            $msg = 'El técnico seleccionado no es válido o no está activo.';
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $msg,
+                    'errors' => ['tecnic_id' => [$msg]]
+                ], 422);
+            }
+            return back()->withErrors(['tecnic_id' => $msg]);
         }
 
         if ((int) $tecnic->sede_id !== (int) $incidencia->sede_id) {
-            return back()->withErrors([
-                'tecnic_id' => 'No puedes asignar un técnico de otra sede a esta incidencia.',
-            ]);
+            $msg = 'No puedes asignar un técnico de otra sede a esta incidencia.';
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $msg,
+                    'errors' => ['tecnic_id' => [$msg]]
+                ], 422);
+            }
+            return back()->withErrors(['tecnic_id' => $msg]);
         }
 
         $incidencia->update([
@@ -267,7 +293,39 @@ class IncidenciaController extends Controller
             'estat' => 'Assignada',
         ]);
 
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Técnico asignado correctamente.',
+                'incidencia_id' => $incidencia->id
+            ]);
+        }
+
         return back()->with('success', 'Técnico asignado correctamente.');
     }
 
+    public function destroyGestor(Request $request, $id)
+    {
+        $user = Auth::user();
+        $incidencia = Incidencia::findOrFail($id);
+
+        if ((int) $incidencia->sede_id !== (int) $user->sede_id) {
+            $msg = 'No tienes permiso para eliminar esta incidencia de otra sede.';
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => $msg], 403);
+            }
+            return back()->with('error', $msg);
+        }
+
+        $incidencia->delete();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Incidencia eliminada con éxito.'
+            ]);
+        }
+
+        return redirect()->route('gestor.incidencias')->with('success', 'Incidencia eliminada con éxito.');
+    }
 }

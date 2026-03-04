@@ -66,8 +66,8 @@
                         <a href="{{ route('gestor.incidencias.show', $incidencia->id) }}" class="btn-icon btn-view" title="Ver Detalles">
                             <i class="fa-solid fa-eye"></i>
                         </a>
-                        <button type="button" class="btn-icon btn-edit" title="Editar" name="editar_incidencia" data-id="{{ $incidencia->id }}">
-                            <i class="fa-solid fa-pen"></i>
+                        <button type="button" id="btn-edit-incidencia-{{ $incidencia->id }}" name="editar_incidencia" class="btn-icon btn-edit btn-editar-incidencia" data-id="{{ $incidencia->id }}" title="Editar incidencia">
+                            <i class="fa-solid fa-pen-to-square"></i>
                         </button>
                         <button type="button" class="btn-icon btn-delete" title="Eliminar" data-id="{{ $incidencia->id }}">
                             <i class="fa-solid fa-trash"></i>

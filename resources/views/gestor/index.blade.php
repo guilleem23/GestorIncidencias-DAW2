@@ -30,7 +30,7 @@
                         <th>Asignar Técnico</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="assign-table-body">
                     @foreach($incidencies as $incidencia)
                     <tr>
                         <td>
@@ -73,15 +73,15 @@
                             {{ $incidencia->created_at->format('d/m/Y H:i') }}
                         </td>
                         <td>
-                            <form action="{{ route('gestor.assignar', $incidencia->id) }}" method="POST" class="assign-form">
+                            <form id="form-assign-{{ $incidencia->id }}" action="{{ route('gestor.assignar', $incidencia->id) }}" method="POST" class="assign-form">
                                 @csrf
-                                <select name="tecnic_id" class="filter-select assign-select">
+                                <select id="select-tecnic-{{ $incidencia->id }}" name="tecnic_id" class="filter-select assign-select">
                                     <option value="" disabled selected>Seleccionar técnico...</option>
                                     @foreach($tecnics as $t)
                                         <option value="{{ $t->id }}">{{ $t->name }}</option>
                                     @endforeach
                                 </select>
-                                <button type="button" class="btn-assign btn-confirm-assign">
+                                <button type="button" id="btn-assign-{{ $incidencia->id }}" class="btn-assign btn-confirm-assign btn-assign-tecnic" data-id="{{ $incidencia->id }}">
                                     <i class="fa-solid fa-user-check"></i>
                                 </button>
                             </form>
@@ -103,62 +103,5 @@
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // SweetAlert para confirmar asignación de técnico
-            document.querySelectorAll('.btn-confirm-assign').forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    const form = this.closest('form');
-                    const select = form.querySelector('select[name="tecnic_id"]');
-
-                    if (!select.value) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Selecciona un técnico',
-                            text: 'Debes elegir un técnico antes de asignar.',
-                            background: '#1e293b',
-                            color: '#f8fafc',
-                            confirmButtonColor: '#3b82f6'
-                        });
-                        return;
-                    }
-
-                    const tecnicoName = select.options[select.selectedIndex].text;
-
-                    Swal.fire({
-                        title: '¿Asignar técnico?',
-                        html: 'Se asignará a <strong>' + tecnicoName + '</strong> a esta incidencia.',
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#10b981',
-                        cancelButtonColor: '#4b5563',
-                        confirmButtonText: 'Sí, asignar',
-                        cancelButtonText: 'Cancelar',
-                        background: '#1e293b',
-                        color: '#f8fafc'
-                    }).then(function(result) {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                });
-            });
-        });
-    </script>
-    @if(session('success'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'success',
-                    title: "{{ session('success') }}",
-                    showConfirmButton: false,
-                    timer: 3000,
-                    background: '#1e293b',
-                    color: '#f8fafc'
-                });
-            });
-        </script>
-    @endif
+    <script src="{{ asset('js/gestor/asignar.js') }}"></script>
 @endpush
