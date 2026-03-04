@@ -12,6 +12,7 @@ class Comentario extends Model
         'incidencia_id',
         'usuario_id',
         'missatge',
+        'imatge_path',
     ];
 
     public function incidencia()
