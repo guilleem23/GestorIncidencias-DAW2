@@ -14,6 +14,90 @@
     --familia-fuente: 'Inter', sans-serif;
 }
 
+/* Comentarios: adjuntos (imagen) */
+.comment-attachment {
+    margin-top: 0.6rem;
+}
+
+.comment-image {
+    display: block;
+    max-width: 100%;
+    max-height: 320px;
+    border-radius: var(--radio-md);
+    border: 1px solid var(--color-borde);
+    box-shadow: var(--sombra-md);
+}
+
+.comment-upload-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.comment-file-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--texto-secundario);
+    font-size: 0.9rem;
+}
+
+.comment-file-input {
+    flex: 1;
+    min-width: 220px;
+    padding: 0.55rem;
+    background-color: var(--color-fondo);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-md);
+    color: var(--texto-secundario);
+    font-size: 0.9rem;
+    font-family: var(--familia-fuente);
+}
+
+.comment-file-input:focus {
+    outline: none;
+    border-color: var(--color-primario);
+}
+
+.comment-file-input::file-selector-button {
+    margin-right: 0.75rem;
+    padding: 0.45rem 0.9rem;
+    background-color: var(--color-primario);
+    border: 1px solid var(--color-primario);
+    color: var(--texto-primario);
+    border-radius: var(--radio-md);
+    cursor: pointer;
+}
+
+.comment-file-input::file-selector-button:hover {
+    background-color: var(--hover-primario);
+    border-color: var(--hover-primario);
+}
+
+/* Campo comentario (igual en todos los roles) */
+.form-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--color-fondo);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-md);
+    color: var(--texto-primario);
+    font-size: 0.95rem;
+    font-family: var(--familia-fuente);
+    resize: vertical;
+}
+
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--color-primario);
+}
+
+.form-textarea::placeholder {
+    color: var(--texto-secundario);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -251,6 +335,31 @@
     display: flex;
     gap: 0.75rem;
     flex-wrap: wrap;
+}
+
+/* Comentarios (chat) */
+.comment-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: var(--color-fondo);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-md);
+    color: var(--texto-primario);
+    font-size: 0.95rem;
+    font-family: var(--familia-fuente);
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 96px;
+}
+
+.comment-textarea::placeholder {
+    color: var(--texto-secundario);
+}
+
+.comment-textarea:focus {
+    outline: none;
+    border-color: var(--color-primario);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 /* Badges */

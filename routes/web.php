@@ -30,10 +30,15 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
     Route::get('/admin/incidencias', [AdminIncidenciaController::class, 'index'])->name('admin.incidencias');
+    Route::get('/admin/incidencias/{id}', [AdminIncidenciaController::class, 'show'])->name('admin.incidencias.show');
+    Route::get('/admin/incidencias/{id}/edit', [AdminIncidenciaController::class, 'edit'])->name('admin.incidencias.edit');
+    Route::put('/admin/incidencias/{id}', [AdminIncidenciaController::class, 'update'])->name('admin.incidencias.update');
     Route::post('/admin/incidencias/{id}/assign', [AdminIncidenciaController::class, 'assignTecnic'])->name('admin.incidencias.assign');
+    Route::post('/admin/incidencias/{id}/comentarios', [AdminIncidenciaController::class, 'storeComentario'])->name('admin.incidencias.comentarios.store');
 
     // Gestión de usuarios
     Route::get('/admin/usuarios', [UserController::class, 'index'])->name('admin.usuarios.index');
+    Route::get('/admin/usuarios/{id}', [UserController::class, 'show'])->name('admin.usuarios.show');
     Route::get('/admin/usuarios/create', [UserController::class, 'create'])->name('admin.usuarios.create');
     Route::post('/admin/usuarios', [UserController::class, 'store'])->name('admin.usuarios.store');
     Route::get('/admin/usuarios/{id}/edit', [UserController::class, 'edit'])->name('admin.usuarios.edit');
@@ -69,19 +74,29 @@ Route::middleware(['auth', 'role:client'])->group(function () {
     Route::get('/client/crear', [ClientController::class, 'crear'])->name('client.crear');
     Route::post('/client/crear', [ClientController::class, 'store'])->name('client.store');
     Route::post('/client/tancar/{id}', [ClientController::class, 'tancarIncidencia'])->name('client.tancar');
+
+    Route::post('/client/incidencias/{id}/comentarios', [ClientController::class, 'storeComentario'])->name('client.incidencias.comentarios.store');
 });
 
 //Solo los gestores pueden entrar aquí
 Route::middleware(['auth', 'role:gestor'])->group(function () {
     Route::get('/gestor/asignar_incidencias', [IncidenciaController::class, 'indexGestor'])->name('gestor.index');
     Route::get('/gestor/incidencias', [IncidenciaController::class, 'indexGestorTodas'])->name('gestor.incidencias');
+    Route::get('/gestor/incidencias/{id}', [IncidenciaController::class, 'showGestor'])->name('gestor.incidencias.show');
+    Route::get('/gestor/incidencias/{id}/edit', [IncidenciaController::class, 'editGestor'])->name('gestor.incidencias.edit');
+    Route::put('/gestor/incidencias/{id}', [IncidenciaController::class, 'updateGestor'])->name('gestor.incidencias.update');
+    Route::post('/gestor/incidencias/{id}/comentarios', [IncidenciaController::class, 'storeComentarioGestor'])->name('gestor.incidencias.comentarios.store');
     Route::get('/gestor/usuarios', [UserController::class, 'indexGestor'])->name('gestor.usuarios');
+    Route::get('/gestor/usuarios/{id}', [UserController::class, 'showGestor'])->name('gestor.usuarios.show');
     Route::post('/gestor/assignar/{id}', [IncidenciaController::class, 'assignarTecnic'])->name('gestor.assignar');
 });
 
 // Solo los técnicos pueden entrar aquí
 Route::middleware(['auth', 'role:tecnic'])->group(function () {
     Route::get('/tecnic/tasques', [TecnicController::class, 'index'])->name('tecnic.index');
+    Route::get('/tecnic/totes-tasques', [TecnicController::class, 'totesTasques'])->name('tecnic.totes');
+    Route::get('/tecnic/incidencias/{id}', [TecnicController::class, 'show'])->name('tecnic.incidencias.show');
     Route::post('/tecnic/iniciar/{id}', [TecnicController::class, 'iniciarTreball'])->name('tecnic.iniciar');
     Route::post('/tecnic/resoldre/{id}', [TecnicController::class, 'marcarResolta'])->name('tecnic.resoldre');
+    Route::post('/tecnic/incidencias/{id}/comentarios', [TecnicController::class, 'storeComentario'])->name('tecnic.incidencias.comentarios.store');
 });

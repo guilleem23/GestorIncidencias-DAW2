@@ -8,13 +8,20 @@
             <div class="text-danger small">{{ $message }}</div>
         @enderror
     </div>
+    </div>
 
     <div class="mb-3">
-        <label class="form-label text-light">Responsable:</label>
-        <input type="text" class="form-control form-control-dark" name="responsable" value="{{ old('responsable', $sede->responsable) }}">
-        @error('responsable')
-            <div class="text-danger small">{{ $message }}</div>
-        @enderror
+        <label class="form-label text-light">Gestor de la Sede:</label>
+        @if($gestor)
+            <div class="form-control form-control-dark" style="background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.2); cursor: default;">
+                <i class="fa-solid fa-user-shield" style="color: #3b82f6;"></i>
+                {{ $gestor->name }} <span style="color: var(--text-secondary);">({{ $gestor->email }})</span>
+            </div>
+        @else
+            <div class="form-control form-control-dark" style="opacity: 0.6; cursor: default;">
+                <i class="fa-solid fa-user-xmark"></i> Sin gestor asignado
+            </div>
+        @endif
     </div>
 
     <div class="mb-3">
@@ -29,7 +36,7 @@
         <label class="form-label text-light">Imagen:</label>
         @if($sede->imagen)
             <div class="mb-2">
-                <img src="{{ asset('storage/' . $sede->imagen) }}" alt="Imagen actual" style="max-height: 100px; border-radius: 5px;">
+                <img src="{{ asset($sede->imagen) }}" alt="Imagen actual" style="max-height: 100px; border-radius: 5px;">
             </div>
         @endif
         <input type="file" class="form-control form-control-dark" name="imagen" accept="image/*">

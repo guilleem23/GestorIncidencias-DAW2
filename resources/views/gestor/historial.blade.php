@@ -12,84 +12,85 @@
         <h1>Incidencias de la Sede: {{ auth()->user()->sede->nom ?? 'General' }}</h1>
     </div>
 
-    <div class="table-container">
-        @if($incidencies->isEmpty())
-            <div class="text-center py-5">
-                <i class="fa-solid fa-folder-open fa-3x text-secondary mb-3"></i>
-                <p class="text-secondary" style="font-size: 1.1rem;">No hay incidencias registradas en esta sede todavía.</p>
+    <!-- Filtros dinámicos -->
+    <div class="filters-container">
+        <div class="filters-grid">
+            <div class="filter-group filter-search">
+                <label class="filter-label"><i class="fa-solid fa-magnifying-glass"></i> Buscar</label>
+                <input type="text" id="filter-buscar" class="filter-input" placeholder="ID, Título, descripción, cliente..." value="{{ request('buscar') }}">
             </div>
-        @else
-            <table class="historial-table">
-                <thead>
-                    <tr>
-                        <th>Incidencia</th>
-                        <th>Técnico Asignado</th>
-                        <th>Prioridad</th>
-                        <th>Estado</th>
-                        <th>Fecha de Creación</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($incidencies as $incidencia)
-                    <tr>
-                        <td>
-                            <div class="info-text">
-                                <span class="info-title">{{ $incidencia->titol }}</span>
-                                <span class="info-sub">{{ Str::limit($incidencia->descripcio, 50) }}</span>
-                            </div>
-                        </td>
-                        <td>
-                            @if($incidencia->tecnico)
-                                <div class="info-text">
-                                    <span class="info-title">{{ $incidencia->tecnico->name }}</span>
-                                    <span class="info-sub">{{ $incidencia->tecnico->email }}</span>
-                                </div>
-                            @else
-                                <span class="text-secondary"><i class="fa-solid fa-user-minus"></i> Sin asignar</span>
-                            @endif
-                        </td>
-                        <td>
-                            @if($incidencia->prioritat)
-                                @if($incidencia->prioritat === 'alta')
-                                    <span class="priority-badge priority-alta">
-                                        <i class="fa-solid fa-arrow-up"></i> Alta
-                                    </span>
-                                @elseif($incidencia->prioritat === 'mitjana')
-                                    <span class="priority-badge priority-mitjana">
-                                        <i class="fa-solid fa-minus"></i> Media
-                                    </span>
-                                @else
-                                    <span class="priority-badge priority-baixa">
-                                        <i class="fa-solid fa-arrow-down"></i> Baja
-                                    </span>
-                                @endif
-                            @else
-                                <span class="text-secondary">-</span>
-                            @endif
-                        </td>
-                        <td>
-                            @if($incidencia->estat === 'Sense assignar')
-                                <span class="status-badge badge-inactive">Sense assignar</span>
-                            @elseif($incidencia->estat === 'Assignada')
-                                <span class="status-badge status-assignada">Assignada</span>
-                            @elseif($incidencia->estat === 'En treball')
-                                <span class="status-badge status-treball">En treball</span>
-                            @elseif($incidencia->estat === 'Resolta')
-                                <span class="status-badge status-resolta">Resolta</span>
-                            @elseif($incidencia->estat === 'Tancada')
-                                <span class="status-badge badge-active">Tancada</span>
-                            @else
-                                <span class="status-badge badge-active">{{ $incidencia->estat }}</span>
-                            @endif
-                        </td>
-                        <td style="color: var(--text-secondary); font-size: 0.9rem;">
-                            {{ $incidencia->created_at->format('d/m/Y H:i') }}
-                        </td>
-                    </tr>
+            <div class="filter-group">
+                <label class="filter-label"><i class="fa-solid fa-filter"></i> Estado</label>
+                <select id="filter-estat" class="filter-select">
+                    <option value="">Todos los estados</option>
+                    <option value="Sense assignar" {{ request('estat') === 'Sense assignar' ? 'selected' : '' }}>Sense assignar</option>
+                    <option value="Assignada" {{ request('estat') === 'Assignada' ? 'selected' : '' }}>Assignada</option>
+                    <option value="En treball" {{ request('estat') === 'En treball' ? 'selected' : '' }}>En treball</option>
+                    <option value="Resolta" {{ request('estat') === 'Resolta' ? 'selected' : '' }}>Resolta</option>
+                    <option value="Tancada" {{ request('estat') === 'Tancada' ? 'selected' : '' }}>Tancada</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label"><i class="fa-solid fa-flag"></i> Prioridad</label>
+                <select id="filter-prioritat" class="filter-select">
+                    <option value="">Todas las prioridades</option>
+                    <option value="alta" {{ request('prioritat') === 'alta' ? 'selected' : '' }}>Alta</option>
+                    <option value="mitjana" {{ request('prioritat') === 'mitjana' ? 'selected' : '' }}>Media</option>
+                    <option value="baixa" {{ request('prioritat') === 'baixa' ? 'selected' : '' }}>Baja</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label"><i class="fa-solid fa-user-gear"></i> Técnico</label>
+                <select id="filter-tecnic" class="filter-select">
+                    <option value="">Todos los técnicos</option>
+                    @foreach($tecnicos as $tecnico)
+                        <option value="{{ $tecnico->id }}" {{ request('tecnic_id') == $tecnico->id ? 'selected' : '' }}>{{ $tecnico->name }}</option>
                     @endforeach
-                </tbody>
-            </table>
-        @endif
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label"><i class="fa-solid fa-sort"></i> Ordenar</label>
+                <select id="filter-orden" class="filter-select">
+                    <option value="desc" {{ request('orden', 'desc') === 'desc' ? 'selected' : '' }}>Más recientes primero</option>
+                    <option value="asc" {{ request('orden') === 'asc' ? 'selected' : '' }}>Más antiguas primero</option>
+                </select>
+            </div>
+            <div class="filter-group filter-actions" style="gap: 0.5rem;">
+                <button type="button" id="btn-toggle-closed" class="btn-toggle-closed" title="Mostrar/Ocultar cerradas">
+                    <i class="fa-solid fa-eye-slash"></i> Mostrar cerradas
+                </button>
+                <button type="button" id="btn-clear-filters" class="btn-clear-filters">
+                    <i class="fa-solid fa-xmark"></i> Limpiar filtros
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de incidencias (reemplazada vía AJAX) -->
+    <div class="table-container" id="incidencias-table-wrapper">
+        @include('gestor.partials.incidencias_table')
     </div>
 </div>
 @endsection
+
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('js/gestor/incidencias.js') }}"></script>
+    @if(session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: "{{ session('success') }}",
+                    showConfirmButton: false,
+                    timer: 3000,
+                    customClass: {
+                        popup: 'swal-dark-popup'
+                    }
+                });
+            });
+        </script>
+    @endif
+@endpush

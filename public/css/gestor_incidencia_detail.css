@@ -1,0 +1,354 @@
+/* gestor_incidencia_detail.css */
+
+.detail-container {
+    padding: 1rem 0;
+}
+
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.detail-header h1 {
+    color: var(--neon-blue);
+    margin: 0;
+    font-weight: 700;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.25rem;
+    background-color: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.btn-back:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.card-premium {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.card-header-premium {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: rgba(15, 23, 42, 0.3);
+}
+
+.incidencia-title-large {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+}
+
+.incidencia-meta-top {
+    display: flex;
+    gap: 1.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card-body-premium {
+    padding: 2rem;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.info-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.info-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.info-value {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.description-block {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.description-content {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-top: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* User Profile Mini */
+.user-profile-mini {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+.avatar-mini {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--neon-blue), #8b5cf6);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.user-text-mini {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name-mini {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.user-email-mini {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* Edit Form Specifics */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.form-control,
+.form-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: rgba(15, 23, 42, 0.5);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    outline: none;
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Comentarios (chat) - mismo estilo que cliente */
+.comment-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: var(--bg-color, #000000);
+    border: 1px solid var(--border-color, #333333);
+    border-radius: var(--radius-md, 0.5rem);
+    color: var(--text-primary, #f8fafc);
+    font-family: var(--font-family, 'Inter', sans-serif);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 96px;
+}
+
+.comment-textarea::placeholder {
+    color: var(--text-secondary, #94a3b8);
+    opacity: 0.8;
+}
+
+.comment-textarea:focus {
+    outline: none;
+    border-color: var(--neon-blue, #3b82f6);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-primary {
+    background-color: var(--neon-blue);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary:hover {
+    background-color: #2563eb;
+    transform: translateY(-1px);
+}
+
+/* User Modals - Two Column Layout */
+.usuarios-modal .modal-dialog {
+    max-width: 800px;
+}
+
+.usuarios-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .usuarios-modal .modal-dialog {
+        max-width: 95vw;
+    }
+
+    .usuarios-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Comentarios: adjuntos (imagen) */
+.comment-attachment {
+    margin-top: 0.6rem;
+}
+
+.comment-image {
+    display: block;
+    max-width: 100%;
+    max-height: 360px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.comment-upload-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.comment-file-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.comment-file-input {
+    flex: 1;
+    min-width: 220px;
+    padding: 0.55rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.comment-file-input:focus {
+    outline: none;
+    border-color: var(--neon-blue);
+}
+
+.comment-file-input::file-selector-button {
+    margin-right: 0.75rem;
+    padding: 0.45rem 0.9rem;
+    background-color: var(--neon-blue);
+    border: 1px solid var(--neon-blue);
+    color: var(--text-primary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+}
+
+.comment-file-input::file-selector-button:hover {
+    filter: brightness(1.05);
+}
+
+/* Campo comentario (mismo patrón visual que cliente) */
+.form-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    resize: vertical;
+}
+
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--neon-blue);
+}
+
+.form-textarea::placeholder {
+    color: var(--text-secondary);
+}

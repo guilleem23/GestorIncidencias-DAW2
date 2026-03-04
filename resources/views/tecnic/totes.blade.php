@@ -1,12 +1,12 @@
 @extends('layouts.tecnic')
 
-@section('title', 'Mis Tareas - Nexton')
+@section('title', 'Todas mis Tareas - Nexton')
 
 @section('content')
     <div class="page-header">
         <div>
-            <h1 class="page-title">Mis Tareas</h1>
-            <p class="page-subtitle">Incidencias asignadas para resolver</p>
+            <h1 class="page-title">Todas mis Tareas</h1>
+            <p class="page-subtitle">Historial completo de incidencias asignadas</p>
         </div>
     </div>
 
@@ -23,6 +23,36 @@
             <span>{{ session('error') }}</span>
         </div>
     @endif
+
+    <!-- Filtros -->
+    <div class="filters-container">
+        <form method="GET" action="{{ route('tecnic.totes') }}">
+            <div class="filters-grid">
+                <!-- Filtro por Estado -->
+                <div class="filter-group">
+                    <label><i class="fas fa-tasks"></i> Estado</label>
+                    <select name="estat" class="filter-select">
+                        <option value="">Todos los estados</option>
+                        @foreach($estats as $value => $label)
+                            <option value="{{ $value }}" {{ $estatFilter == $value ? 'selected' : '' }}>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="filter-actions">
+                    <button type="submit" class="btn-filter">
+                        <i class="fas fa-search"></i> Filtrar
+                    </button>
+                    <a href="{{ route('tecnic.totes') }}" class="btn-clear">
+                        <i class="fas fa-times"></i> Limpiar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
 
     <!-- Estadísticas -->
     <div class="stats-grid">
@@ -44,7 +74,7 @@
         </div>
         <div class="stat-card">
             <div class="stat-number">{{ $incidencies->count() }}</div>
-            <div class="stat-label">Total</div>
+            <div class="stat-label">Total mostradas</div>
         </div>
     </div>
 
@@ -94,8 +124,8 @@
                             <span class="status-badge status-treball">En trabajo</span>
                         @elseif($incidencia->estat === 'Resolta')
                             <span class="status-badge status-resolta">Resuelta</span>
-                        @else
-                            <span class="badge badge-active">Cerrada</span>
+                        @elseif($incidencia->estat === 'Tancada')
+                            <span class="status-badge status-tancada">Cerrada</span>
                         @endif
                     </div>
                 </div>
@@ -210,7 +240,7 @@
     @else
         <div class="empty-state">
             <i class="fas fa-clipboard-check"></i>
-            <p>No tienes incidencias activas en este momento</p>
+            <p>No hay incidencias que coincidan con los filtros</p>
         </div>
     @endif
     </div>

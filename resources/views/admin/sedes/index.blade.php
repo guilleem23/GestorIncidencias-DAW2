@@ -39,7 +39,7 @@
             <div class="sede-card">
                 <div class="sede-image-wrapper-banner">
                     @if($sede->imagen)
-                        <img src="{{ asset('storage/' . $sede->imagen) }}" alt="Imagen Sede" class="sede-img-banner">
+                        <img src="{{ asset($sede->imagen) }}" alt="Imagen Sede" class="sede-img-banner">
                     @else
                         <img src="{{ asset('img/sede_default.jpg') }}" alt="Sede Default" class="sede-img-banner">
                     @endif
@@ -60,15 +60,27 @@
                     <h3 class="sede-title">{{ $sede->nom }}</h3>
                     
                     <div class="sede-details">
-                        <div class="sede-category">{{ $sede->descripcion ?? 'Sin descripción disponible' }}</div>
+                        <div class="sede-category">
+                            {{ Str::limit($sede->descripcion ?? 'Sin descripción disponible', 20) }}
+                            <button type="button" class="btn-info-desc"
+                                data-nombre="{{ $sede->nom }}"
+                                data-descripcion="{{ $sede->descripcion ?? 'Sin descripción disponible' }}"
+                                data-gestor="{{ $sede->gestor ? $sede->gestor->name . ' (@' . $sede->gestor->username . ')' : 'Sin gestor asignado' }}"
+                                title="Ver descripción completa">
+                                <i class="fa-solid fa-circle-info"></i>
+                            </button>
+                        </div>
                         <div class="sede-responsable-info">
                             <i class="fa-solid fa-user-tie"></i> 
-                            {{ $sede->responsable ?? 'No asignado' }}
+                            {{ $sede->gestor ? '@' . $sede->gestor->username : 'Sin gestor' }}
                         </div>
                     </div>
                     
                     <div class="sede-footer">
-                        <div></div> 
+                        <span class="sede-incidencias-badge {{ $sede->incidencies_obertes_count > 0 ? 'badge-warning' : 'badge-ok' }}">
+                            <i class="fa-solid fa-{{ $sede->incidencies_obertes_count > 0 ? 'triangle-exclamation' : 'circle-check' }}"></i>
+                            {{ $sede->incidencies_obertes_count }} abierta{{ $sede->incidencies_obertes_count !== 1 ? 's' : '' }}
+                        </span>
                         <button type="button" class="btn-ver-detalles-sede btn-editar-sede" data-id="{{ $sede->id }}">
                             Editar Sede
                         </button>

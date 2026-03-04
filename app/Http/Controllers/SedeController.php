@@ -13,7 +13,12 @@ class SedeController extends Controller
      */
     public function index()
     {
-        $sedes = Sede::orderBy('nom')->get();
+        $sedes = Sede::with('gestor')
+            ->withCount(['incidencies as incidencies_obertes_count' => function($q) {
+            $q->whereNotIn('estat', ['Tancada', 'Resolta']);
+        }])
+        ->orderBy('nom')
+        ->get();
         return view('admin.sedes.index', compact('sedes'));
     }
 
@@ -33,8 +38,10 @@ class SedeController extends Controller
         try {
             $data = $validated;
             if ($request->hasFile('imagen')) {
-                $path = $request->file('imagen')->store('sedes', 'public');
-                $data['imagen'] = $path;
+                $file = $request->file('imagen');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('img/sedes'), $filename);
+                $data['imagen'] = 'img/sedes/' . $filename;
             }
 
             Sede::create($data);
@@ -52,7 +59,10 @@ class SedeController extends Controller
     public function edit($id)
     {
         $sede = Sede::findOrFail($id);
-        return view('admin.sedes.partial.editar_sede', compact('sede'));
+        $gestor = \App\Models\User::where('sede_id', $sede->id)
+            ->where('rol', 'gestor')
+            ->first();
+        return view('admin.sedes.partial.editar_sede', compact('sede', 'gestor'));
     }
 
     /**
@@ -73,12 +83,14 @@ class SedeController extends Controller
             $data = $validated;
 
             if ($request->hasFile('imagen')) {
-                // Remove old image if needed (optional)
-                if ($sede->imagen && \Illuminate\Support\Facades\Storage::disk('public')->exists($sede->imagen)) {
-                    \Illuminate\Support\Facades\Storage::disk('public')->delete($sede->imagen);
+                // Remove old image if needed
+                if ($sede->imagen && file_exists(public_path($sede->imagen))) {
+                    unlink(public_path($sede->imagen));
                 }
-                $path = $request->file('imagen')->store('sedes', 'public');
-                $data['imagen'] = $path;
+                $file = $request->file('imagen');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('img/sedes'), $filename);
+                $data['imagen'] = 'img/sedes/' . $filename;
             }
 
             $sede->update($data);
@@ -98,8 +110,8 @@ class SedeController extends Controller
         DB::beginTransaction();
         try {
             $sede = Sede::findOrFail($id);
-            if ($sede->imagen && \Illuminate\Support\Facades\Storage::disk('public')->exists($sede->imagen)) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($sede->imagen);
+            if ($sede->imagen && file_exists(public_path($sede->imagen))) {
+                unlink(public_path($sede->imagen));
             }
             $sede->delete();
             DB::commit();

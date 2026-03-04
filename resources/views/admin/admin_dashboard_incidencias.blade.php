@@ -1,99 +1,192 @@
 @extends('layouts.admin')
 
-@section('title', 'Nexton Admin - Gestión de Incidencias')
+@section('title', 'Nexton Admin - Incidencias')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/admin_dashboard.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/admin_incidencias.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin_categorias.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/gestor_historial.css') }}">
 @endpush
 
 @section('content')
-<div class="header-actions">
-    <div>
-        <h1><i class="fa-solid fa-triangle-exclamation"></i> Gestión de Incidencias</h1>
-        <p style="color: var(--text-secondary); margin-top: 0.5rem;">Administra las incidencias reportadas por los clientes.</p>
+<div class="categorias-container">
+    <div class="categorias-header">
+        <h1><i class="fa-solid fa-triangle-exclamation"></i> Incidencias</h1>
     </div>
-    
-    <div class="search-bar">
-        <input type="text" class="search-input" placeholder="Buscar por ID, Cliente o Sede...">
-        <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
-    </div>
-</div>
 
-@if (session('success'))
-    <div class="admin-alert admin-alert-success">
-        <i class="fa-solid fa-circle-check"></i>
-        <span>{{ session('success') }}</span>
-    </div>
-@endif
-
-@if ($errors->any())
-    <div class="admin-alert admin-alert-error">
-        <i class="fa-solid fa-circle-xmark"></i>
-        <div>
+    {{-- Mensajes --}}
+    @if (session('success'))
+        <div class="alert-custom alert-success-custom">
+            <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
+        </div>
+    @endif
+    @if ($errors->any())
+        <div class="alert-custom alert-error-custom">
+            <i class="fa-solid fa-circle-xmark"></i>
             @foreach ($errors->all() as $error)
-                <div>{{ $error }}</div>
+                <span>{{ $error }}</span>
             @endforeach
         </div>
+    @endif
+
+    {{-- Filtros --}}
+    <div class="filters-container">
+        <div class="filters-grid">
+            <div class="filter-group filter-search">
+                <label class="filter-label"><i class="fa-solid fa-magnifying-glass"></i> Buscar</label>
+                <input type="text" id="filter-buscar" class="filter-input" placeholder="ID, Título, descripción, cliente..." value="{{ request('buscar') }}">
+            </div>
+            <div class="filter-group">
+                <label class="filter-label"><i class="fa-solid fa-filter"></i> Estado</label>
+                <select id="filter-estat" class="filter-select">
+                    <option value="">Todos los estados</option>
+                    <option value="Sense assignar" {{ request('estat') === 'Sense assignar' ? 'selected' : '' }}>Sin asignar</option>
+                    <option value="Assignada" {{ request('estat') === 'Assignada' ? 'selected' : '' }}>Asignada</option>
+                    <option value="En treball" {{ request('estat') === 'En treball' ? 'selected' : '' }}>En trabajo</option>
+                    <option value="Resolta" {{ request('estat') === 'Resolta' ? 'selected' : '' }}>Resuelta</option>
+                    <option value="Tancada" {{ request('estat') === 'Tancada' ? 'selected' : '' }}>Cerrada</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label"><i class="fa-solid fa-flag"></i> Prioridad</label>
+                <select id="filter-prioritat" class="filter-select">
+                    <option value="">Todas las prioridades</option>
+                    <option value="alta" {{ request('prioritat') === 'alta' ? 'selected' : '' }}>Alta</option>
+                    <option value="mitjana" {{ request('prioritat') === 'mitjana' ? 'selected' : '' }}>Media</option>
+                    <option value="baixa" {{ request('prioritat') === 'baixa' ? 'selected' : '' }}>Baja</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label"><i class="fa-solid fa-building"></i> Sede</label>
+                <select id="filter-sede" class="filter-select">
+                    <option value="">Todas las sedes</option>
+                    @foreach($sedes as $sede)
+                        <option value="{{ $sede->id }}" {{ request('sede_id') == $sede->id ? 'selected' : '' }}>{{ $sede->nom }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label"><i class="fa-solid fa-sort"></i> Ordenar</label>
+                <select id="filter-orden" class="filter-select">
+                    <option value="desc" {{ request('orden', 'desc') === 'desc' ? 'selected' : '' }}>Más recientes primero</option>
+                    <option value="asc" {{ request('orden') === 'asc' ? 'selected' : '' }}>Más antiguas primero</option>
+                </select>
+            </div>
+            <div class="filter-group filter-actions" style="gap: 0.5rem;">
+                <button type="button" id="btn-toggle-closed" class="btn-toggle-closed" title="Mostrar/Ocultar cerradas">
+                    <i class="fa-solid fa-eye-slash"></i> Mostrar cerradas
+                </button>
+                <button type="button" id="btn-clear-filters" class="btn-clear-filters">
+                    <i class="fa-solid fa-xmark"></i> Limpiar filtros
+                </button>
+            </div>
+        </div>
     </div>
-@endif
 
-<div class="incidents-table-container">
-    <table class="incidents-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Título</th>
-                <th>Cliente</th>
-                <th>Sede</th>
-                <th>Fecha Creación</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($incidencias as $incidencia)
-                @php
-                    $tieneTecnics = isset($tecnicsBySede[$incidencia->sede_id]) && $tecnicsBySede[$incidencia->sede_id]->count() > 0;
-                @endphp
-                <tr>
-                    <td>#INC-{{ $incidencia->id }}</td>
-                    <td>{{ $incidencia->titol }}</td>
-                    <td>{{ $incidencia->cliente?->name ?? '-' }}</td>
-                    <td>{{ $incidencia->sede?->nom ?? '-' }}</td>
-                    <td>{{ $incidencia->created_at?->format('d/m/Y H:i') ?? '-' }}</td>
-                    <td>
-                        <span class="badge {{ $incidencia->estat === 'Sense assignar' ? 'badge-pending' : 'badge-assigned' }}">
-                            {{ $incidencia->estat }}
-                        </span>
-                    </td>
-                    <td>
-                        <form method="POST" action="{{ route('admin.incidencias.assign', $incidencia->id) }}" class="assign-form">
-                            @csrf
-                            <select name="tecnic_id" class="assign-select" {{ $tieneTecnics ? '' : 'disabled' }}>
-                                <option value="">Selecciona técnico...</option>
-                                @foreach (($tecnicsBySede[$incidencia->sede_id] ?? collect()) as $tecnic)
-                                    <option value="{{ $tecnic->id }}" {{ (int) $incidencia->tecnic_id === (int) $tecnic->id ? 'selected' : '' }}>
-                                        {{ $tecnic->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-
-                            <button type="submit" class="btn-action" {{ $tieneTecnics ? '' : 'disabled' }}>
-                                Asignar técnico
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="7" style="padding: 2rem; color: var(--text-secondary);">
-                        No hay incidencias registradas.
-                    </td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+    {{-- Tabla --}}
+    <div id="incidencias-table-container">
+        @include('admin.partials.tabla_incidencias')
+    </div>
 </div>
 @endsection
 
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let timeout = null;
+            const tableContainer = document.getElementById('incidencias-table-container');
+
+            let showingClosed = false;
+            const btnToggleClosed = document.getElementById('btn-toggle-closed');
+
+            function updateToggleButton() {
+                if (!btnToggleClosed) return;
+                if (showingClosed) {
+                    btnToggleClosed.innerHTML = '<i class="fa-solid fa-eye"></i> Ocultar cerradas';
+                    btnToggleClosed.classList.add('active');
+                    if (tableContainer) tableContainer.classList.add('show-closed');
+                } else {
+                    btnToggleClosed.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Mostrar cerradas';
+                    btnToggleClosed.classList.remove('active');
+                    if (tableContainer) tableContainer.classList.remove('show-closed');
+                }
+            }
+
+            if (btnToggleClosed) {
+                btnToggleClosed.addEventListener('click', function() {
+                    showingClosed = !showingClosed;
+                    updateToggleButton();
+                });
+            }
+
+            function fetchIncidencias(url = null) {
+                const buscar = document.getElementById('filter-buscar').value;
+                const estat = document.getElementById('filter-estat').value;
+                const prioritat = document.getElementById('filter-prioritat').value;
+                const sede = document.getElementById('filter-sede').value;
+                const orden = document.getElementById('filter-orden').value;
+
+                const paramsObj = {};
+                if (buscar) paramsObj.buscar = buscar;
+                if (estat) paramsObj.estat = estat;
+                if (prioritat) paramsObj.prioritat = prioritat;
+                if (sede) paramsObj.sede_id = sede;
+                if (orden && orden !== 'desc') paramsObj.orden = orden;
+
+                const params = new URLSearchParams(paramsObj);
+                let finalUrl = url || `{{ route('admin.incidencias') }}?${params.toString()}`;
+
+                if (url) {
+                    const tempUrl = new URL(url, window.location.origin);
+                    Object.keys(paramsObj).forEach(key => tempUrl.searchParams.set(key, paramsObj[key]));
+                    finalUrl = tempUrl.toString();
+                }
+
+                tableContainer.style.opacity = '0.5';
+
+                fetch(finalUrl, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    tableContainer.innerHTML = html;
+                    tableContainer.style.opacity = '1';
+                    if (showingClosed) {
+                        tableContainer.classList.add('show-closed');
+                    }
+                    if (url) tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                })
+                .catch(error => {
+                    console.error('Error al filtrar incidencias:', error);
+                    tableContainer.style.opacity = '1';
+                });
+            }
+
+            document.getElementById('filter-buscar').addEventListener('input', function() {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => fetchIncidencias(), 400);
+            });
+
+            ['filter-estat', 'filter-prioritat', 'filter-sede', 'filter-orden'].forEach(function(id) {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('change', () => fetchIncidencias());
+            });
+
+            document.getElementById('btn-clear-filters').addEventListener('click', function() {
+                document.getElementById('filter-buscar').value = '';
+                document.getElementById('filter-estat').value = '';
+                document.getElementById('filter-prioritat').value = '';
+                document.getElementById('filter-sede').value = '';
+                document.getElementById('filter-orden').value = 'desc';
+                fetchIncidencias();
+            });
+
+            tableContainer.addEventListener('click', function(e) {
+                const link = e.target.closest('.pagination a');
+                if (link) {
+                    e.preventDefault();
+                    fetchIncidencias(link.href);
+                }
+            });
+        });
+    </script>
+@endpush

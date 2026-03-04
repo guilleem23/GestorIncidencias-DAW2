@@ -48,8 +48,10 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         // Usar localStorage para mostrar SweetAlert tras logout
-        echo '<script>localStorage.setItem("logout_success", "1");window.location.href="/";</script>';
-        exit;
+        return response(
+            '<script>localStorage.setItem("logout_success", "1");window.location.href="/";</script>',
+            200
+        )->header('Content-Type', 'text/html; charset=UTF-8');
     }
 }
     
