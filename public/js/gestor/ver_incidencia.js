@@ -132,7 +132,7 @@
                 .finally(() => {
                     if (btnSubmitComentario) {
                         btnSubmitComentario.disabled = false;
-                        btnSubmitComentario.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar';
+                        btnSubmitComentario.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar comentario';
                     }
                 });
         });
@@ -162,7 +162,7 @@
                 if (result.isConfirmed) {
                     btnDelete.classList.add('btn-loading');
 
-                    fetch(`/admin/comentarios/${id}`, {
+                    fetch(`/gestor/comentarios/${id}`, {
                         method: 'DELETE',
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
@@ -269,7 +269,7 @@
                 comentarioIdEnEdicion = id;
 
                 // Cargar datos del comentario
-                fetch(`/admin/comentarios/${id}/edit`, {
+                fetch(`/gestor/comentarios/${id}/edit`, {
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
                     .then(res => res.json())
@@ -280,7 +280,7 @@
                             editFileNameDisplay.textContent = data.data.imatge_path ? 'Imagen actual: ' + data.data.imatge_path.split('/').pop() : '';
                             
                             // Limpiar el atributo method del formulario de edición
-                            formEditarComentario.action = `/admin/comentarios/${id}`;
+                            formEditarComentario.action = `/gestor/comentarios/${id}`;
                             
                             const modalEditarComentario = new bootstrap.Modal(document.getElementById('modalEditarComentario'));
                             modalEditarComentario.show();
@@ -332,7 +332,7 @@
                 btnSubmitEdit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
             }
 
-            fetch(`/admin/comentarios/${comentarioIdEnEdicion}`, {
+            fetch(`/gestor/comentarios/${comentarioIdEnEdicion}`, {
                 method: 'POST',
                 body: formData,
                 headers: {

@@ -8,6 +8,7 @@ use App\Models\Comentario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class AdminIncidenciaController extends Controller
 {
@@ -68,19 +69,29 @@ class AdminIncidenciaController extends Controller
     public function storeComentario(Request $request, $id)
     {
         $validated = $request->validate([
-            'missatge' => ['required', 'string', 'min:2', 'max:2000'],
+            'missatge' => ['required_without:imatge', 'nullable', 'string', 'min:2', 'max:2000'],
+            'imatge' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:4096'],
         ], [
-            'missatge.required' => 'El comentario es obligatorio.',
+            'missatge.required_without' => 'Debes escribir un comentario o adjuntar una imagen.',
             'missatge.min' => 'El comentario debe tener al menos 2 caracteres.',
             'missatge.max' => 'El comentario no puede superar 2000 caracteres.',
+            'imatge.image' => 'El archivo adjunto debe ser una imagen.',
+            'imatge.mimes' => 'La imagen debe ser JPG, JPEG, PNG, GIF o WEBP.',
+            'imatge.max' => 'La imagen no puede superar 4MB.',
         ]);
 
         $incidencia = Incidencia::findOrFail($id);
 
+        $imagePath = null;
+        if ($request->hasFile('imatge')) {
+            $imagePath = $request->file('imatge')->store('comentarios', 'public');
+        }
+
         $comentario = Comentario::create([
             'incidencia_id' => $incidencia->id,
             'usuario_id' => Auth::id(),
-            'missatge' => $validated['missatge'],
+            'missatge' => $validated['missatge'] ?? '',
+            'imatge_path' => $imagePath,
         ]);
 
         // Cargar la relación del usuario
@@ -117,6 +128,11 @@ class AdminIncidenciaController extends Controller
             return back()->withErrors(['error' => 'No tienes permiso para eliminar este comentario.']);
         }
 
+        // Eliminar la imagen del storage si existe
+        if (!empty($comentario->imatge_path)) {
+            Storage::disk('public')->delete($comentario->imatge_path);
+        }
+
         $comentario->delete();
 
         if (request()->ajax()) {
@@ -128,6 +144,83 @@ class AdminIncidenciaController extends Controller
 
         return back()->with('success', 'Comentario eliminado correctamente.');
     }
+
+    /**
+     * Obtiene los datos de un comentario para editar.
+     */
+    public function editComentario($id)
+    {
+        $comentario = Comentario::findOrFail($id);
+
+        // Verificar que el usuario es el dueño del comentario o es admin
+        if ($comentario->usuario_id !== Auth::id() && Auth::user()->rol !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para editar este comentario.'
+            ], 403);
+        }
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $comentario->id,
+                    'missatge' => $comentario->missatge,
+                    'imatge_path' => $comentario->imatge_path
+                ]
+            ]);
+        }
+    }
+
+    /**
+     * Actualiza un comentario.
+     */
+    public function updateComentario(Request $request, $id)
+    {
+        $comentario = Comentario::findOrFail($id);
+
+        // Verificar que el usuario es el dueño del comentario o es admin
+        if ($comentario->usuario_id !== Auth::id() && Auth::user()->rol !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para editar este comentario.'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'missatge' => 'required_without:imatge|string|min:2|max:2000',
+            'imatge' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:4096'
+        ]);
+
+        // Actualizar mensaje
+        if (!empty($validated['missatge'])) {
+            $comentario->missatge = $validated['missatge'];
+        }
+
+        // Manejar imagen
+        if ($request->hasFile('imatge')) {
+            // Eliminar imagen anterior si existe
+            if (!empty($comentario->imatge_path)) {
+                Storage::disk('public')->delete($comentario->imatge_path);
+            }
+            // Guardar nueva imagen
+            $path = $request->file('imatge')->store('comentarios', 'public');
+            $comentario->imatge_path = $path;
+        }
+
+        $comentario->save();
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Comentario actualizado correctamente.',
+                'html' => view('admin.partials.comentario_item', ['comentario' => $comentario])->render()
+            ]);
+        }
+
+        return back()->with('success', 'Comentario actualizado correctamente.');
+    }
+
 
     /**
      * Asigna un técnico a una incidencia (obligatorio que sea de la misma sede).

@@ -7,6 +7,7 @@ use App\Models\Incidencia;
 use App\Models\User;
 use App\Models\Comentario;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class IncidenciaController extends Controller
 {
@@ -108,25 +109,44 @@ class IncidenciaController extends Controller
     public function storeComentarioGestor(Request $request, $id)
     {
         $validated = $request->validate([
-            'missatge' => ['required', 'string', 'min:2', 'max:2000'],
+            'missatge' => ['required_without:imatge', 'nullable', 'string', 'min:2', 'max:2000'],
+            'imatge' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:4096'],
         ], [
-            'missatge.required' => 'El comentario es obligatorio.',
+            'missatge.required_without' => 'Debes escribir un comentario o adjuntar una imagen.',
             'missatge.min' => 'El comentario debe tener al menos 2 caracteres.',
             'missatge.max' => 'El comentario no puede superar 2000 caracteres.',
+            'imatge.image' => 'El archivo adjunto debe ser una imagen.',
+            'imatge.mimes' => 'La imagen debe ser JPG, JPEG, PNG, GIF o WEBP.',
+            'imatge.max' => 'La imagen no puede superar 4MB.',
         ]);
 
         $user = Auth::user();
         $incidencia = Incidencia::findOrFail($id);
 
         if ((int) $incidencia->sede_id !== (int) $user->sede_id) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No tienes permiso para comentar esta incidencia.'
+                ], 403);
+            }
             abort(403, 'No tienes permiso para comentar esta incidencia.');
+        }
+
+        $imagePath = null;
+        if ($request->hasFile('imatge')) {
+            $imagePath = $request->file('imatge')->store('comentarios', 'public');
         }
 
         $comentario = Comentario::create([
             'incidencia_id' => $incidencia->id,
             'usuario_id' => $user->id,
-            'missatge' => $validated['missatge'],
+            'missatge' => $validated['missatge'] ?? '',
+            'imatge_path' => $imagePath,
         ]);
+
+        // Cargar la relación del usuario
+        $comentario->load('usuario');
 
         if ($request->ajax()) {
             $html = view('gestor.partials.comentario_item', compact('comentario'))->render();
@@ -161,6 +181,11 @@ class IncidenciaController extends Controller
             ], 403);
         }
 
+        // Eliminar la imagen del storage si existe
+        if (!empty($comentario->imatge_path)) {
+            Storage::disk('public')->delete($comentario->imatge_path);
+        }
+
         $comentario->delete();
 
         return response()->json([
@@ -168,6 +193,97 @@ class IncidenciaController extends Controller
             'message' => 'Comentario eliminado.'
         ]);
     }
+
+    public function editComentarioGestor($id)
+    {
+        $user = Auth::user();
+        $comentario = Comentario::with('incidencia')->findOrFail($id);
+
+        // Verificar que el usuario es el dueño del comentario
+        if ((int) $comentario->usuario_id !== (int) $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para editar este comentario.'
+            ], 403);
+        }
+
+        // Verificar que sea de su sede
+        if ((int) $comentario->incidencia->sede_id !== (int) $user->sede_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Acceso denegado.'
+            ], 403);
+        }
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $comentario->id,
+                    'missatge' => $comentario->missatge,
+                    'imatge_path' => $comentario->imatge_path
+                ]
+            ]);
+        }
+
+        abort(404);
+    }
+
+    public function updateComentarioGestor(Request $request, $id)
+    {
+        $user = Auth::user();
+        $comentario = Comentario::with('incidencia')->findOrFail($id);
+
+        // Verificar que el usuario es el dueño del comentario
+        if ((int) $comentario->usuario_id !== (int) $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para editar este comentario.'
+            ], 403);
+        }
+
+        // Verificar que sea de su sede
+        if ((int) $comentario->incidencia->sede_id !== (int) $user->sede_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Acceso denegado.'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'missatge' => 'required_without:imatge|string|min:2|max:2000',
+            'imatge' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:4096'
+        ]);
+
+        // Actualizar mensaje
+        if (!empty($validated['missatge'])) {
+            $comentario->missatge = $validated['missatge'];
+        }
+
+        // Manejar imagen
+        if ($request->hasFile('imatge')) {
+            // Eliminar imagen anterior si existe
+            if (!empty($comentario->imatge_path)) {
+                Storage::disk('public')->delete($comentario->imatge_path);
+            }
+            // Guardar nueva imagen
+            $path = $request->file('imatge')->store('comentarios', 'public');
+            $comentario->imatge_path = $path;
+        }
+
+        $comentario->save();
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Comentario actualizado correctamente.',
+                'html' => view('gestor.partials.comentario_item', ['comentario' => $comentario])->render()
+            ]);
+        }
+
+        return back()->with('success', 'Comentario actualizado correctamente.');
+    }
+
 
     public function editGestor($id)
     {

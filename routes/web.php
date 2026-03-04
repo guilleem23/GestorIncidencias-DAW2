@@ -36,6 +36,8 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
     Route::post('/admin/incidencias/{id}/assign', [AdminIncidenciaController::class, 'assignTecnic'])->name('admin.incidencias.assign');
     Route::post('/admin/incidencias/{id}/comentarios', [AdminIncidenciaController::class, 'storeComentario'])->name('admin.incidencias.comentarios.store');
     Route::delete('/admin/comentarios/{id}', [AdminIncidenciaController::class, 'destroyComentario'])->name('admin.comentarios.destroy');
+    Route::get('/admin/comentarios/{id}/edit', [AdminIncidenciaController::class, 'editComentario'])->name('admin.comentarios.edit');
+    Route::put('/admin/comentarios/{id}', [AdminIncidenciaController::class, 'updateComentario'])->name('admin.comentarios.update');
 
     // Gestión de usuarios
     Route::get('/admin/usuarios/check-email', [UserController::class, 'checkEmail']);
@@ -91,6 +93,8 @@ Route::middleware(['auth', 'role:gestor'])->group(function () {
     Route::post('/gestor/incidencias/{id}/comentarios', [IncidenciaController::class, 'storeComentarioGestor'])->name('gestor.incidencias.comentarios.store');
     Route::delete('/gestor/incidencias/{id}', [IncidenciaController::class, 'destroyGestor'])->name('gestor.incidencias.destroy');
     Route::delete('/gestor/comentarios/{id}', [IncidenciaController::class, 'destroyComentarioGestor'])->name('gestor.comentarios.destroy');
+    Route::get('/gestor/comentarios/{id}/edit', [IncidenciaController::class, 'editComentarioGestor'])->name('gestor.comentarios.edit');
+    Route::put('/gestor/comentarios/{id}', [IncidenciaController::class, 'updateComentarioGestor'])->name('gestor.comentarios.update');
     Route::get('/gestor/usuarios', [UserController::class, 'indexGestor'])->name('gestor.usuarios');
     Route::get('/gestor/usuarios/{id}', [UserController::class, 'showGestor'])->name('gestor.usuarios.show');
     Route::post('/gestor/assignar/{id}', [IncidenciaController::class, 'assignarTecnic'])->name('gestor.assignar');

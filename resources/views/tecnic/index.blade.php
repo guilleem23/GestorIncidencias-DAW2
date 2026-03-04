@@ -116,7 +116,13 @@
                                     <div style="margin-top: 0.4rem; color: var(--texto-secundario);">
                                         {!! nl2br(e($comentario->missatge)) !!}
                                     </div>
-                                    </div>
+                                    @if(!empty($comentario->imatge_path))
+                                        <div class="comment-attachment">
+                                            <a href="{{ asset('storage/' . $comentario->imatge_path) }}" target="_blank" rel="noopener">
+                                                <img class="comment-image" src="{{ asset('storage/' . $comentario->imatge_path) }}" alt="Imagen adjunta">
+                                            </a>
+                                        </div>
+                                    @endif
                                 </div>
                             @endforeach
                         </div>
@@ -126,7 +132,7 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('tecnic.incidencias.comentarios.store', $incidencia->id) }}" style="margin-top: 0.9rem;">
+                    <form method="POST" action="{{ route('tecnic.incidencias.comentarios.store', $incidencia->id) }}" enctype="multipart/form-data" style="margin-top: 0.9rem;">
                         @csrf
                         <div style="display:flex; flex-direction:column; gap:0.5rem;">
                             <textarea name="missatge" rows="3" class="comment-textarea" placeholder="Responder en la incidencia..."></textarea>
@@ -135,6 +141,19 @@
                                     <i class="fas fa-exclamation-circle"></i> {{ $message }}
                                 </span>
                             @enderror
+
+                            <div class="comment-upload-row">
+                                <label class="comment-file-label" for="imatge-tecnic-{{ $incidencia->id }}">
+                                    <i class="fas fa-image"></i> Adjuntar imagen
+                                </label>
+                                <input id="imatge-tecnic-{{ $incidencia->id }}" type="file" name="imatge" class="comment-file-input" accept="image/*">
+                            </div>
+                            @error('imatge')
+                                <span class="error-message" style="margin-top: 0;">
+                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                </span>
+                            @enderror
+
                             <div style="display:flex; justify-content:flex-end;">
                                 <button type="submit" class="btn btn-primary" style="padding: 0.55rem 1rem;">
                                     <i class="fas fa-paper-plane"></i> Enviar

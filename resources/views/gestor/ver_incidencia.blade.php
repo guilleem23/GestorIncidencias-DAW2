@@ -5,6 +5,7 @@
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/gestor_historial.css') }}"> <!-- Reusing badges -->
     <link rel="stylesheet" href="{{ asset('css/gestor_incidencia_detail.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/comentarios.css') }}">
 @endpush
 
 @section('content')
@@ -115,20 +116,38 @@
                                 @include('gestor.partials.comentario_item', ['comentario' => $comentario])
                             @endforeach
                         @else
-                            <div id="no-comments-msg" style="margin-top: 0.5rem; color: var(--text-secondary);">
+                            <div id="no-comments-msg" class="fade-in-up" style="margin-top: 0.5rem; color: var(--text-secondary);">
                                 Sin comentarios.
                             </div>
                         @endif
                     </div>
 
-                    <form id="form-comentario" method="POST" action="{{ route('gestor.incidencias.comentarios.store', $incidencia->id) }}" style="margin-top: 0.9rem;">
+                    <form id="form-comentario" method="POST" action="{{ route('gestor.incidencias.comentarios.store', $incidencia->id) }}" enctype="multipart/form-data" style="margin-top: 0.9rem;">
                         @csrf
                         <div style="display:flex; flex-direction:column; gap:0.5rem;">
                             <textarea id="missatge-comentario" name="missatge" rows="3" class="comment-textarea" placeholder="Añadir comentario..."></textarea>
-                            <div id="error-comentario" style="display: none;"></div>
+                            @error('missatge')
+                                <span class="error-message" style="margin-top: 0;">
+                                    <i class="fa-solid fa-circle-exclamation"></i> {{ $message }}
+                                </span>
+                            @enderror
+
+                            <div class="comment-upload-row">
+                                <label class="comment-file-label" for="imatge-comentario">
+                                    <i class="fa-solid fa-image"></i> Adjuntar imagen
+                                </label>
+                                <input id="imatge-comentario" type="file" name="imatge" class="comment-file-input" accept="image/*">
+                                <span id="file-name-display" style="color: var(--text-secondary); font-size: 0.9rem; margin-left: 0.5rem;"></span>
+                            </div>
+                            @error('imatge')
+                                <span class="error-message" style="margin-top: 0;">
+                                    <i class="fa-solid fa-circle-exclamation"></i> {{ $message }}
+                                </span>
+                            @enderror
+
                             <div style="display:flex; justify-content:flex-end;">
-                                <button type="submit" id="btn-submit-comentario" class="btn-primary" style="padding: 0.65rem 1rem;">
-                                    <i class="fa-solid fa-paper-plane"></i> Enviar
+                                <button type="submit" id="btn-submit-comentario" class="btn-primary" style="padding: 0.55rem 1rem;">
+                                    <i class="fa-solid fa-paper-plane"></i> Enviar comentario
                                 </button>
                             </div>
                         </div>
@@ -158,6 +177,73 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Ver Imagen Comentario -->
+    <div class="modal fade" id="modalImagenComentario" tabindex="-1" aria-labelledby="modalImagenComentarioLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="modalImagenComentarioLabel">
+                        <i class="fa-solid fa-image"></i> Ver Imagen
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="modal-imagen-src" src="" alt="Imagen comentario" style="max-width: 100%; height: auto; border-radius: 0.5rem;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Comentario -->
+    <div class="modal fade" id="modalEditarComentario" tabindex="-1" aria-labelledby="modalEditarComentarioLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="modalEditarComentarioLabel">
+                        <i class="fa-solid fa-pen-to-square"></i> Editar Comentario
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <form id="form-editar-comentario" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="edit-missatge-comentario" class="form-label">
+                                <i class="fa-solid fa-comment"></i> Comentario
+                            </label>
+                            <textarea id="edit-missatge-comentario" 
+                                      name="missatge"
+                                      class="form-control bg-secondary text-white border-secondary"
+                                      rows="4"
+                                      placeholder="Edita tu comentario..."></textarea>
+                            <small class="form-text text-muted">Mínimo 2 caracteres.</small>
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label for="edit-imatge-comentario" class="form-label">
+                                <i class="fa-solid fa-image"></i> Imagen (Opcional)
+                            </label>
+                            <input type="file" 
+                                   id="edit-imatge-comentario"
+                                   name="imatge"
+                                   class="form-control bg-secondary text-white border-secondary"
+                                   accept="image/*">
+                            <small class="form-text text-muted">JPG, PNG, GIF, WebP. Máximo 4MB.</small>
+                            <div id="edit-file-name-display" style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.85rem;"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" id="btn-submit-edit-comentario" class="btn btn-primary">
+                            <i class="fa-solid fa-save"></i> Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -166,6 +252,6 @@
         window.categoriasData = @json($categorias);
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{{ asset('js/gestor/incidencias.js') }}"></script>
+    <script src="{{ asset('js/gestor/ver_incidencia.js') }}"></script>
     <script src="{{ asset('js/gestor/modales.js') }}"></script>
 @endpush

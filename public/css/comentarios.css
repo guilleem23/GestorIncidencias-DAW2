@@ -1,0 +1,195 @@
+/* =====================================================
+ * Estilos para comentarios en incidencias
+ * =====================================================
+ */
+
+.comment-item-wrapper {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+.comment-item-wrapper.admin {
+    margin-bottom: 0.5rem;
+}
+
+.comment-item-wrapper.gestor {
+    margin-bottom: 1rem;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.comment-item-container {
+    display: flex;
+}
+
+.comment-item-bubble {
+    max-width: 92%;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: rgba(15, 23, 42, 0.25);
+}
+
+.comment-item-bubble.sent {
+    margin-left: auto;
+    background: rgba(15, 23, 42, 0.40);
+}
+
+.comment-item-bubble.received {
+    margin-left: 0;
+}
+
+.comment-item-bubble.admin {
+    padding: 0.75rem;
+}
+
+.comment-item-bubble.gestor {
+    padding: 0.85rem 1rem;
+}
+
+.comment-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.comment-item-header.admin {
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+}
+
+.comment-item-header.gestor {
+    gap: 1rem;
+}
+
+.comment-item-name {
+    font-weight: 600;
+}
+
+.comment-item-name.admin {
+    font-size: 0.95rem;
+}
+
+.comment-item-name.gestor {
+    font-size: 1rem;
+}
+
+.comment-item-actions {
+    display: flex;
+    align-items: center;
+}
+
+.comment-item-actions.admin {
+    gap: 0.3rem;
+}
+
+.comment-item-actions.gestor {
+    gap: 0.5rem;
+}
+
+.comment-item-timestamp {
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.comment-item-timestamp.admin {
+    font-size: 0.8rem;
+}
+
+.comment-item-timestamp.gestor {
+    font-size: 0.85rem;
+}
+
+.btn-comment-action {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.btn-comment-action:hover {
+    transform: scale(1.1);
+}
+
+.btn-comment-action.admin {
+    padding: 0.2rem 0.3rem;
+    font-size: 0.8rem;
+}
+
+.btn-comment-action.gestor {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.9rem;
+}
+
+.btn-edit-comment-action {
+    color: #3b82f6;
+}
+
+.btn-edit-comment-action:hover {
+    color: #2563eb;
+}
+
+.btn-delete-comment-action {
+    color: #ef4444;
+}
+
+.btn-delete-comment-action:hover {
+    color: #dc2626;
+}
+
+.comment-item-text {
+    color: var(--text-secondary);
+}
+
+.comment-item-text.admin {
+    margin-top: 0.3rem;
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem;
+}
+
+.comment-item-text.gestor {
+    margin-top: 0.4rem;
+    font-size: 1rem;
+}
+
+.comment-item-image {
+    margin-top: 0.75rem;
+    width: fit-content;
+}
+
+.comment-item-image a {
+    display: inline-block;
+}
+
+.comment-image-clickable {
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.comment-image-clickable:hover {
+    opacity: 0.85;
+    transform: scale(1.02);
+}
+
+.comment-item-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    display: block;
+}
+
+.comment-item-image.admin img {
+    max-width: 300px;
+}
+
+.comment-item-image.gestor img {
+    width: auto;
+}
