@@ -8,128 +8,162 @@
 
 @section('content')
 <div class="dashboard-header">
-    <h1>Visión Global de Operaciones</h1>
-    <p style="color: var(--text-secondary); margin-top: 0.5rem;">Estado del sistema en tiempo real y alertas críticas.</p>
+    <div class="header-text">
+        <h1><i class="fa-solid fa-chart-line"></i> Panel de Control</h1>
+        <p>Estado del sistema en tiempo real</p>
+    </div>
+    <div class="header-date">
+        <i class="fa-regular fa-calendar"></i> {{ now()->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY') }}
+    </div>
 </div>
 
-<!-- Panel Superior: KPIs -->
+<!-- KPIs -->
 <div class="kpi-grid">
-    <div class="kpi-card">
-        <div class="kpi-info">
-            <h3>Total Usuarios</h3>
-            <div class="kpi-value">{{ number_format($totalUsuarios ?? 0, 0, ',', '.') }}</div>
-        </div>
-        <div class="kpi-icon kpi-purple">
+    <div class="kpi-card kpi-card--users">
+        <div class="kpi-icon-wrap">
             <i class="fa-solid fa-users"></i>
         </div>
-    </div>
-    <div class="kpi-card">
-        <div class="kpi-info">
-            <h3>Incidencias Activas</h3>
-            <div class="kpi-value">{{ number_format($incidenciasActivas ?? 0, 0, ',', '.') }}</div>
-        </div>
-        <div class="kpi-icon kpi-orange">
-            <i class="fa-solid fa-triangle-exclamation"></i>
+        <div class="kpi-body">
+            <span class="kpi-label">Total Usuarios</span>
+            <span class="kpi-value">{{ number_format($totalUsuarios, 0, ',', '.') }}</span>
         </div>
     </div>
-    <div class="kpi-card">
-        <div class="kpi-info">
-            <h3>Tiempo Medio Res.</h3>
-            <div class="kpi-value">
-                {{ $tiempoMedioResolucionHoras !== null ? ($tiempoMedioResolucionHoras . 'h') : '—' }}
-            </div>
+
+    <div class="kpi-card kpi-card--active">
+        <div class="kpi-icon-wrap">
+            <i class="fa-solid fa-fire"></i>
         </div>
-        <div class="kpi-icon kpi-blue">
-            <i class="fa-regular fa-clock"></i>
+        <div class="kpi-body">
+            <span class="kpi-label">Incidencias Activas</span>
+            <span class="kpi-value">{{ number_format($incidenciasActivas, 0, ',', '.') }}</span>
         </div>
     </div>
-    <div class="kpi-card">
-        <div class="kpi-info">
-            <h3>Satisfacción Global</h3>
-            <div class="kpi-value">{{ $satisfaccionGlobal !== null ? ($satisfaccionGlobal . '/5') : '—' }}</div>
+
+    <div class="kpi-card kpi-card--time">
+        <div class="kpi-icon-wrap">
+            <i class="fa-solid fa-stopwatch"></i>
         </div>
-        <div class="kpi-icon kpi-green">
-            <i class="fa-solid fa-star"></i>
+        <div class="kpi-body">
+            <span class="kpi-label">Tiempo Medio Resolución</span>
+            <span class="kpi-value">{{ $tiempoMedioResolucion ?? '—' }}</span>
+        </div>
+    </div>
+
+    <div class="kpi-card kpi-card--pending">
+        <div class="kpi-icon-wrap">
+            <i class="fa-solid fa-hourglass-half"></i>
+        </div>
+        <div class="kpi-body">
+            <span class="kpi-label">Pendientes de Asignación</span>
+            <span class="kpi-value">{{ number_format($pendientesCount, 0, ',', '.') }}</span>
         </div>
     </div>
 </div>
 
-<!-- Sección Central: Gráficos -->
+<!-- Charts Section -->
 <div class="charts-grid">
+    <!-- Incidencias por Sede -->
     <div class="chart-card">
-        <h3 class="card-title">Incidencias por Sede</h3>
+        <h3 class="card-title"><i class="fa-solid fa-building"></i> Incidencias por Sede</h3>
         <div class="bar-chart">
-            <div class="bar-group">
-                <div class="bar bar-bcn" style="height: {{ $barHeights['BCN'] ?? 100 }}px;"></div>
-                <span class="bar-label">BCN ({{ $sedeCounts['BCN'] ?? 0 }})</span>
-            </div>
-            <div class="bar-group">
-                <div class="bar bar-berlin" style="height: {{ $barHeights['BER'] ?? 100 }}px;"></div>
-                <span class="bar-label">BER ({{ $sedeCounts['BER'] ?? 0 }})</span>
-            </div>
-            <div class="bar-group">
-                <div class="bar bar-montreal" style="height: {{ $barHeights['MTL'] ?? 100 }}px;"></div>
-                <span class="bar-label">MTL ({{ $sedeCounts['MTL'] ?? 0 }})</span>
-            </div>
+            @foreach ($sedeStats as $i => $sede)
+                @php
+                    $colors = ['#3b82f6', '#8b5cf6', '#10b981', '#f97316', '#ef4444', '#ec4899', '#06b6d4', '#eab308'];
+                    $color = $colors[$i % count($colors)];
+                @endphp
+                <div class="bar-group">
+                    <div class="bar-value">{{ $sede['count'] }}</div>
+                    <div class="bar" style="height: {{ $sede['height'] }}px; background: linear-gradient(to top, {{ $color }}, {{ $color }}aa);"></div>
+                    <span class="bar-label">{{ $sede['nom'] }}</span>
+                </div>
+            @endforeach
         </div>
     </div>
+
+    <!-- Tipología de Problemas -->
     <div class="chart-card">
-        <h3 class="card-title">Tipología de Problemas</h3>
-        <div class="donut-chart-container">
+        <h3 class="card-title"><i class="fa-solid fa-tags"></i> Tipología de Problemas</h3>
+        @if(count($tipologias) > 0)
             @php
-                $p1 = (int) (($tipologias[0]['percent'] ?? 33));
-                $p2 = (int) (($tipologias[1]['percent'] ?? 33));
-                $p3 = 100 - $p1 - $p2;
-                $a1 = (int) round($p1 * 3.6);
-                $a2 = (int) round($p2 * 3.6);
-                $a12 = $a1 + $a2;
+                $tipColors = ['#3b82f6', '#8b5cf6', '#10b981', '#f97316', '#ef4444', '#ec4899', '#06b6d4', '#eab308'];
+                // Build conic-gradient stops
+                $gradientParts = [];
+                $currentDeg = 0;
+                foreach ($tipologias as $i => $tipo) {
+                    $color = $tipColors[$i % count($tipColors)];
+                    $slice = round(($tipo['percent'] / 100) * 360, 1);
+                    $endDeg = $currentDeg + $slice;
+                    $gradientParts[] = "{$color} {$currentDeg}deg {$endDeg}deg";
+                    $currentDeg = $endDeg;
+                }
+                $gradient = implode(', ', $gradientParts);
             @endphp
-            <div class="donut" style="background: conic-gradient(var(--neon-orange) 0deg {{ $a1 }}deg, var(--neon-blue) {{ $a1 }}deg {{ $a12 }}deg, var(--neon-purple) {{ $a12 }}deg 360deg);"></div>
-            <div class="donut-legend">
-                <ul>
-                    <li><span class="dot dot-orange"></span> {{ $tipologias[0]['nom'] ?? 'Hardware' }} ({{ $p1 }}%)</li>
-                    <li><span class="dot dot-blue"></span> {{ $tipologias[1]['nom'] ?? 'Software' }} ({{ $p2 }}%)</li>
-                    <li><span class="dot dot-purple"></span> {{ $tipologias[2]['nom'] ?? 'Redes' }} ({{ $p3 }}%)</li>
-                </ul>
+            <div class="donut-chart-container">
+                <div class="donut" style="background: conic-gradient({{ $gradient }});"></div>
+                <div class="donut-legend">
+                    <ul>
+                        @foreach ($tipologias as $i => $tipo)
+                            @php $tColor = $tipColors[$i % count($tipColors)]; @endphp
+                            <li>
+                                <span class="dot" style="background: {{ $tColor }};"></span>
+                                <span class="legend-name">{{ $tipo['nom'] }}</span>
+                                <span class="legend-stats">{{ $tipo['count'] }} <small>({{ $tipo['percent'] }}%)</small></span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
             </div>
-        </div>
+        @else
+            <div class="empty-state">
+                <i class="fa-solid fa-chart-pie"></i>
+                <p>No hay datos de categorías</p>
+            </div>
+        @endif
     </div>
 </div>
 
-<!-- Sección Inferior: Tabla de Gestión -->
+<!-- Tabla: Pendientes de Asignación -->
 <div class="table-panel">
-    <h3 class="card-title">Incidencias Pendientes de Asignación (Global)</h3>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Título</th>
-                <th>Sede</th>
-                <th>Fecha</th>
-                <th>Estado</th>
-                <th>Acción</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse (($pendientesAsignacion ?? collect()) as $incidencia)
+    <h3 class="card-title"><i class="fa-solid fa-clipboard-list"></i> Incidencias Pendientes de Asignación (Global)</h3>
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
                 <tr>
-                    <td>#INC-{{ $incidencia->id }}</td>
-                    <td>{{ $incidencia->titol }}</td>
-                    <td>{{ $incidencia->sede?->nom ?? '-' }}</td>
-                    <td>{{ $incidencia->created_at?->locale('es')->diffForHumans() ?? '-' }}</td>
-                    <td><span class="status-badge">{{ $incidencia->estat }}</span></td>
-                    <td>
-                        <a class="btn-action" href="{{ route('admin.incidencias') }}">Asignar Técnico</a>
-                    </td>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Sede</th>
+                    <th>Categoría</th>
+                    <th>Fecha</th>
+                    <th>Acción</th>
                 </tr>
-            @empty
-                <tr>
-                    <td colspan="6" style="color: var(--text-secondary); padding: 1rem;">
-                        No hay incidencias pendientes de asignación.
-                    </td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @forelse ($pendientesAsignacion as $incidencia)
+                    <tr>
+                        <td><span class="id-badge">#{{ $incidencia->id }}</span></td>
+                        <td>{{ Str::limit($incidencia->titol, 40) }}</td>
+                        <td>{{ $incidencia->sede?->nom ?? '—' }}</td>
+                        <td>{{ $incidencia->categoria?->nom ?? 'Sin categoría' }}</td>
+                        <td>
+                            <span class="date-text" title="{{ $incidencia->created_at }}">
+                                {{ $incidencia->created_at?->locale('es')->diffForHumans() ?? '—' }}
+                            </span>
+                        </td>
+                        <td>
+                            <a class="btn-assign" href="{{ route('admin.incidencias.edit', $incidencia->id) }}">
+                                <i class="fa-solid fa-user-plus"></i> Asignar
+                            </a>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="empty-row">
+                            <i class="fa-solid fa-check-circle"></i> Todas las incidencias están asignadas
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
 @endsection

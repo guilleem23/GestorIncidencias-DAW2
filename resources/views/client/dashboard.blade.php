@@ -104,7 +104,7 @@
                     <tr style="border-bottom: 1px solid var(--border-color);">
                         <td style="padding: 1rem; color: var(--text-primary);">{{ $incidencia->titol }}</td>
                         <td style="padding: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
-                            {{ $incidencia->categoria->nom }}
+                            {{ $incidencia->categoria?->nom ?? 'Sin categoría' }}
                         </td>
                         <td style="padding: 1rem;">
                             @if($incidencia->estat === 'Sense assignar')

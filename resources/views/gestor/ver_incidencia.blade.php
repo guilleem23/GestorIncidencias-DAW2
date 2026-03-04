@@ -32,7 +32,7 @@
                         </div>
                         <div class="meta-item">
                             <i class="fa-solid fa-layer-group"></i>
-                            {{ $incidencia->categoria->nom }} / {{ $incidencia->subcategoria->nom }}
+                            {{ $incidencia->categoria?->nom ?? 'Sin categoría' }} / {{ $incidencia->subcategoria?->nom ?? 'Sin subcategoría' }}
                         </div>
                     </div>
                 </div>
