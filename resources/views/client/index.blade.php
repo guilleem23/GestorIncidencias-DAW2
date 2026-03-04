@@ -29,7 +29,7 @@
 
     <!-- Filtros -->
     <div class="filters-container">
-        <form method="GET" action="{{ route('client.index') }}">
+        <form method="GET" action="{{ route('client.index') }}" id="filtros-form">
             <div class="filters-grid">
                 <!-- Filtro por Estado -->
                 <div class="filter-group">
@@ -76,121 +76,131 @@
     </div>
 
     <!-- Estadísticas -->
-    <div class="stats-grid">
+    <div class="stats-grid" id="stats-container">
         <div class="stat-card">
-            <div class="stat-number">{{ $incidencies->where('estat', 'Sense assignar')->count() }}</div>
+            <div class="stat-number" id="stat-senseassignar">{{ $incidencies->where('estat', 'Sense assignar')->count() }}</div>
             <div class="stat-label">Sin asignar</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number">{{ $incidencies->whereIn('estat', ['Assignada', 'En treball'])->count() }}</div>
+            <div class="stat-number" id="stat-enproces">{{ $incidencies->whereIn('estat', ['Assignada', 'En treball'])->count() }}</div>
             <div class="stat-label">En proceso</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number">{{ $incidencies->where('estat', 'Resolta')->count() }}</div>
+            <div class="stat-number" id="stat-resoltes">{{ $incidencies->where('estat', 'Resolta')->count() }}</div>
             <div class="stat-label">Resueltas</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number">{{ $incidencies->where('estat', 'Tancada')->count() }}</div>
+            <div class="stat-number" id="stat-tancades">{{ $incidencies->where('estat', 'Tancada')->count() }}</div>
             <div class="stat-label">Cerradas</div>
         </div>
     </div>
 
     <!-- Lista de Incidencias -->
-    @if($incidencies->count() > 0)
-        @foreach($incidencies as $incidencia)
-            <div class="incidencia-card">
-                <div class="incidencia-header">
-                    <div style="flex: 1;">
-                        <h3 class="incidencia-title">{{ $incidencia->titol }}</h3>
-                        <div class="incidencia-meta">
-                            <div class="meta-item">
-                                <i class="fas fa-tag"></i>
-                                <span>{{ $incidencia->categoria->nom }} / {{ $incidencia->subcategoria->nom }}</span>
-                            </div>
-                            <div class="meta-item">
-                                <i class="fas fa-calendar"></i>
-                                <span>{{ $incidencia->created_at->format('d/m/Y H:i') }}</span>
-                            </div>
-                            @if($incidencia->tecnico)
+    <div id="incidencias-container">
+        @if($incidencies->count() > 0)
+            @foreach($incidencies as $incidencia)
+                <div class="incidencia-card">
+                    <div class="incidencia-header">
+                        <div style="flex: 1;">
+                            <h3 class="incidencia-title">{{ $incidencia->titol }}</h3>
+                            <div class="incidencia-meta">
                                 <div class="meta-item">
-                                    <i class="fas fa-user-cog"></i>
-                                    <span>Técnico: {{ $incidencia->tecnico->name }}</span>
+                                    <i class="fas fa-tag"></i>
+                                    <span>{{ $incidencia->categoria->nom }} / {{ $incidencia->subcategoria->nom }}</span>
                                 </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>{{ $incidencia->created_at->format('d/m/Y H:i') }}</span>
+                                </div>
+                                @if($incidencia->tecnico)
+                                    <div class="meta-item">
+                                        <i class="fas fa-user-cog"></i>
+                                        <span>Técnico: {{ $incidencia->tecnico->name }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: start; flex-wrap: wrap;">
+                            @if($incidencia->prioritat)
+                                @if($incidencia->prioritat === 'alta')
+                                    <span class="priority-badge priority-alta">
+                                        <i class="fas fa-exclamation-circle"></i> Alta
+                                    </span>
+                                @elseif($incidencia->prioritat === 'mitjana')
+                                    <span class="priority-badge priority-mitjana">
+                                        <i class="fas fa-minus-circle"></i> Media
+                                    </span>
+                                @else
+                                    <span class="priority-badge priority-baixa">
+                                        <i class="fas fa-check-circle"></i> Baja
+                                    </span>
+                                @endif
+                            @endif
+
+                            @if($incidencia->estat === 'Sense assignar')
+                                <span class="badge badge-inactive">Sin asignar</span>
+                            @elseif($incidencia->estat === 'Assignada')
+                                <span class="status-badge status-assignada">Asignada</span>
+                            @elseif($incidencia->estat === 'En treball')
+                                <span class="status-badge status-treball">En trabajo</span>
+                            @elseif($incidencia->estat === 'Resolta')
+                                <span class="status-badge status-resolta">Resuelta</span>
+                            @else
+                                <span class="badge badge-active">Cerrada</span>
                             @endif
                         </div>
                     </div>
-                    <div style="display: flex; gap: 0.5rem; align-items: start; flex-wrap: wrap;">
-                        @if($incidencia->prioritat)
-                            @if($incidencia->prioritat === 'alta')
-                                <span class="priority-badge priority-alta">
-                                    <i class="fas fa-exclamation-circle"></i> Alta
-                                </span>
-                            @elseif($incidencia->prioritat === 'mitjana')
-                                <span class="priority-badge priority-mitjana">
-                                    <i class="fas fa-minus-circle"></i> Media
-                                </span>
-                            @else
-                                <span class="priority-badge priority-baixa">
-                                    <i class="fas fa-check-circle"></i> Baja
-                                </span>
-                            @endif
-                        @endif
 
-                        @if($incidencia->estat === 'Sense assignar')
-                            <span class="badge badge-inactive">Sin asignar</span>
-                        @elseif($incidencia->estat === 'Assignada')
-                            <span class="status-badge status-assignada">Asignada</span>
-                        @elseif($incidencia->estat === 'En treball')
-                            <span class="status-badge status-treball">En trabajo</span>
-                        @elseif($incidencia->estat === 'Resolta')
-                            <span class="status-badge status-resolta">Resuelta</span>
+                    <div class="incidencia-description">
+                        {{ $incidencia->descripcio }}
+                    </div>
+
+                    <div class="incidencia-actions">
+                        @if($incidencia->estat === 'Resolta')
+                            <form method="POST" action="{{ route('client.tancar', $incidencia->id) }}" class="form-close-incidencia">
+                                @csrf
+                                <button type="submit" class="btn-resolve">
+                                    <i class="fas fa-check-double"></i>
+                                    Cerrar incidencia
+                                </button>
+                            </form>
+                        @elseif($incidencia->estat === 'Tancada')
+                            <span style="color: var(--texto-secundario); font-size: 0.9rem;">
+                                <i class="fas fa-check-circle"></i> Incidencia cerrada
+                            </span>
                         @else
-                            <span class="badge badge-active">Cerrada</span>
+                            <span style="color: var(--texto-secundario); font-size: 0.9rem;">
+                                <i class="fas fa-info-circle"></i> 
+                                @if($incidencia->estat === 'Sense assignar')
+                                    Pendiente de asignar a un técnico
+                                @elseif($incidencia->estat === 'Assignada')
+                                    Asignada a un técnico, pendiente de iniciar
+                                @else
+                                    El técnico está trabajando en esta incidencia
+                                @endif
+                            </span>
                         @endif
                     </div>
                 </div>
-
-                <div class="incidencia-description">
-                    {{ $incidencia->descripcio }}
-                </div>
-
-                <div class="incidencia-actions">
-                    @if($incidencia->estat === 'Resolta')
-                        <form method="POST" action="{{ route('client.tancar', $incidencia->id) }}" class="form-close-incidencia">
-                            @csrf
-                            <button type="submit" class="btn-resolve">
-                                <i class="fas fa-check-double"></i>
-                                Cerrar incidencia
-                            </button>
-                        </form>
-                    @elseif($incidencia->estat === 'Tancada')
-                        <span style="color: var(--texto-secundario); font-size: 0.9rem;">
-                            <i class="fas fa-check-circle"></i> Incidencia cerrada
-                        </span>
-                    @else
-                        <span style="color: var(--texto-secundario); font-size: 0.9rem;">
-                            <i class="fas fa-info-circle"></i> 
-                            @if($incidencia->estat === 'Sense assignar')
-                                Pendiente de asignar a un técnico
-                            @elseif($incidencia->estat === 'Assignada')
-                                Asignada a un técnico, pendiente de iniciar
-                            @else
-                                El técnico está trabajando en esta incidencia
-                            @endif
-                        </span>
-                    @endif
-                </div>
+            @endforeach
+        @else
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>No tienes incidencias con los filtros seleccionados</p>
+                <a href="{{ route('client.crear') }}" class="btn btn-primary" style="margin-top: 1rem;">
+                    <i class="fas fa-plus"></i> Crear la primera incidencia
+                </a>
             </div>
-        @endforeach
-    @else
-        <div class="empty-state">
-            <i class="fas fa-inbox"></i>
-            <p>No tienes incidencias con los filtros seleccionados</p>
-            <a href="{{ route('client.crear') }}" class="btn btn-primary" style="margin-top: 1rem;">
-                <i class="fas fa-plus"></i> Crear la primera incidencia
-            </a>
+        @endif
+    </div>
+    
+    <!-- Loader para AJAX -->
+    <div id="loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: var(--card-bg); padding: 2rem; border-radius: var(--radius-lg); text-align: center;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary-color);"></i>
+            <p style="margin-top: 1rem; color: var(--text-primary);">Cargando...</p>
         </div>
-    @endif
+    </div>
 @endsection
 
 @push('scripts')
