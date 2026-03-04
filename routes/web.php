@@ -34,7 +34,6 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
     Route::get('/admin/incidencias/{id}/edit', [AdminIncidenciaController::class, 'edit'])->name('admin.incidencias.edit');
     Route::put('/admin/incidencias/{id}', [AdminIncidenciaController::class, 'update'])->name('admin.incidencias.update');
     Route::post('/admin/incidencias/{id}/assign', [AdminIncidenciaController::class, 'assignTecnic'])->name('admin.incidencias.assign');
-
     Route::post('/admin/incidencias/{id}/comentarios', [AdminIncidenciaController::class, 'storeComentario'])->name('admin.incidencias.comentarios.store');
 
     // Gestión de usuarios
@@ -86,11 +85,10 @@ Route::middleware(['auth', 'role:gestor'])->group(function () {
     Route::get('/gestor/incidencias/{id}', [IncidenciaController::class, 'showGestor'])->name('gestor.incidencias.show');
     Route::get('/gestor/incidencias/{id}/edit', [IncidenciaController::class, 'editGestor'])->name('gestor.incidencias.edit');
     Route::put('/gestor/incidencias/{id}', [IncidenciaController::class, 'updateGestor'])->name('gestor.incidencias.update');
+    Route::post('/gestor/incidencias/{id}/comentarios', [IncidenciaController::class, 'storeComentarioGestor'])->name('gestor.incidencias.comentarios.store');
     Route::get('/gestor/usuarios', [UserController::class, 'indexGestor'])->name('gestor.usuarios');
     Route::get('/gestor/usuarios/{id}', [UserController::class, 'showGestor'])->name('gestor.usuarios.show');
     Route::post('/gestor/assignar/{id}', [IncidenciaController::class, 'assignarTecnic'])->name('gestor.assignar');
-
-    Route::post('/gestor/incidencias/{id}/comentarios', [IncidenciaController::class, 'storeComentarioGestor'])->name('gestor.incidencias.comentarios.store');
 });
 
 // Solo los técnicos pueden entrar aquí
@@ -98,6 +96,5 @@ Route::middleware(['auth', 'role:tecnic'])->group(function () {
     Route::get('/tecnic/tasques', [TecnicController::class, 'index'])->name('tecnic.index');
     Route::post('/tecnic/iniciar/{id}', [TecnicController::class, 'iniciarTreball'])->name('tecnic.iniciar');
     Route::post('/tecnic/resoldre/{id}', [TecnicController::class, 'marcarResolta'])->name('tecnic.resoldre');
-
     Route::post('/tecnic/incidencias/{id}/comentarios', [TecnicController::class, 'storeComentario'])->name('tecnic.incidencias.comentarios.store');
 });

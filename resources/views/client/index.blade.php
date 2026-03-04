@@ -167,7 +167,9 @@
                     @if($incidencia->comentarios && $incidencia->comentarios->count())
                         <div style="margin-top: 0.75rem; display:flex; flex-direction:column; gap:0.75rem;">
                             @foreach($incidencia->comentarios as $comentario)
-                                <div style="border: 1px solid var(--borde, rgba(148, 163, 184, 0.2)); border-radius: 0.75rem; padding: 0.75rem 0.9rem; background: rgba(15, 23, 42, 0.25);">
+                                @php $isMine = (int)($comentario->usuario_id ?? 0) === (int)auth()->id(); @endphp
+                                <div style="display:flex;">
+                                    <div style="max-width: 92%; margin-left: {{ $isMine ? 'auto' : '0' }}; border: 1px solid var(--borde, rgba(148, 163, 184, 0.2)); border-radius: 0.75rem; padding: 0.75rem 0.9rem; background: {{ $isMine ? 'rgba(15, 23, 42, 0.40)' : 'rgba(15, 23, 42, 0.25)' }};">
                                     <div style="display:flex; justify-content:space-between; gap: 1rem; align-items: baseline;">
                                         <span style="font-weight: 600; font-size: 0.9rem;">{{ $comentario->usuario?->name ?? 'Usuario' }}</span>
                                         <span style="color: var(--texto-secundario); font-size: 0.8rem; white-space: nowrap;">{{ $comentario->created_at?->format('d/m/Y H:i') }}</span>
@@ -194,7 +196,7 @@
                     <form method="POST" action="{{ route('client.incidencias.comentarios.store', $incidencia->id) }}" enctype="multipart/form-data" style="margin-top: 0.9rem;">
                         @csrf
                         <div style="display:flex; flex-direction:column; gap:0.5rem;">
-                            <textarea name="missatge" rows="2" class="form-textarea" placeholder="Añade un comentario para ayudar al técnico..." style="min-height: 80px;"></textarea>
+                            <textarea name="missatge" rows="3" class="comment-textarea" placeholder="Añade un comentario para ayudar al técnico..."></textarea>
                             @error('missatge')
                                 <span class="error-message" style="margin-top: 0;">
                                     <i class="fas fa-exclamation-circle"></i> {{ $message }}

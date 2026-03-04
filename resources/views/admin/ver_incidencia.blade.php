@@ -126,7 +126,9 @@
                     @if($incidencia->comentarios && $incidencia->comentarios->count())
                         <div style="margin-top: 0.75rem; display:flex; flex-direction:column; gap:0.75rem;">
                             @foreach($incidencia->comentarios as $comentario)
-                                <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.85rem 1rem; background: rgba(15, 23, 42, 0.25);">
+                                @php $isMine = (int)($comentario->usuario_id ?? 0) === (int)auth()->id(); @endphp
+                                <div style="display:flex;">
+                                    <div style="max-width: 92%; margin-left: {{ $isMine ? 'auto' : '0' }}; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.85rem 1rem; background: {{ $isMine ? 'rgba(15, 23, 42, 0.40)' : 'rgba(15, 23, 42, 0.25)' }};">
                                     <div style="display:flex; justify-content:space-between; gap: 1rem; align-items: baseline;">
                                         <span style="font-weight: 600;">{{ $comentario->usuario?->name ?? 'Usuario' }}</span>
                                         <span style="color: var(--text-secondary); font-size: 0.85rem; white-space: nowrap;">{{ $comentario->created_at?->format('d/m/Y H:i') }}</span>
@@ -153,7 +155,7 @@
                     <form method="POST" action="{{ route('admin.incidencias.comentarios.store', $incidencia->id) }}" enctype="multipart/form-data" style="margin-top: 0.9rem;">
                         @csrf
                         <div style="display:flex; flex-direction:column; gap:0.5rem;">
-                            <textarea name="missatge" rows="2" class="form-textarea" placeholder="Escribe un comentario..." style="min-height: 80px;"></textarea>
+                            <textarea name="missatge" rows="3" class="comment-textarea" placeholder="Añadir comentario..."></textarea>
                             @error('missatge')
                                 <span class="error-message" style="margin-top: 0;">
                                     <i class="fa-solid fa-circle-exclamation"></i> {{ $message }}
@@ -173,8 +175,8 @@
                             @enderror
 
                             <div style="display:flex; justify-content:flex-end;">
-                                <button type="submit" class="btn-primary" style="padding: 0.55rem 1rem;">
-                                    <i class="fa-solid fa-paper-plane"></i> Enviar comentario
+                                <button type="submit" class="btn-primary" style="padding: 0.65rem 1rem;">
+                                    <i class="fa-solid fa-paper-plane"></i> Enviar
                                 </button>
                             </div>
                         </div>

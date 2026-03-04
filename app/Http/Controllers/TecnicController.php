@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Incidencia;
 use App\Models\Comentario;
+use App\Models\Incidencia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
