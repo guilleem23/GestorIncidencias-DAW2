@@ -87,6 +87,7 @@ Route::middleware(['auth', 'role:gestor'])->group(function () {
     Route::get('/gestor/incidencias/{id}/edit', [IncidenciaController::class, 'editGestor'])->name('gestor.incidencias.edit');
     Route::put('/gestor/incidencias/{id}', [IncidenciaController::class, 'updateGestor'])->name('gestor.incidencias.update');
     Route::post('/gestor/incidencias/{id}/comentarios', [IncidenciaController::class, 'storeComentarioGestor'])->name('gestor.incidencias.comentarios.store');
+    Route::delete('/gestor/comentarios/{id}', [IncidenciaController::class, 'destroyComentarioGestor'])->name('gestor.comentarios.destroy');
     Route::get('/gestor/usuarios', [UserController::class, 'indexGestor'])->name('gestor.usuarios');
     Route::get('/gestor/usuarios/{id}', [UserController::class, 'showGestor'])->name('gestor.usuarios.show');
     Route::post('/gestor/assignar/{id}', [IncidenciaController::class, 'assignarTecnic'])->name('gestor.assignar');

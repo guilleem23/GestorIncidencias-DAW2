@@ -109,38 +109,23 @@
 
                 <div class="description-block" style="margin-top: 1.5rem;">
                     <span class="info-label">Comentarios</span>
-                    @if($incidencia->comentarios && $incidencia->comentarios->count())
-                        <div style="margin-top: 0.75rem; display:flex; flex-direction:column; gap:0.75rem;">
+                    <div id="comments-container" style="margin-top: 0.75rem; display:flex; flex-direction:column; gap:0.75rem;">
+                        @if($incidencia->comentarios && $incidencia->comentarios->count())
                             @foreach($incidencia->comentarios as $comentario)
-                                @php $isMine = (int)($comentario->usuario_id ?? 0) === (int)auth()->id(); @endphp
-                                <div style="display:flex;">
-                                    <div style="max-width: 92%; margin-left: {{ $isMine ? 'auto' : '0' }}; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.85rem 1rem; background: {{ $isMine ? 'rgba(15, 23, 42, 0.40)' : 'rgba(15, 23, 42, 0.25)' }};">
-                                    <div style="display:flex; justify-content:space-between; gap: 1rem; align-items: baseline;">
-                                        <span style="font-weight: 600;">{{ $comentario->usuario?->name ?? 'Usuario' }}</span>
-                                        <span style="color: var(--text-secondary); font-size: 0.85rem; white-space: nowrap;">{{ $comentario->created_at?->format('d/m/Y H:i') }}</span>
-                                    </div>
-                                    <div style="margin-top: 0.4rem; color: var(--text-secondary);">
-                                        {!! nl2br(e($comentario->missatge)) !!}
-                                    </div>
-                                    </div>
-                                </div>
+                                @include('gestor.partials.comentario_item', ['comentario' => $comentario])
                             @endforeach
-                        </div>
-                    @else
-                        <div style="margin-top: 0.5rem; color: var(--text-secondary);">
-                            Sin comentarios.
-                        </div>
-                    @endif
+                        @else
+                            <div id="no-comments-msg" style="margin-top: 0.5rem; color: var(--text-secondary);">
+                                Sin comentarios.
+                            </div>
+                        @endif
+                    </div>
 
-                    <form method="POST" action="{{ route('gestor.incidencias.comentarios.store', $incidencia->id) }}" style="margin-top: 0.9rem;">
+                    <form id="form-comentario" method="POST" action="{{ route('gestor.incidencias.comentarios.store', $incidencia->id) }}" style="margin-top: 0.9rem;">
                         @csrf
                         <div style="display:flex; flex-direction:column; gap:0.5rem;">
-                            <textarea name="missatge" rows="3" class="comment-textarea" placeholder="Añadir comentario..."></textarea>
-                            @error('missatge')
-                                <div class="alert-custom alert-error-custom" style="margin: 0;">
-                                    <i class="fa-solid fa-circle-xmark"></i> {{ $message }}
-                                </div>
-                            @enderror
+                            <textarea id="missatge-comentario" name="missatge" rows="3" class="comment-textarea" placeholder="Añadir comentario..."></textarea>
+                            <div id="error-comentario" style="display: none;"></div>
                             <div style="display:flex; justify-content:flex-end;">
                                 <button type="submit" class="btn-primary" style="padding: 0.65rem 1rem;">
                                     <i class="fa-solid fa-paper-plane"></i> Enviar
@@ -151,12 +136,36 @@
                 </div>
                 
                 <div class="form-actions" style="margin-top: 2rem;">
-                    <a href="{{ route('gestor.incidencias.edit', $incidencia->id) }}" class="btn-primary">
+                    <button type="button" class="btn-primary" name="editar_incidencia" data-id="{{ $incidencia->id }}">
                         <i class="fa-solid fa-pen"></i> Editar Incidencia
-                    </a>
+                    </button>
+                </div>
+            </div>
+        </div>
+    <!-- Modal Editar Incidencia -->
+    <div class="modal fade" id="modalEditarIncidencia" tabindex="-1" aria-labelledby="modalEditarIncidenciaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark text-white border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="modalEditarIncidenciaLabel">
+                        <i class="fa-solid fa-pen-to-square"></i> Editar Incidencia
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body" id="modal-editar-content">
+                    <!-- El contenido se cargará dinámicamente -->
                 </div>
             </div>
         </div>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+    <script>
+        window.categoriasData = @json($categorias);
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('js/gestor/incidencias.js') }}"></script>
+    <script src="{{ asset('js/gestor/modales.js') }}"></script>
+@endpush

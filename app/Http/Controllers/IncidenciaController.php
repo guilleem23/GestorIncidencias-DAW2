@@ -86,7 +86,9 @@ class IncidenciaController extends Controller
             return view('gestor.partials.incidencias_table', compact('incidencies'));
         }
 
-        return view('gestor.historial', compact('incidencies', 'tecnicos'));
+        $categorias = \App\Models\Categoria::with('subcategorias')->get();
+
+        return view('gestor.historial', compact('incidencies', 'tecnicos', 'categorias'));
     }
 
     public function showGestor($id)
@@ -98,7 +100,9 @@ class IncidenciaController extends Controller
             abort(403, 'No tienes permiso para ver esta incidencia.');
         }
 
-        return view('gestor.ver_incidencia', compact('incidencia'));
+        $categorias = \App\Models\Categoria::with('subcategorias')->get();
+
+        return view('gestor.ver_incidencia', compact('incidencia', 'categorias'));
     }
 
     public function storeComentarioGestor(Request $request, $id)
@@ -118,13 +122,51 @@ class IncidenciaController extends Controller
             abort(403, 'No tienes permiso para comentar esta incidencia.');
         }
 
-        Comentario::create([
+        $comentario = Comentario::create([
             'incidencia_id' => $incidencia->id,
             'usuario_id' => $user->id,
             'missatge' => $validated['missatge'],
         ]);
 
+        if ($request->ajax()) {
+            $html = view('gestor.partials.comentario_item', compact('comentario'))->render();
+            return response()->json([
+                'success' => true,
+                'message' => 'Comentario añadido correctamente.',
+                'html' => $html
+            ]);
+        }
+
         return back()->with('success', 'Comentario añadido correctamente.');
+    }
+
+    public function destroyComentarioGestor($id)
+    {
+        $user = Auth::user();
+        $comentario = Comentario::with('incidencia')->findOrFail($id);
+
+        // Solo el gestor dueño del comentario puede borrarlo. (O podrías permitir que el gestor borre cualquiera de su sede, pero el usuario pidió "si un comentario es tuyo")
+        if ((int) $comentario->usuario_id !== (int) $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para eliminar este comentario.'
+            ], 403);
+        }
+
+        // Además verificamos que sea de su sede por seguridad extra
+        if ((int) $comentario->incidencia->sede_id !== (int) $user->sede_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Acceso denegado.'
+            ], 403);
+        }
+
+        $comentario->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Comentario eliminado.'
+        ]);
     }
 
     public function editGestor($id)
@@ -142,6 +184,10 @@ class IncidenciaController extends Controller
             ->get();
             
         $categorias = \App\Models\Categoria::with('subcategorias')->get();
+
+        if (request()->ajax()) {
+            return view('gestor.partials.editar_incidencia_form', compact('incidencia', 'tecnicos', 'categorias'));
+        }
 
         return view('gestor.editar_incidencia', compact('incidencia', 'tecnicos', 'categorias'));
     }
@@ -175,7 +221,14 @@ class IncidenciaController extends Controller
 
         $incidencia->update($validated);
 
-        return redirect()->route('gestor.incidencias')->with('success', 'Incidencia actualizada correctamente.');
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Incidencia actualizada correctamente.'
+            ]);
+        }
+
+        return back()->with('success', 'Incidencia actualizada correctamente.');
     }
 
     public function assignarTecnic(Request $request, $id)

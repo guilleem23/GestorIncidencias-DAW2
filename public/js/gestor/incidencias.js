@@ -223,4 +223,167 @@
             }
         });
     }
+    // 4. Manejo de Comentarios vía AJAX
+    const formComentario = document.getElementById('form-comentario');
+    const commentsContainer = document.getElementById('comments-container');
+    const missatgeInput = document.getElementById('missatge-comentario');
+    const noCommentsMsg = document.getElementById('no-comments-msg');
+
+    if (formComentario && commentsContainer) {
+        formComentario.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const missatge = missatgeInput.value.trim();
+            if (missatge.length < 2) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Comentario muy corto',
+                    text: 'El comentario debe tener al menos 2 caracteres.',
+                    background: '#1e293b',
+                    color: '#f8fafc'
+                });
+                return;
+            }
+
+            const formData = new FormData(this);
+            const url = this.action;
+
+            // Deshabilitar botón para evitar doble envío
+            const btnSubmit = this.querySelector('button[type="submit"]');
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
+
+            fetch(url, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Limpiar textarea
+                        missatgeInput.value = '';
+
+                        // Si existía el mensaje de "Sin comentarios", quitarlo
+                        if (noCommentsMsg) noCommentsMsg.remove();
+
+                        // Añadir el nuevo comentario (se asume que el partial se inyecta al final)
+                        // Usamos insertAdjacentHTML para que sea más natural
+                        commentsContainer.insertAdjacentHTML('beforeend', data.html);
+
+                        // Notificación tipo toast
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: data.message,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            background: '#1e293b',
+                            color: '#f8fafc'
+                        });
+                    } else {
+                        let errorMsg = data.message;
+                        if (data.errors && data.errors.missatge) {
+                            errorMsg = data.errors.missatge[0];
+                        }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error al comentar',
+                            text: errorMsg,
+                            background: '#1e293b',
+                            color: '#f8fafc'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error en fetch de comentarios:', error);
+                    Swal.fire('Error', 'No se pudo enviar el comentario.', 'error');
+                })
+                .finally(() => {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar';
+                });
+        });
+    }
+
+    // 5. Borrar Comentarios vía AJAX
+    document.addEventListener('click', function (e) {
+        const btnDelete = e.target.closest('.btn-delete-comment');
+        if (btnDelete) {
+            const id = btnDelete.dataset.id;
+            const commentItem = btnDelete.closest('.comment-item-wrapper');
+
+            Swal.fire({
+                title: '¿Eliminar comentario?',
+                text: "Esta acción no se puede deshacer.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#4b5563',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                background: '#1e293b',
+                color: '#f8fafc'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/gestor/comentarios/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Animación de salida
+                                commentItem.style.transition = 'all 0.3s ease';
+                                commentItem.style.opacity = '0';
+                                commentItem.style.transform = 'translateX(20px)';
+
+                                setTimeout(() => {
+                                    commentItem.remove();
+
+                                    // Si ya no hay comentarios, mostrar el mensaje de "Sin comentarios"
+                                    if (commentsContainer && commentsContainer.querySelectorAll('.comment-item-wrapper').length === 0) {
+                                        commentsContainer.innerHTML = `
+                                        <div id="no-comments-msg" style="margin-top: 0.5rem; color: var(--text-secondary);">
+                                            Sin comentarios.
+                                        </div>
+                                    `;
+                                    }
+                                }, 300);
+
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'success',
+                                    title: data.message,
+                                    showConfirmButton: false,
+                                    timer: 2000,
+                                    background: '#1e293b',
+                                    color: '#f8fafc'
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: data.message,
+                                    background: '#1e293b',
+                                    color: '#f8fafc'
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error al borrar comentario:', error);
+                            Swal.fire('Error', 'No se pudo eliminar el comentario.', 'error');
+                        });
+                }
+            });
+        }
+    });
 })();
