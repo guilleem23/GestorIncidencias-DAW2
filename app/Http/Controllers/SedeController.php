@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Sede;
+use App\Models\User;
+use App\Models\Incidencia;
+use App\Models\Comentario;
 use Illuminate\Support\Facades\DB;
 
 class SedeController extends Controller
@@ -103,19 +106,47 @@ class SedeController extends Controller
     }
 
     /**
-     * Elimina una sede.
+     * Elimina una sede con todas sus dependencias (transacción).
      */
     public function destroy($id)
     {
         DB::beginTransaction();
         try {
             $sede = Sede::findOrFail($id);
+
+            // 1. Guardar IDs de usuarios de esta sede (antes de limpiar sede_id)
+            $userIds = User::where('sede_id', $sede->id)->pluck('id');
+
+            // 2. Obtener IDs de incidencias de esta sede
+            $incidenciaIds = Incidencia::where('sede_id', $sede->id)->pluck('id');
+
+            // 3. Eliminar todos los comentarios de esas incidencias
+            if ($incidenciaIds->isNotEmpty()) {
+                Comentario::whereIn('incidencia_id', $incidenciaIds)->delete();
+            }
+
+            // 4. Eliminar todas las incidencias de esta sede
+            Incidencia::where('sede_id', $sede->id)->delete();
+
+            // 5. Desasignar gestor y técnicos (sede_id = null)
+            User::where('sede_id', $sede->id)->update(['sede_id' => null]);
+
+            // 6. Desactivar todos los usuarios que pertenecían a esta sede
+            if ($userIds->isNotEmpty()) {
+                User::whereIn('id', $userIds)->update(['actiu' => false]);
+            }
+
+            // 7. Eliminar imagen del filesystem
             if ($sede->imagen && file_exists(public_path($sede->imagen))) {
                 unlink(public_path($sede->imagen));
             }
+
+            // 8. Eliminar la sede
             $sede->delete();
+
             DB::commit();
-            return redirect()->route('admin.sedes.index')->with('success', 'Sede eliminada correctamente.');
+            return redirect()->route('admin.sedes.index')
+                ->with('success', 'Sede eliminada correctamente. Usuarios desactivados y desasignados.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Error al eliminar la sede: ' . $e->getMessage()]);
