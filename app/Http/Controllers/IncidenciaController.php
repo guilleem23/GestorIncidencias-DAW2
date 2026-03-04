@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Incidencia;
 use App\Models\User;
+use App\Models\Comentario;
 use Illuminate\Support\Facades\Auth;
 
 class IncidenciaController extends Controller
@@ -187,6 +188,42 @@ class IncidenciaController extends Controller
         ]);
 
         return back()->with('success', 'Técnico asignado correctamente.');
+    }
+
+    public function storeComentarioGestor(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'missatge' => ['required_without:imatge', 'nullable', 'string', 'min:2', 'max:2000'],
+            'imatge' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:4096'],
+        ], [
+            'missatge.required_without' => 'Debes escribir un comentario o adjuntar una imagen.',
+            'missatge.min' => 'El comentario debe tener al menos 2 caracteres.',
+            'missatge.max' => 'El comentario no puede superar 2000 caracteres.',
+            'imatge.image' => 'El archivo adjunto debe ser una imagen.',
+            'imatge.mimes' => 'La imagen debe ser JPG, JPEG, PNG, GIF o WEBP.',
+            'imatge.max' => 'La imagen no puede superar 4MB.',
+        ]);
+
+        $user = Auth::user();
+        $incidencia = Incidencia::findOrFail($id);
+
+        if ((int) $incidencia->sede_id !== (int) $user->sede_id) {
+            abort(403, 'No tienes permiso para comentar esta incidencia.');
+        }
+
+        $imatgePath = null;
+        if ($request->hasFile('imatge')) {
+            $imatgePath = $request->file('imatge')->store('comentarios', 'public');
+        }
+
+        Comentario::create([
+            'incidencia_id' => $incidencia->id,
+            'usuario_id' => Auth::id(),
+            'missatge' => $validated['missatge'] ?? '',
+            'imatge_path' => $imatgePath,
+        ]);
+
+        return back()->with('success', 'Comentario añadido correctamente.');
     }
 
 }
