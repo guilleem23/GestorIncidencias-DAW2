@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Categoria;
 use App\Models\Subcategoria;
+use App\Models\Incidencia;
 use Illuminate\Support\Facades\DB;
 
 class CategoriaController extends Controller
@@ -71,18 +72,36 @@ class CategoriaController extends Controller
     }
 
     /**
-     * Elimina una categoría y sus subcategorías.
+     * Elimina una categoría y sus subcategorías (transacción).
      */
     public function destroy($id)
     {
         DB::beginTransaction();
         try {
             $categoria = Categoria::findOrFail($id);
-            // Eliminar subcategorías asociadas
+
+            // 1. Obtener IDs de subcategorías de esta categoría
+            $subcategoriaIds = $categoria->subcategorias()->pluck('id');
+
+            // 2. Desasignar subcategoría en incidencias que usen estas subcategorías
+            if ($subcategoriaIds->isNotEmpty()) {
+                Incidencia::whereIn('subcategoria_id', $subcategoriaIds)
+                    ->update(['subcategoria_id' => null]);
+            }
+
+            // 3. Desasignar categoría en incidencias que usen esta categoría
+            Incidencia::where('categoria_id', $categoria->id)
+                ->update(['categoria_id' => null]);
+
+            // 4. Eliminar subcategorías asociadas
             $categoria->subcategorias()->delete();
+
+            // 5. Eliminar la categoría
             $categoria->delete();
+
             DB::commit();
-            return redirect()->route('admin.categorias.index')->with('success', 'Categoría eliminada correctamente.');
+            return redirect()->route('admin.categorias.index')
+                ->with('success', 'Categoría eliminada correctamente. Las incidencias afectadas han quedado sin categorizar.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Error al eliminar la categoría: ' . $e->getMessage()]);
@@ -147,16 +166,24 @@ class CategoriaController extends Controller
     }
 
     /**
-     * Elimina una subcategoría.
+     * Elimina una subcategoría (transacción).
      */
     public function destroySubcategoria($id)
     {
         DB::beginTransaction();
         try {
             $subcategoria = Subcategoria::findOrFail($id);
+
+            // 1. Desasignar subcategoría en incidencias que la usen
+            Incidencia::where('subcategoria_id', $subcategoria->id)
+                ->update(['subcategoria_id' => null]);
+
+            // 2. Eliminar la subcategoría
             $subcategoria->delete();
+
             DB::commit();
-            return redirect()->route('admin.categorias.index')->with('success', 'Subcategoría eliminada correctamente.');
+            return redirect()->route('admin.categorias.index')
+                ->with('success', 'Subcategoría eliminada correctamente. Las incidencias afectadas han quedado sin subcategoría.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Error al eliminar la subcategoría: ' . $e->getMessage()]);
