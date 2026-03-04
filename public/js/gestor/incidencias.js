@@ -217,7 +217,23 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ----------------------------------------------------------------
-    // 3. SweetAlert de confirmación antes de enviar el formulario de Editar
+    // 3. Auto-sync: Technician ↔ Status
+    // ----------------------------------------------------------------
+    const selectTecnicSync = document.getElementById('tecnic_id');
+    const selectEstatSync = document.getElementById('estat');
+
+    if (selectTecnicSync && selectEstatSync) {
+        selectTecnicSync.addEventListener('change', function () {
+            if (this.value !== "" && selectEstatSync.value === "Sense assignar") {
+                selectEstatSync.value = "Assignada";
+            } else if (this.value === "" && selectEstatSync.value === "Assignada") {
+                selectEstatSync.value = "Sense assignar";
+            }
+        });
+    }
+
+    // ----------------------------------------------------------------
+    // 4. SweetAlert de confirmación antes de enviar el formulario de Editar
     // ----------------------------------------------------------------
     const btnSubmitEdit = document.getElementById('btn-submit-edit');
     const formEditar = document.getElementById('form-editar-incidencia');

@@ -7,9 +7,10 @@
     </div>
 
     <div class="mb-3">
-        <label class="form-label text-light">Responsable:</label>
-        <input type="text" class="form-control form-control-dark" name="responsable" value="{{ old('responsable') }}" placeholder="Nombre del responsable">
-        <div class="text-danger small">@error('responsable'){{ $message }}@enderror</div>
+        <label class="form-label text-light">Gestor de la Sede:</label>
+        <div class="form-control form-control-dark" style="opacity: 0.6; cursor: default;">
+            <i class="fa-solid fa-user-shield"></i> Asigna el gestor desde el panel de usuarios
+        </div>
     </div>
 
     <div class="mb-3">
