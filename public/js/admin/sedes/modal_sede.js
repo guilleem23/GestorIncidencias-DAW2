@@ -22,6 +22,12 @@ document.querySelectorAll('.btn-editar-sede').forEach(btn => {
             .then(html => {
                 document.getElementById('modal-editar-sede-content').innerHTML = html;
                 const modal = new bootstrap.Modal(document.getElementById('modalEditarSede'));
+
+                // Inicializar validación si la función existe
+                if (typeof window.iniciarValidacionEditarSede === 'function') {
+                    window.iniciarValidacionEditarSede();
+                }
+
                 modal.show();
             })
             .catch(error => {

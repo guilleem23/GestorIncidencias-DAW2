@@ -37,15 +37,16 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
     Route::post('/admin/incidencias/{id}/comentarios', [AdminIncidenciaController::class, 'storeComentario'])->name('admin.incidencias.comentarios.store');
 
     // Gestión de usuarios
+    Route::get('/admin/usuarios/check-email', [UserController::class, 'checkEmail']);
+    Route::get('/admin/usuarios/check-username', [UserController::class, 'checkUsername']);
+    Route::get('/admin/usuarios/check-gestor', [UserController::class, 'checkSedeGestor']);
     Route::get('/admin/usuarios', [UserController::class, 'index'])->name('admin.usuarios.index');
-    Route::get('/admin/usuarios/{id}', [UserController::class, 'show'])->name('admin.usuarios.show');
     Route::get('/admin/usuarios/create', [UserController::class, 'create'])->name('admin.usuarios.create');
+    Route::get('/admin/usuarios/{id}', [UserController::class, 'show'])->name('admin.usuarios.show');
     Route::post('/admin/usuarios', [UserController::class, 'store'])->name('admin.usuarios.store');
     Route::get('/admin/usuarios/{id}/edit', [UserController::class, 'edit'])->name('admin.usuarios.edit');
     Route::put('/admin/usuarios/{id}', [UserController::class, 'update'])->name('admin.usuarios.update');
     Route::delete('/admin/usuarios/{id}', [UserController::class, 'destroy'])->name('admin.usuarios.destroy');
-    Route::get('/admin/usuarios/check-email', [UserController::class, 'checkEmail']);
-    Route::get('/admin/usuarios/check-username', [UserController::class, 'checkUsername']);
 
     // CRUD Categorías
     Route::get('/admin/categorias', [CategoriaController::class, 'index'])->name('admin.categorias.index');
@@ -61,6 +62,7 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
     Route::delete('/admin/subcategorias/{id}', [CategoriaController::class, 'destroySubcategoria'])->name('admin.subcategorias.destroy');
 
     // CRUD Sedes
+    Route::get('/admin/sedes/check-nombre', [SedeController::class, 'checkNombre']);
     Route::get('/admin/sedes', [SedeController::class, 'index'])->name('admin.sedes.index');
     Route::post('/admin/sedes', [SedeController::class, 'store'])->name('admin.sedes.store');
     Route::get('/admin/sedes/{id}/edit', [SedeController::class, 'edit'])->name('admin.sedes.edit');
@@ -74,7 +76,6 @@ Route::middleware(['auth', 'role:client'])->group(function () {
     Route::get('/client/crear', [ClientController::class, 'crear'])->name('client.crear');
     Route::post('/client/crear', [ClientController::class, 'store'])->name('client.store');
     Route::post('/client/tancar/{id}', [ClientController::class, 'tancarIncidencia'])->name('client.tancar');
-
     Route::post('/client/incidencias/{id}/comentarios', [ClientController::class, 'storeComentario'])->name('client.incidencias.comentarios.store');
 });
 

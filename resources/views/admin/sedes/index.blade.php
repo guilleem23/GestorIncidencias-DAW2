@@ -11,7 +11,7 @@
     <div class="categorias-header">
         <h1><i class="fa-solid fa-building"></i> Gestión de Sedes</h1>
         <div class="header-actions">
-            <button type="button" class="btn-crear btn-crear-categoria" data-bs-toggle="modal" data-bs-target="#modalCrearSede">
+            <button type="button" class="btn-crear btn-crear-sede" data-bs-toggle="modal" data-bs-target="#modalCrearSede">
                 <i class="fa-solid fa-plus"></i> Nueva Sede
             </button>
         </div>
@@ -134,4 +134,6 @@
 @push('scripts')
     <script src="{{ asset('js/admin/sedes/sweetAlerts.js') }}"></script>
     <script src="{{ asset('js/admin/sedes/modal_sede.js') }}"></script>
+    <script src="{{ asset('js/admin/sedes/validar_crear_sede.js') }}"></script>
+    <script src="{{ asset('js/admin/sedes/validar_editar_sede.js') }}"></script>
 @endpush

@@ -97,6 +97,26 @@ class UserController extends Controller
     }
 
     /**
+     * Comprobar si una sede ya tiene un gestor para AJAX.
+     */
+    public function checkSedeGestor(Request $request)
+    {
+        $sedeId = $request->query('sede_id');
+        $excludeUserId = $request->query('exclude_user_id');
+        
+        $query = User::where('sede_id', $sedeId)
+                     ->where('rol', 'gestor');
+                     
+        if ($excludeUserId) {
+            $query->where('id', '!=', $excludeUserId);
+        }
+        
+        $existe = $query->exists();
+        
+        return response()->json(['existe' => $existe]);
+    }
+
+    /**
      * Muestra el formulario de edición de un usuario.
      */
     public function edit($id)

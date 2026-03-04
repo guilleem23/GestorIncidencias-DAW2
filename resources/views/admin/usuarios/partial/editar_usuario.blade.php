@@ -48,6 +48,20 @@
             <p id="error-edit-password-confirmation" class="text-danger small"></p>
         </div>
 
+                <div class="mb-1">
+            <label class="form-label" for="edit-rol-usuario">Rol:</label>
+            <select name="edit_rol" id="edit-rol-usuario" class="form-select">
+                <option value="" disabled>Selecciona un rol</option>
+                @foreach ($roles as $value => $label)
+                    <option value="{{ $value }}" {{ old('edit_rol', $usuario->rol) == $value ? 'selected' : '' }}>
+                        {{ $label }}
+                    </option>
+                @endforeach
+            </select>
+            <p id="error-edit-rol" class="text-danger small"></p>
+            @error('edit_rol') {{ $message }} @enderror
+        </div> 
+        
         <div class="mb-1">
             <label class="form-label" for="edit-sede-usuario">Sede:</label>
             <select name="edit_sede_id" id="edit-sede-usuario" class="form-select">
@@ -61,21 +75,7 @@
             <p id="error-edit-sede_id" class="text-danger small">
                 @error('edit_sede_id') {{ $message }} @enderror
             </p>
-        </div>
-
-        <div class="mb-1">
-            <label class="form-label" for="edit-rol-usuario">Rol:</label>
-            <select name="edit_rol" id="edit-rol-usuario" class="form-select">
-                <option value="" disabled>Selecciona un rol</option>
-                @foreach ($roles as $value => $label)
-                    <option value="{{ $value }}" {{ old('edit_rol', $usuario->rol) == $value ? 'selected' : '' }}>
-                        {{ $label }}
-                    </option>
-                @endforeach
-            </select>
-            <p id="error-edit-rol" class="text-danger small">
-                @error('edit_rol') {{ $message }} @enderror
-            </p>
+            <p id="error-edit-gestor-sede" class="text-danger small"></p>
         </div>
 
         <div class="mb-1">

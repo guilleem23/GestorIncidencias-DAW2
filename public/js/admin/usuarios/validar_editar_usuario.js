@@ -8,6 +8,7 @@ function iniciarValidacionEditarUsuario() {
     const eSede = document.getElementById("error-edit-sede_id");
     const eRol = document.getElementById("error-edit-rol");
     const eActivo = document.getElementById("error-edit-activo");
+    const eGestorSede = document.getElementById("error-edit-gestor-sede");
 
     const sUsuario = document.getElementById("disponibilidad-edit-username");
     const sEmail = document.getElementById("disponibilidad-edit-email");
@@ -29,6 +30,7 @@ function iniciarValidacionEditarUsuario() {
     let timeoutEmail = null;
     let usuarioDisponible = true; // Por defecto true al editar un usuario existente
     let emailDisponible = true;
+    let sedeGestorDisponible = true;
 
     if (!nombreInput) return;
 
@@ -83,7 +85,14 @@ function iniciarValidacionEditarUsuario() {
         let rolValido = rol !== "";
         let activoValido = activo !== "";
 
-        if (nombreValido && usuarioValido && emailValido && passwordValido && confirmPasswordValido && sedeValido && rolValido && activoValido) {
+        if (rol === "gestor" && sede !== "") {
+            // La validación se hace asíncronamente
+        } else {
+            sedeGestorDisponible = true;
+            eGestorSede.innerText = "";
+        }
+
+        if (nombreValido && usuarioValido && emailValido && passwordValido && confirmPasswordValido && sedeValido && rolValido && activoValido && sedeGestorDisponible) {
             botonEnviar.disabled = false;
             botonEnviar.classList.remove("btn-login-desabilitado");
         } else {
@@ -206,7 +215,13 @@ function iniciarValidacionEditarUsuario() {
         }
 
         eSede.innerText = "";
-        comprobarBoton();
+        if (rolInput.value === "gestor") {
+            comprobarGestorSede();
+        } else {
+            sedeGestorDisponible = true;
+            eGestorSede.innerText = "";
+            comprobarBoton();
+        }
     }
 
     function comprobarRol() {
@@ -217,7 +232,40 @@ function iniciarValidacionEditarUsuario() {
         }
 
         eRol.innerText = "";
-        comprobarBoton();
+        if (rolInput.value === "gestor") {
+            comprobarGestorSede();
+        } else {
+            sedeGestorDisponible = true;
+            eGestorSede.innerText = "";
+            comprobarBoton();
+        }
+    }
+
+    function comprobarGestorSede() {
+        const sedeId = sedeInput.value;
+        const rol = rolInput.value;
+        const userId = userIdInput.value;
+
+        if (rol !== "gestor" || sedeId === "") {
+            sedeGestorDisponible = true;
+            eGestorSede.innerText = "";
+            comprobarBoton();
+            return;
+        }
+
+        fetch(`/admin/usuarios/check-gestor?sede_id=${sedeId}&exclude_user_id=${userId}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.existe) {
+                    eGestorSede.innerText = "Esta sede ya tiene un gestor asignado.";
+                    sedeGestorDisponible = false;
+                } else {
+                    eGestorSede.innerText = "";
+                    sedeGestorDisponible = true;
+                }
+                comprobarBoton();
+            })
+            .catch(err => console.error("Error comprobando gestor de sede (edit):", err));
     }
 
     function comprobarActivo() {

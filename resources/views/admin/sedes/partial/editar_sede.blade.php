@@ -1,13 +1,20 @@
-<form action="{{ route('admin.sedes.update', $sede->id) }}" method="POST" class="needs-validation" enctype="multipart/form-data" novalidate>
+<form action="{{ route('admin.sedes.update', $sede->id) }}" method="POST" class="needs-validation" id="form-editar-sede" enctype="multipart/form-data" novalidate>
     @csrf
     @method('PUT')
+    
+    <input type="hidden" id="edit-sede-id" value="{{ $sede->id }}">
+
     <div class="mb-3">
         <label class="form-label text-light">Nombre de la Sede:</label>
-        <input type="text" class="form-control form-control-dark" name="nom" value="{{ old('nom', $sede->nom) }}">
-        @error('nom')
-            <div class="text-danger small">{{ $message }}</div>
-        @enderror
+        <input type="text" class="form-control form-control-dark" name="nom" id="edit-nombre-sede" value="{{ old('nom', $sede->nom) }}">
+        <div id="error-edit-nombre" class="text-danger small">@error('nom'){{ $message }}@enderror</div>
+        <div id="disponibilidad-edit-nombre" class="small"></div>
     </div>
+
+    <div class="mb-3">
+        <label class="form-label text-light">Responsable:</label>
+        <input type="text" class="form-control form-control-dark" name="responsable" id="edit-responsable-sede" value="{{ old('responsable', $sede->responsable) }}">
+        <div id="error-edit-responsable" class="text-danger small">@error('responsable'){{ $message }}@enderror</div>
     </div>
 
     <div class="mb-3">
@@ -26,10 +33,8 @@
 
     <div class="mb-3">
         <label class="form-label text-light">Descripción:</label>
-        <textarea class="form-control form-control-dark" name="descripcion" rows="3">{{ old('descripcion', $sede->descripcion) }}</textarea>
-        @error('descripcion')
-            <div class="text-danger small">{{ $message }}</div>
-        @enderror
+        <textarea class="form-control form-control-dark" name="descripcion" id="edit-descripcion-sede" rows="3">{{ old('descripcion', $sede->descripcion) }}</textarea>
+        <div id="error-edit-descripcion" class="text-danger small">@error('descripcion'){{ $message }}@enderror</div>
     </div>
 
     <div class="mb-3">
@@ -45,7 +50,7 @@
         @enderror
     </div>
 
-    <button type="submit" class="btn-submit btn-submit-update">
+    <button type="submit" class="btn-submit btn-submit-update" id="edit-btn-enviar-sede">
         <i class="fa-solid fa-save"></i> Actualizar Sede
     </button>
 </form>

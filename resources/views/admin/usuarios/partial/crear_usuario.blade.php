@@ -54,23 +54,6 @@
         </div>
 
         <div class="mb-1">
-            <label class="form-label" for="sede-usuario">Sede:</label>
-            <select name="sede_id" class="form-select" id="sede-usuario">
-                <option value="" disabled {{ old('sede_id') ? '' : 'selected' }}>Selecciona una sede</option>
-                @foreach ($sedes as $sede)
-                    <option value="{{ $sede->id }}" {{ old('sede_id') == $sede->id ? 'selected' : '' }}>
-                        {{ $sede->nom }}
-                    </option>
-                @endforeach
-            </select>
-            <p id="error-sede_id" class="text-danger small">
-                @error('sede_id')
-                    {{ $message }}
-                @enderror
-            </p>
-        </div>
-
-        <div class="mb-1">
             <label class="form-label" for="rol-usuario">Rol:</label>
             <select name="rol" class="form-select" id="rol-usuario">
                 <option value="" disabled {{ old('rol') ? '' : 'selected' }}>Selecciona un rol</option>
@@ -85,6 +68,24 @@
                     {{ $message }}
                 @enderror
             </p>
+        </div>
+        
+        <div class="mb-1">
+            <label class="form-label" for="sede-usuario">Sede:</label>
+            <select name="sede_id" class="form-select" id="sede-usuario">
+                <option value="" disabled {{ old('sede_id') ? '' : 'selected' }}>Selecciona una sede</option>
+                @foreach ($sedes as $sede)
+                    <option value="{{ $sede->id }}" {{ old('sede_id') == $sede->id ? 'selected' : '' }}>
+                        {{ $sede->nom }}
+                    </option>
+                @endforeach
+            </select>
+            <p id="error-sede_id" class="text-danger small">
+                @error('sede_id')
+                    {{ $message }}
+                @enderror
+            </p>
+            <p id="error-gestor-sede" class="text-danger small"></p>
         </div>
     </div>
     <button type="submit" id="boton-enviar" class="btn btn-primary mt-3">Crear Usuario</button>
