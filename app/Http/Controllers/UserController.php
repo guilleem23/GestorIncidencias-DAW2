@@ -185,7 +185,7 @@ class UserController extends Controller
             return redirect()->route('admin.usuarios.index')->with('success', 'El usuario @' . $usuario->username . ' se ha editado correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('admin.usuarios.index')->withErrors(['error_editar' => 'Error al actualizar el usuario @' . $usuario->username . ' . ' . $e->getMessage()]);
+            return redirect()->route('admin.usuarios.index')->withErrors(['error_editar' => 'No se pudo actualizar el usuario. Inténtalo de nuevo.']);
         }
     }
 
@@ -223,7 +223,7 @@ class UserController extends Controller
             return redirect()->route('admin.usuarios.index')->with('success', 'El usuario @' . $usuario->username . ' se ha eliminado correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('admin.usuarios.index')->withErrors(['error_eliminar' => 'Error al eliminar el usuario @' . $usuario->username . ' . ' . $e->getMessage()]);
+            return redirect()->route('admin.usuarios.index')->withErrors(['error_eliminar' => 'No se pudo eliminar el usuario. Inténtalo de nuevo.']);
         }
     }
 
@@ -285,7 +285,7 @@ class UserController extends Controller
             DB::rollBack();
             return redirect()
                 ->route('admin.usuarios.index')
-                ->withErrors(['error' => 'Error al crear el usuario: ' . $e->getMessage()]);
+                ->withErrors(['error' => 'No se pudo crear el usuario. Inténtalo de nuevo.']);
         }
     }
 

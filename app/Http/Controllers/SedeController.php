@@ -35,6 +35,19 @@ class SedeController extends Controller
             'responsable' => ['nullable', 'string', 'max:255'],
             'descripcion' => ['nullable', 'string', 'max:1000'],
             'imagen' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp', 'max:2048'],
+        ], [
+            'nom.required' => 'El nombre de la sede es obligatorio.',
+            'nom.string' => 'El nombre debe ser texto.',
+            'nom.min' => 'El nombre debe tener al menos 2 caracteres.',
+            'nom.max' => 'El nombre no puede superar 255 caracteres.',
+            'nom.unique' => 'Esta sede ya existe.',
+            'responsable.string' => 'El responsable debe ser texto.',
+            'responsable.max' => 'El responsable no puede superar 255 caracteres.',
+            'descripcion.string' => 'La descripción debe ser texto.',
+            'descripcion.max' => 'La descripción no puede superar 1000 caracteres.',
+            'imagen.image' => 'El archivo debe ser una imagen válida.',
+            'imagen.mimes' => 'La imagen debe ser JPG, PNG, GIF, SVG o WEBP.',
+            'imagen.max' => 'La imagen no puede superar 2MB.',
         ]);
 
         DB::beginTransaction();
@@ -52,7 +65,7 @@ class SedeController extends Controller
             return redirect()->route('admin.sedes.index')->with('success', 'Sede creada correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Error al crear la sede: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'No se pudo crear la sede. Inténtalo de nuevo.']);
         }
     }
 
@@ -78,6 +91,19 @@ class SedeController extends Controller
             'responsable' => ['nullable', 'string', 'max:255'],
             'descripcion' => ['nullable', 'string', 'max:1000'],
             'imagen' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp', 'max:2048'],
+        ], [
+            'nom.required' => 'El nombre de la sede es obligatorio.',
+            'nom.string' => 'El nombre debe ser texto.',
+            'nom.min' => 'El nombre debe tener al menos 2 caracteres.',
+            'nom.max' => 'El nombre no puede superar 255 caracteres.',
+            'nom.unique' => 'Esta sede ya existe.',
+            'responsable.string' => 'El responsable debe ser texto.',
+            'responsable.max' => 'El responsable no puede superar 255 caracteres.',
+            'descripcion.string' => 'La descripción debe ser texto.',
+            'descripcion.max' => 'La descripción no puede superar 1000 caracteres.',
+            'imagen.image' => 'El archivo debe ser una imagen válida.',
+            'imagen.mimes' => 'La imagen debe ser JPG, PNG, GIF, SVG o WEBP.',
+            'imagen.max' => 'La imagen no puede superar 2MB.',
         ]);
 
         DB::beginTransaction();
@@ -101,7 +127,7 @@ class SedeController extends Controller
             return redirect()->route('admin.sedes.index')->with('success', 'Sede actualizada correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Error al actualizar la sede: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'No se pudo actualizar la sede. Inténtalo de nuevo.']);
         }
     }
 
@@ -149,7 +175,24 @@ class SedeController extends Controller
                 ->with('success', 'Sede eliminada correctamente. Usuarios desactivados y desasignados.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Error al eliminar la sede: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'No se pudo eliminar la sede. Inténtalo de nuevo.']);
         }
+    }
+
+    /**
+     * Comprueba si un nombre de sede está disponible (AJAX).
+     */
+    public function checkNombre(Request $request)
+    {
+        $nom = $request->query('nom');
+        $excludeId = $request->query('exclude_id');
+
+        $query = Sede::where('nom', $nom);
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $exists = $query->exists();
+        return response()->json(['disponible' => !$exists]);
     }
 }

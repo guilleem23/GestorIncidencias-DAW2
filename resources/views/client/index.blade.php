@@ -13,14 +13,14 @@
         </a>
     </div>
 
-    @if(session('success'))
+    @if (session('success'))
         <div class="success-message">
             <i class="fas fa-check-circle"></i>
             <span>{{ session('success') }}</span>
         </div>
     @endif
 
-    @if(session('error'))
+    @if (session('error'))
         <div class="error-message">
             <i class="fas fa-exclamation-circle"></i>
             <span>{{ session('error') }}</span>
@@ -29,15 +29,16 @@
 
     <!-- Filtros -->
     <div class="filters-container">
-        <form method="GET" action="{{ route('client.index') }}" id="form-filters" class="filters-form">
+        <form method="POST" action="{{ route('client.index') }}" id="form-filters" class="filters-form">
+            @csrf
             <div class="filters-grid">
                 <!-- Filtro por Estado -->
                 <div class="filter-group">
                     <label for="estat"><i class="fas fa-tasks"></i> Estado</label>
                     <select name="estat" id="estat" class="filter-select">
                         <option value="">Todos los estados</option>
-                        @foreach($estats as $key => $value)
-                            <option value="{{ $key }}" {{ $estatFilter == $key ? 'selected' : '' }}>
+                        @foreach ($estats as $key => $value)
+                            <option value="{{ $key }}">
                                 {{ $value }}
                             </option>
                         @endforeach
@@ -47,16 +48,16 @@
                 <div class="filter-group">
                     <label for="orden"><i class="fas fa-sort"></i> Ordenar</label>
                     <select name="orden" id="orden" class="filter-select">
-                        <option value="desc" {{ $ordenFilter == 'desc' ? 'selected' : '' }}>Más recientes primero</option>
-                        <option value="asc" {{ $ordenFilter == 'asc' ? 'selected' : '' }}>Más antiguas primero</option>
+                        <option value="desc">Más recientes primero</option>
+                        <option value="asc">Más antiguas primero</option>
                     </select>
                 </div>
 
                 <div class="filter-group">
                     <div class="filter-actions">
-                        <button type="button" id="btn-toggle-closed" class="btn-toggle-closed {{ $ocultarResoltes ? 'active' : '' }}">
-                            <i class="fa-solid {{ $ocultarResoltes ? 'fa-eye' : 'fa-eye-slash' }}"></i>
-                            {{ $ocultarResoltes ? 'Mostrar resueltas/cerradas' : 'Ocultar resueltas/cerradas' }}
+                        <button type="button" id="btn-toggle-closed" class="btn-toggle-closed">
+                            <i class="fa-solid fa-eye-slash"></i>
+                            Ocultar resueltas/cerradas
                         </button>
                         <button type="button" id="btn-clear-filters" class="btn btn-outline">
                             <i class="fas fa-times"></i> Limpiar
@@ -70,52 +71,36 @@
     <!-- Estadísticas -->
     <div class="stats-grid" id="stats-container">
         <div class="stat-card">
-            <div class="stat-number" id="stat-senseassignar">{{ $incidencies->where('estat', 'Sense assignar')->count() }}</div>
+            <div class="stat-number" id="stat-senseassignar">0</div>
             <div class="stat-label">Sin asignar</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number" id="stat-enproces">{{ $incidencies->whereIn('estat', ['Assignada', 'En treball'])->count() }}</div>
+            <div class="stat-number" id="stat-enproces">0</div>
             <div class="stat-label">En proceso</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number" id="stat-resoltes">{{ $incidencies->where('estat', 'Resolta')->count() }}</div>
+            <div class="stat-number" id="stat-resoltes">0</div>
             <div class="stat-label">Resueltas</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number" id="stat-tancades">{{ $incidencies->where('estat', 'Tancada')->count() }}</div>
+            <div class="stat-number" id="stat-tancades">0</div>
             <div class="stat-label">Cerradas</div>
         </div>
     </div>
 
     <!-- Overlay de carga -->
-    <div id="loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;">
+    <div id="loading-overlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;">
         <div class="spinner-border text-primary" role="status"></div>
         <span class="mt-2 text-white">Cargando...</span>
     </div>
 
     <div id="incidencias-list-container">
-        @include('client.partials.incidencias_list', ['incidencies' => $incidencies])
-    </div>
+        <div style="text-align: center; padding: 40px; color: #6b7280;">
+            <div class="spinner-border text-primary mb-3" role="status"></div>
+            <p>Cargando incidencias...</p>
+        </div>
 
-    <!-- Modal Editar Incidencia -->
-    <div class="modal fade" id="modalEditarIncidencia" tabindex="-1" aria-labelledby="modalEditarIncidenciaLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content bg-dark text-white border-secondary">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title" id="modalEditarIncidenciaLabel">
-                        <i class="fa-solid fa-pen-to-square"></i> Editar Incidencia
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body" id="modal-editar-incidencia-content">
-                    @include('client.partials.editar_incidencia_form')
-                </div>
-            </div>
-        </div>
-    </div>
-                </div>
-            </div>
-        </div>
     </div>
 @endsection
 

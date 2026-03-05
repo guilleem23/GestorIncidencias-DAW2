@@ -1,10 +1,10 @@
 // Abrir modal de creación si hay errores de validación (opcional, si se implementa en el futuro)
-window.addEventListener('DOMContentLoaded', function () {
+window.onload = function () {
     if (window.modalIncidenciaOpen) {
         var modalCrear = new bootstrap.Modal(document.getElementById('modalCrearIncidencia'));
         if (modalCrear) modalCrear.show();
     }
-});
+};
 
 // MODAL EDITAR INCIDENCIA (GESTOR)
 function closeAllModals() {
@@ -21,6 +21,8 @@ document.addEventListener('click', function (e) {
     const btnDelegado = e.target.closest('.btn-editar-incidencia');
     if (btnDelegado) {
         e.preventDefault();
+        e.stopPropagation();
+        
         closeAllModals();
         const id = btnDelegado.dataset.id;
 
@@ -74,7 +76,7 @@ function inicializarLogicaCategorias() {
     const formEditar = document.getElementById('form-editar-incidencia');
 
     if (categoriaSelect && subcategoriaSelect) {
-        categoriaSelect.addEventListener('change', function () {
+        categoriaSelect.onchange = function () {
             const categoriaId = this.value;
             const categorias = window.categoriasData || [];
             const categoriaSeleccionada = categorias.find(c => c.id == categoriaId);
@@ -90,11 +92,11 @@ function inicializarLogicaCategorias() {
                     subcategoriaSelect.appendChild(option);
                 });
             }
-        });
+        };
     }
 
     if (formEditar) {
-        formEditar.addEventListener('submit', function (e) {
+        formEditar.onsubmit = function (e) {
             e.preventDefault();
 
             if (!this.checkValidity()) {
@@ -178,6 +180,6 @@ function inicializarLogicaCategorias() {
                         });
                 }
             });
-        });
+        };
     }
 }

@@ -97,7 +97,7 @@
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
-                <div class="modal-body" id="modal-editar-content">
+                <div class="modal-body" id="modal-editar-incidencia-content">
                     <!-- El contenido se cargará dinámicamente -->
                 </div>
             </div>

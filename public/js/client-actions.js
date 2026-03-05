@@ -15,10 +15,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (form.dataset.listenerAdded) return;
             form.dataset.listenerAdded = 'true';
 
-            form.addEventListener('submit', function (e) {
+            form.onsubmit = function (e) {
                 e.preventDefault();
                 confirmarCierre(form);
-            });
+            };
         });
     }
 
@@ -87,15 +87,20 @@ document.addEventListener('DOMContentLoaded', function () {
     // FUNCIONALIDAD: Filtros con AJAX
     // ===================================================
     if (filtrosForm && incidenciasContainer) {
-        filtrosForm.onsubmit = function (e) {
-            e.preventDefault();
+        // Función para cargar incidencias
+        function loadIncidencias() {
             if (loadingOverlay) loadingOverlay.style.display = 'flex';
 
             const formData = new FormData(filtrosForm);
-            const params = new URLSearchParams(formData);
 
-            fetch(`${filtrosForm.action}?${params.toString()}`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+            fetch(filtrosForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 
+                    'X-Requested-With': 'XMLHttpRequest', 
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
             })
                 .then(response => response.json())
                 .then(data => {
@@ -109,7 +114,6 @@ document.addEventListener('DOMContentLoaded', function () {
                             updateStat('stat-tancades', data.stats.tancades);
                         }
                         initCloseForms();
-                        window.history.pushState({}, '', `${window.location.pathname}?${params.toString()}`);
                         incidenciasContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     }
                 })
@@ -118,16 +122,49 @@ document.addEventListener('DOMContentLoaded', function () {
                     Swal.fire({ title: 'Error', text: 'Error al aplicar filtros', icon: 'error', background: '#111111', color: '#f8fafc' });
                 })
                 .finally(() => { if (loadingOverlay) loadingOverlay.style.display = 'none'; });
+        }
+
+        filtrosForm.onsubmit = function (e) {
+            e.preventDefault();
+            loadIncidencias();
         };
+
+        // Listeners automáticos para los select de filtros
+        const estatSelect = document.getElementById('estat');
+        const ordenSelect = document.getElementById('orden');
+        
+        if (estatSelect) {
+            estatSelect.onchange = function () {
+                filtrosForm.dispatchEvent(new Event('submit'));
+            };
+        }
+        
+        if (ordenSelect) {
+            ordenSelect.onchange = function () {
+                filtrosForm.dispatchEvent(new Event('submit'));
+            };
+        }
 
         const btnClear = document.getElementById('btn-clear-filters');
         if (btnClear) {
             btnClear.onclick = function (e) {
                 e.preventDefault();
                 filtrosForm.reset();
+                // Restablecer el estado del botón toggle
+                const btnToggle = document.getElementById('btn-toggle-closed');
+                if (btnToggle) {
+                    btnToggle.classList.remove('active');
+                    btnToggle.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Ocultar resueltas/cerradas';
+                }
+                // Eliminar input oculto si existe
+                const hiddenInput = filtrosForm.querySelector('input[name="ocultar_resoltes"]');
+                if (hiddenInput) hiddenInput.remove();
                 filtrosForm.dispatchEvent(new Event('submit'));
             };
         }
+
+        // Cargar incidencias al inicio con fetch
+        loadIncidencias();
     }
 
     // ===================================================
@@ -142,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    document.addEventListener('click', function (e) {
+    document.onclick = function (e) {
         // Editar Incidencia
         const btnEdit = e.target.closest('.btn-editar-incidencia-client');
         if (btnEdit) {
@@ -206,53 +243,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             return;
         }
-
-        // Eliminar Incidencia
-        const btnDelete = e.target.closest('.btn-eliminar-incidencia-client');
-        if (btnDelete) {
-            e.preventDefault();
-            const incidenciaId = btnDelete.dataset.id;
-
-            Swal.fire({
-                title: '¿Eliminar incidencia?',
-                text: 'Esta acción borrará también todos los comentarios.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                confirmButtonText: 'Eliminar',
-                background: '#111111',
-                color: '#f8fafc'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`/client/incidencias/${incidenciaId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json'
-                        }
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({ icon: 'success', title: 'Eliminada', text: data.message, timer: 1500, showConfirmButton: false, background: '#111111', color: '#f8fafc' })
-                                    .then(() => {
-                                        if (window.location.pathname.includes('incidencias/')) {
-                                            window.location.href = '/client/mis-incidencias';
-                                        } else if (filtrosForm) {
-                                            filtrosForm.dispatchEvent(new Event('submit'));
-                                        } else {
-                                            window.location.reload();
-                                        }
-                                    });
-                            }
-                        })
-                        .catch(err => Swal.fire({ icon: 'error', title: 'Error', text: err.message, background: '#111111', color: '#f8fafc' }));
-                }
-            });
-            return;
-        }
-    });
+    };
 
     const editCatSelect = document.getElementById('edit-categoria-client');
     const editSubSelect = document.getElementById('edit-subcategoria-client');

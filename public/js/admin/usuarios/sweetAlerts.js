@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('click', function (e) {
     if (e.target.name === 'boton_eliminar' || e.target.closest('[name="boton_eliminar"]')) {
         e.preventDefault();
+        e.stopPropagation();
+        
         const btn = e.target.name === 'boton_eliminar' ? e.target : e.target.closest('[name="boton_eliminar"]');
         const form = btn.closest('form');
 

@@ -12,17 +12,17 @@
 
     // Mostrar nombre del archivo seleccionado
     if (imatgeInput && fileNameDisplay) {
-        imatgeInput.addEventListener('change', function () {
+        imatgeInput.onchange = function () {
             if (this.files && this.files.length > 0) {
                 fileNameDisplay.textContent = this.files[0].name;
             } else {
                 fileNameDisplay.textContent = '';
             }
-        });
+        };
     }
 
     if (formComentario && commentsContainer) {
-        formComentario.addEventListener('submit', function (e) {
+        formComentario.onsubmit = function (e) {
             e.preventDefault();
 
             const missatge = missatgeInput.value.trim();
@@ -135,13 +135,16 @@
                         btnSubmitComentario.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar';
                     }
                 });
-        });
+        };
     }
 
     // 2. Borrar Comentarios vía AJAX
-    document.onclick = function (e) {
+    document.addEventListener('click', function (e) {
         const btnDelegado = e.target.closest('.btn-delete-comment-action');
         if (btnDelegado) {
+            e.preventDefault();
+            e.stopPropagation();
+            
             const id = btnDelegado.dataset.id;
             const btnDelete = document.getElementById(`btn-delete-comment-${id}`);
             const commentItem = btnDelete ? btnDelete.closest('.comment-item-wrapper') : null;
@@ -224,11 +227,12 @@
                 }
             });
         }
-    };
+    });
 
-    // 4. Manejo de clicks en imágenes de comentarios para mostrar en modal
+    // 4 & 5. Manejo de imágenes y edición en el contenedor de comentarios
     if (commentsContainer) {
-        commentsContainer.addEventListener('click', function (e) {
+        commentsContainer.onclick = function (e) {
+            // Ver imagen
             const img = e.target.closest('.comment-image-clickable');
             if (img) {
                 const imgSrc = img.src;
@@ -238,38 +242,15 @@
                     const modalImagenComentario = new bootstrap.Modal(document.getElementById('modalImagenComentario'));
                     modalImagenComentario.show();
                 }
+                return;
             }
-        });
-    }
 
-    // 5. Manejo de edición de comentarios
-    const formEditarComentario = document.getElementById('form-editar-comentario');
-    const editMissatgeInput = document.getElementById('edit-missatge-comentario');
-    const editImatgeInput = document.getElementById('edit-imatge-comentario');
-    const editFileNameDisplay = document.getElementById('edit-file-name-display');
-    const incidenciaId = window.location.pathname.match(/\d+/)?.[0];
-    let comentarioIdEnEdicion = null;
-
-    // Mostrar nombre del archivo en modal de edición
-    if (editImatgeInput && editFileNameDisplay) {
-        editImatgeInput.addEventListener('change', function () {
-            if (this.files && this.files.length > 0) {
-                editFileNameDisplay.textContent = this.files[0].name;
-            } else {
-                editFileNameDisplay.textContent = '';
-            }
-        });
-    }
-
-    // Capturar clicks en botones de editar comentario
-    if (commentsContainer) {
-        commentsContainer.addEventListener('click', function (e) {
+            // Editar comentario
             const btnEdit = e.target.closest('.btn-edit-comment-action');
             if (btnEdit) {
                 const id = btnEdit.dataset.id;
                 comentarioIdEnEdicion = id;
 
-                // Cargar datos del comentario
                 fetch(`/admin/comentarios/${id}/edit`, {
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
@@ -280,7 +261,6 @@
                             editImatgeInput.value = '';
                             editFileNameDisplay.textContent = data.data.imatge_path ? 'Imagen actual: ' + data.data.imatge_path.split('/').pop() : '';
 
-                            // Limpiar el atributo method del formulario de edición
                             formEditarComentario.action = `/admin/comentarios/${id}`;
 
                             const modalEditarComentario = new bootstrap.Modal(document.getElementById('modalEditarComentario'));
@@ -289,15 +269,26 @@
                     })
                     .catch(error => console.error('Error al cargar comentario:', error));
             }
-        });
+        };
     }
 
     // Enviar formulario de edición
     if (formEditarComentario) {
-        formEditarComentario.addEventListener('submit', function (e) {
+        formEditarComentario.onsubmit = function (e) {
             e.preventDefault();
 
             if (!comentarioIdEnEdicion) return;
+
+            if (typeof window.validarFormularioEditarComentario === 'function' && !window.validarFormularioEditarComentario()) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Validación',
+                    text: 'Revisa el comentario o la imagen antes de guardar.',
+                    background: '#1e293b',
+                    color: '#f8fafc'
+                });
+                return;
+            }
 
             const missatge = editMissatgeInput.value.trim();
             const hasNewImage = editImatgeInput && editImatgeInput.files && editImatgeInput.files.length > 0;
@@ -380,6 +371,6 @@
                         btnSubmitEdit.innerHTML = '<i class="fa-solid fa-save"></i> Guardar';
                     }
                 });
-        });
+        };
     }
 })();

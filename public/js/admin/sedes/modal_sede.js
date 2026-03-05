@@ -1,5 +1,5 @@
 // Abrir modal de creación si hay errores de validación
-window.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     if (window.modalSedeOpen) {
         var modalCrear = new bootstrap.Modal(document.getElementById('modalCrearSede'));
         modalCrear.show();
@@ -20,6 +20,9 @@ function closeAllModals() {
 document.addEventListener('click', function (e) {
     const btnEdit = e.target.closest('.btn-editar-sede');
     if (btnEdit) {
+        e.preventDefault();
+        e.stopPropagation();
+        
         closeAllModals();
         const id = btnEdit.dataset.id;
         fetch(`/admin/sedes/${id}/edit`)
@@ -31,13 +34,13 @@ document.addEventListener('click', function (e) {
                 document.getElementById('modal-editar-sede-content').innerHTML = html;
                 const modalEl = document.getElementById('modalEditarSede');
                 const modal = new bootstrap.Modal(modalEl);
-
-                // Inicializar validación si la función existe
-                if (typeof window.iniciarValidacionEditarSede === 'function') {
-                    window.iniciarValidacionEditarSede();
-                }
-
                 modal.show();
+                // Iniciar validación después de mostrar el modal
+                modalEl.addEventListener('shown.bs.modal', function () {
+                    if (typeof iniciarValidacionEditarSede === 'function') {
+                        iniciarValidacionEditarSede();
+                    }
+                }, { once: true });
             })
             .catch(error => {
                 console.error(error);
@@ -50,5 +53,15 @@ document.addEventListener('click', function (e) {
                     color: '#f3f4f6'
                 });
             });
+    }
+
+    // Event listener para cuando se abre el modal de crear sede
+    const modalCrearSede = document.getElementById('modalCrearSede');
+    if (modalCrearSede) {
+        modalCrearSede.addEventListener('shown.bs.modal', function () {
+            if (typeof iniciarValidacionCrearSede === 'function') {
+                iniciarValidacionCrearSede();
+            }
+        });
     }
 });

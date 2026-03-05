@@ -60,56 +60,52 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (filterEstat) {
-        filterEstat.addEventListener('change', () => fetchIncidencias());
+        filterEstat.onchange = () => fetchIncidencias();
     }
 
     if (filterOrden) {
-        filterOrden.addEventListener('change', () => fetchIncidencias());
+        filterOrden.onchange = () => fetchIncidencias();
     }
 
     if (btnToggleClosed) {
-        btnToggleClosed.addEventListener('click', function () {
+        btnToggleClosed.onclick = function () {
             ocultarResoltes = !ocultarResoltes;
             updateToggleClosedButton();
             fetchIncidencias();
-        });
+        };
     }
 
     if (btnClearFilters) {
-        btnClearFilters.addEventListener('click', function () {
+        btnClearFilters.onclick = function () {
             if (filterEstat) filterEstat.value = '';
             if (filterOrden) filterOrden.value = 'desc';
             ocultarResoltes = false;
             updateToggleClosedButton();
             fetchIncidencias();
-        });
+        };
     }
 
     updateToggleClosedButton();
 
-    // ========== EDITAR INCIDENCIA ==========
-    document.addEventListener('click', function (e) {
-        if (e.target.closest('.btn-editar-incidencia-client')) {
-            const btn = e.target.closest('.btn-editar-incidencia-client');
-            const incidenciaId = btn.dataset.id;
+    // ========== EDITAR/ELIMINAR INCIDENCIA (DELEGACIÓN) ==========
+    const mainContainer = document.getElementById('incidencias-list-container') || document.body;
+    mainContainer.onclick = function (e) {
+        // Editar
+        const btnEdit = e.target.closest('.btn-editar-incidencia-client');
+        if (btnEdit) {
+            e.preventDefault();
+            const incidenciaId = btnEdit.dataset.id;
 
-            // Obtener datos de la incidencia
             fetch(`/client/incidencias/${incidenciaId}/editar`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
             })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.incidencia) {
                         const incidencia = data.incidencia;
-
-                        // Rellenar formulario
                         document.getElementById('edit-titol-client').value = incidencia.titol || '';
                         document.getElementById('edit-descripcio-client').value = incidencia.descripcio || '';
 
-                        // Cargar categorías
                         const categoriaSelect = document.getElementById('edit-categoria-client');
                         categoriaSelect.innerHTML = '<option value="">Selecciona una categoría...</option>';
 
@@ -119,49 +115,34 @@ document.addEventListener('DOMContentLoaded', function () {
                                 option.value = categoria.id;
                                 option.textContent = categoria.nom;
                                 option.dataset.subcategorias = JSON.stringify(categoria.subcategorias || []);
-                                if (categoria.id == incidencia.categoria_id) {
-                                    option.selected = true;
-                                }
+                                if (categoria.id == incidencia.categoria_id) option.selected = true;
                                 categoriaSelect.appendChild(option);
                             });
 
-                            // Trigger change para cargar subcategorías
                             if (incidencia.categoria_id) {
-                                const event = new Event('change');
-                                categoriaSelect.dispatchEvent(event);
-
-                                // Después de cargar subcategorías, seleccionar la correcta
+                                categoriaSelect.dispatchEvent(new Event('change'));
                                 setTimeout(() => {
                                     document.getElementById('edit-subcategoria-client').value = incidencia.subcategoria_id || '';
                                     validarFormularioIncidencia();
-                                }, 50);
+                                }, 100);
                             }
                         }
 
-                        // Configurar formulario
                         const form = document.getElementById('form-editar-incidencia-client');
-                        form.action = `/client/incidencias/${incidenciaId}`;
+                        if (form) form.action = `/client/incidencias/${incidenciaId}`;
 
-                        // Resetear validaciones
                         resetearValidaciones();
-
-                        // Mostrar modal
                         const modal = new bootstrap.Modal(document.getElementById('modalEditarIncidencia'));
                         modal.show();
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'No se pudo cargar la incidencia',
-                        background: '#111111',
-                        color: '#f8fafc'
-                    });
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo cargar la incidencia', background: '#111111', color: '#f8fafc' });
                 });
+            return;
         }
-    });
+    };
 
     // ========== VALIDACIÓN FORMULARIO EDITAR INCIDENCIA ==========
     const titolInput = document.getElementById('edit-titol-client');
@@ -278,13 +259,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Event listeners de validación
-    titolInput.addEventListener('input', validarFormularioIncidencia);
-    titolInput.addEventListener('blur', validarTitol);
+    titolInput.oninput = validarFormularioIncidencia;
+    titolInput.onblur = validarTitol;
 
-    descripcioInput.addEventListener('input', validarFormularioIncidencia);
-    descripcioInput.addEventListener('blur', validarDescripcio);
+    descripcioInput.oninput = validarFormularioIncidencia;
+    descripcioInput.onblur = validarDescripcio;
 
-    categoriaSelect.addEventListener('change', function () {
+    categoriaSelect.onchange = function () {
         validarCategoria();
 
         // Cargar subcategorías
@@ -302,14 +283,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         subcategoriaSelect.disabled = subcategorias.length === 0;
         validarFormularioIncidencia();
-    });
+    };
 
-    subcategoriaSelect.addEventListener('change', validarFormularioIncidencia);
+    subcategoriaSelect.onchange = validarFormularioIncidencia;
 
     // ========== ENVIAR FORMULARIO EDITAR INCIDENCIA ==========
     const formEditarIncidencia = document.getElementById('form-editar-incidencia-client');
     if (formEditarIncidencia) {
-        formEditarIncidencia.addEventListener('submit', function (e) {
+        formEditarIncidencia.onsubmit = function (e) {
             e.preventDefault();
 
             if (!validarFormularioIncidencia()) {
@@ -337,36 +318,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Cerrar modal
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarIncidencia'));
+                        const modalEl = document.getElementById('modalEditarIncidencia');
+                        const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
                         modal.hide();
 
-                        // Mostrar mensaje con reload
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Incidencia actualizada',
-                            text: data.message,
-                            timer: 2000,
-                            showConfirmButton: false,
-                            background: '#111111',
-                            color: '#f8fafc'
-                        }).then(() => {
-                            window.location.reload();
-                        });
+                        Swal.fire({ icon: 'success', title: 'Incidencia actualizada', text: data.message, timer: 2000, showConfirmButton: false, background: '#111111', color: '#f8fafc' })
+                            .then(() => window.location.reload());
                     } else {
                         throw new Error(data.error || 'Error al actualizar la incidencia');
                     }
                 })
                 .catch(error => {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: error.message || 'No se pudo actualizar la incidencia',
-                        background: '#111111',
-                        color: '#f8fafc'
-                    });
+                    Swal.fire({ icon: 'error', title: 'Error', text: error.message || 'No se pudo actualizar la incidencia', background: '#111111', color: '#f8fafc' });
                 });
-        });
+        };
     }
 
     // ========== ACTUALIZAR FORMULARIO AL CAMBIAR CATEGORÍA (NUEVA INCIDENCIA) ==========
@@ -374,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const newSubcategoriaSelect = document.getElementById('subcategoria_id');
 
     if (newCategoriaSelect && newSubcategoriaSelect) {
-        newCategoriaSelect.addEventListener('change', function () {
+        newCategoriaSelect.onchange = function () {
             const selectedOption = this.options[this.selectedIndex];
             const subcategorias = selectedOption ? JSON.parse(selectedOption.dataset.subcategorias || '[]') : [];
 
@@ -387,86 +352,5 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             newSubcategoriaSelect.disabled = subcategorias.length === 0;
-        });
-    }
-
-    // ========== ELIMINAR INCIDENCIA (FETCH AJAX) ==========
-    document.addEventListener('click', function (e) {
-        const btnEliminar = e.target.closest('.btn-eliminar-incidencia-client');
-        if (btnEliminar) {
-            const incidenciaId = btnEliminar.dataset.id;
-            const card = btnEliminar.closest('.incidencia-card');
-
-            Swal.fire({
-                title: '¿Eliminar incidencia?',
-                text: 'Esta acción no se puede deshacer y eliminará todos los comentarios asociados.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: '<i class="fa-solid fa-trash"></i> Sí, eliminar',
-                cancelButtonText: '<i class="fa-solid fa-times"></i> Cancelar',
-                background: '#111111',
-                color: '#f8fafc'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`/client/incidencias/${incidenciaId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json'
-                        }
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Eliminada',
-                                    text: data.message,
-                                    timer: 2000,
-                                    showConfirmButton: false,
-                                    background: '#111111',
-                                    color: '#f8fafc'
-                                });
-
-                                // Animación de salida y eliminación del DOM
-                                if (card) {
-                                    card.classList.add('fade-out-left');
-                                    setTimeout(() => {
-                                        card.remove();
-
-                                        // Si no quedan tarjetas, mostrar mensaje de vacío
-                                        const container = document.getElementById('incidencias-list-container');
-                                        if (container && container.querySelectorAll('.incidencia-card').length === 0) {
-                                            container.innerHTML = `
-                                            <div class="empty-state fade-in-up">
-                                                <i class="fas fa-inbox"></i>
-                                                <p>No tienes incidencias registradas.</p>
-                                            </div>
-                                        `;
-                                        }
-                                    }, 400);
-                                } else {
-                                    // Fallback si no hay card (ej: en vista detalle)
-                                    window.location.href = '/client/mis-incidencias';
-                                }
-                            } else {
-                                throw new Error(data.error || 'Error al eliminar la incidencia');
-                            }
-                        })
-                        .catch(error => {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: error.message || 'No se pudo eliminar la incidencia',
-                                background: '#111111',
-                                color: '#f8fafc'
-                            });
-                        });
-                }
-            });
         }
     });
-});

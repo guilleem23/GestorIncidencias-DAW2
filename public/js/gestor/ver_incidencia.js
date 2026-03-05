@@ -12,17 +12,17 @@
 
     // Mostrar nombre del archivo seleccionado
     if (imatgeInput && fileNameDisplay) {
-        imatgeInput.addEventListener('change', function () {
+        imatgeInput.onchange = function () {
             if (this.files && this.files.length > 0) {
                 fileNameDisplay.textContent = this.files[0].name;
             } else {
                 fileNameDisplay.textContent = '';
             }
-        });
+        };
     }
 
     if (formComentario && commentsContainer) {
-        formComentario.addEventListener('submit', function (e) {
+        formComentario.onsubmit = function (e) {
             e.preventDefault();
 
             const missatge = missatgeInput.value.trim();
@@ -135,7 +135,7 @@
                         btnSubmitComentario.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar comentario';
                     }
                 });
-        });
+        };
     }
 
     // 2. Borrar Comentarios vía AJAX
@@ -234,13 +234,13 @@
 
     // Mostrar nombre del archivo en modal de edición
     if (editImatgeInput && editFileNameDisplay) {
-        editImatgeInput.addEventListener('change', function () {
+        editImatgeInput.onchange = function () {
             if (this.files && this.files.length > 0) {
                 editFileNameDisplay.textContent = this.files[0].name;
             } else {
                 editFileNameDisplay.textContent = '';
             }
-        });
+        };
     }
 
     // 4. Manejo de clicks en el contenedor de comentarios (Imágenes y Edición)
@@ -290,10 +290,21 @@
 
     // Enviar formulario de edición
     if (formEditarComentario) {
-        formEditarComentario.addEventListener('submit', function (e) {
+        formEditarComentario.onsubmit = function (e) {
             e.preventDefault();
 
             if (!comentarioIdEnEdicion) return;
+
+            if (typeof window.validarFormularioEditarComentario === 'function' && !window.validarFormularioEditarComentario()) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Validación',
+                    text: 'Revisa el comentario o la imagen antes de guardar.',
+                    background: '#1e293b',
+                    color: '#f8fafc'
+                });
+                return;
+            }
 
             const missatge = editMissatgeInput.value.trim();
             const hasNewImage = editImatgeInput && editImatgeInput.files && editImatgeInput.files.length > 0;
@@ -376,6 +387,6 @@
                         btnSubmitEdit.innerHTML = '<i class="fa-solid fa-save"></i> Guardar';
                     }
                 });
-        });
+        };
     }
 })();

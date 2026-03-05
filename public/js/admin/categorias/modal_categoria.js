@@ -1,5 +1,5 @@
 // Abrir modal de creación si hay errores de validación
-window.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     if (window.modalCategoriaOpen) {
         var modalCrear = new bootstrap.Modal(document.getElementById('modalCrearCategoria'));
         modalCrear.show();
@@ -8,7 +8,26 @@ window.addEventListener('DOMContentLoaded', function () {
         var modalCrearSub = new bootstrap.Modal(document.getElementById('modalCrearSubcategoria'));
         modalCrearSub.show();
     }
-});
+        // Event listener para cuando se abre el modal de crear categoría
+        const modalCrearCategoria = document.getElementById('modalCrearCategoria');
+        if (modalCrearCategoria) {
+            modalCrearCategoria.addEventListener('shown.bs.modal', function () {
+                if (typeof iniciarValidacionCrearCategoria === 'function') {
+                    iniciarValidacionCrearCategoria();
+                }
+            });
+        }
+
+        // Event listener para cuando se abre el modal de crear subcategoría
+        const modalCrearSubcategoria = document.getElementById('modalCrearSubcategoria');
+        if (modalCrearSubcategoria) {
+            modalCrearSubcategoria.addEventListener('shown.bs.modal', function () {
+                if (typeof iniciarValidacionCrearSubcategoria === 'function') {
+                    iniciarValidacionCrearSubcategoria();
+                }
+            });
+        }
+    });
 
 // Cerrar todos los modales abiertos
 function closeAllModals() {
@@ -25,6 +44,9 @@ document.addEventListener('click', function (e) {
     // MODAL EDITAR CATEGORÍA
     const btnEditCat = e.target.closest('.btn-editar-categoria');
     if (btnEditCat) {
+        e.preventDefault();
+        e.stopPropagation();
+        
         closeAllModals();
         const id = btnEditCat.dataset.id;
         fetch(`/admin/categorias/${id}/edit`)
@@ -37,6 +59,12 @@ document.addEventListener('click', function (e) {
                 const modalEl = document.getElementById('modalEditarCategoria');
                 const modal = new bootstrap.Modal(modalEl);
                 modal.show();
+                    // Iniciar validación después de mostrar el modal
+                    modalEl.addEventListener('shown.bs.modal', function () {
+                        if (typeof iniciarValidacionEditarCategoria === 'function') {
+                            iniciarValidacionEditarCategoria();
+                        }
+                    }, { once: true });
             })
             .catch(error => {
                 console.error(error);
@@ -49,11 +77,15 @@ document.addEventListener('click', function (e) {
                     color: '#f3f4f6'
                 });
             });
+        return;
     }
 
     // MODAL EDITAR SUBCATEGORÍA
     const btnEditSub = e.target.closest('.btn-editar-subcategoria');
     if (btnEditSub) {
+        e.preventDefault();
+        e.stopPropagation();
+        
         closeAllModals();
         const id = btnEditSub.dataset.id;
         fetch(`/admin/subcategorias/${id}/edit`)
@@ -66,6 +98,8 @@ document.addEventListener('click', function (e) {
                 const modalEl = document.getElementById('modalEditarSubcategoria');
                 const modal = new bootstrap.Modal(modalEl);
                 modal.show();
+                    // No hay validación específica para editar subcategoría aún
+                    // Podrías crearla si es necesario
             })
             .catch(error => {
                 console.error(error);

@@ -210,4 +210,5 @@
     <script src="{{ asset('js/gestor/validar_editar_incidencia.js') }}"></script>
     <script src="{{ asset('js/gestor/modales.js') }}"></script>
     <script src="{{ asset('js/gestor/ver_incidencia.js') }}"></script>
+    <script src="{{ asset('js/client/validar_comentarios.js') }}"></script>
 @endpush

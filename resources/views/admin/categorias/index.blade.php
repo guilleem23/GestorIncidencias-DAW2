@@ -224,6 +224,9 @@
 @push('scripts')
     <script src="{{ asset('js/admin/categorias/sweetAlerts.js') }}"></script>
     <script src="{{ asset('js/admin/categorias/modal_categoria.js') }}"></script>
+    <script src="{{ asset('js/admin/categorias/validar_crear_categoria.js') }}"></script>
+    <script src="{{ asset('js/admin/categorias/validar_editar_categoria.js') }}"></script>
+    <script src="{{ asset('js/admin/categorias/validar_crear_subcategoria.js') }}"></script>
     <script>
         // Toggle subcategorías
         function toggleSubcategorias(id) {

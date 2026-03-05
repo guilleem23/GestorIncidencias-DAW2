@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {
     // Manejo de Asignación de Técnico vía AJAX
-    document.addEventListener('click', function (e) {
+    const oldAsignarClick = document.onclick;
+    document.onclick = function (e) {
+        if (oldAsignarClick) oldAsignarClick(e);
         // Usamos una clase para detectar el clic en botones de asignar
         const btnDelegado = e.target.closest('.btn-assign-tecnic');
         if (btnDelegado) {
@@ -103,5 +105,5 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
         }
-    });
+    }
 });

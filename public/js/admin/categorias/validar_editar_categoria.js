@@ -1,17 +1,16 @@
-function iniciarValidacionCrearSede() {
-    console.log("Inicializando validación Crear Sede...");
-    const eNombre = document.getElementById("error-nombre");
-    const sNombre = document.getElementById("disponibilidad-nombre");
-    const eResponsable = document.getElementById("error-responsable");
-    const eDescripcion = document.getElementById("error-descripcion");
+function iniciarValidacionEditarCategoria() {
+    console.log("Inicializando validación Editar Categoría...");
+    const eNombre = document.getElementById("error-edit-nombre");
+    const sNombre = document.getElementById("disponibilidad-edit-nombre");
+    const eDescripcion = document.getElementById("error-edit-descripcion");
 
-    const nombreInput = document.getElementById("nombre-sede");
-    const responsableInput = document.getElementById("responsable-sede");
-    const descripcionInput = document.getElementById("descripcion-sede");
-    const botonEnviar = document.getElementById("btn-enviar-sede");
+    const categoriaIdInput = document.getElementById("edit-categoria-id");
+    const nombreInput = document.getElementById("edit-nombre-categoria");
+    const descripcionInput = document.getElementById("edit-descripcion-categoria");
+    const botonEnviar = document.getElementById("edit-btn-enviar-categoria");
 
     let timeoutNombre = null;
-    let nombreDisponible = false;
+    let nombreDisponible = true; // Por defecto true al editar existente
 
     if (!nombreInput || !botonEnviar) return;
 
@@ -21,14 +20,6 @@ function iniciarValidacionCrearSede() {
         timeoutNombre = setTimeout(comprobarNombre, 300);
     };
     nombreInput.onblur = comprobarNombre;
-
-    if (responsableInput) {
-        responsableInput.oninput = () => {
-            comprobarResponsable();
-            comprobarBoton();
-        };
-        responsableInput.onblur = comprobarResponsable;
-    }
 
     if (descripcionInput) {
         descripcionInput.oninput = () => {
@@ -40,14 +31,12 @@ function iniciarValidacionCrearSede() {
 
     function comprobarBoton() {
         const nombre = nombreInput.value.trim();
-        const responsable = responsableInput ? responsableInput.value.trim() : "";
         const descripcion = descripcionInput ? descripcionInput.value.trim() : "";
 
         let nombreValido = nombre !== "" && nombre.length >= 2 && nombreDisponible;
-        let responsableValido = responsable !== "";
-        let descripcionValido = descripcion !== "";
+        let descripcionValida = descripcion !== "";
 
-        if (nombreValido && responsableValido && descripcionValido) {
+        if (nombreValido && descripcionValida) {
             botonEnviar.disabled = false;
             botonEnviar.classList.remove("btn-login-desabilitado");
         } else {
@@ -75,7 +64,9 @@ function iniciarValidacionCrearSede() {
 
         eNombre.innerText = "";
 
-        fetch(`/admin/sedes/check-nombre?nom=${encodeURIComponent(valor)}`)
+        const excludeId = categoriaIdInput ? categoriaIdInput.value : '';
+
+        fetch(`/admin/categorias/check-nom?nom=${encodeURIComponent(valor)}&exclude_id=${excludeId}`)
             .then(r => r.json())
             .then(data => {
                 if (data.disponible) {
@@ -90,20 +81,11 @@ function iniciarValidacionCrearSede() {
                 }
                 comprobarBoton();
             })
-            .catch(err => console.error("Error comprobando nombre:", err));
-    }
-
-    function comprobarResponsable() {
-        if (!responsableInput) return;
-        if (responsableInput.value.trim() === "") {
-            eResponsable.innerText = "El responsable es obligatorio.";
-        } else {
-            eResponsable.innerText = "";
-        }
+            .catch(err => console.error("Error comprobando nombre (edit):", err));
     }
 
     function comprobarDescripcion() {
-        if (!descripcionInput) return;
+        if (!descripcionInput || !eDescripcion) return;
         if (descripcionInput.value.trim() === "") {
             eDescripcion.innerText = "La descripción es obligatoria.";
         } else {
@@ -113,20 +95,9 @@ function iniciarValidacionCrearSede() {
 
     // Validar inicialmente
     if (nombreInput.value !== "") comprobarNombre();
-    if (responsableInput && responsableInput.value !== "") comprobarResponsable();
     if (descripcionInput && descripcionInput.value !== "") comprobarDescripcion();
     comprobarBoton();
 }
 
-// Inicializar cuando el DOM esté listo
-if (document.readyState === "complete" || document.readyState === "interactive") {
-    console.log("DOM listo, iniciando validación crear sede.");
-    iniciarValidacionCrearSede();
-} else {
-    document.addEventListener('DOMContentLoaded', function () {
-        console.log("Window loaded, iniciando validación crear sede.");
-        iniciarValidacionCrearSede();
-    });
-}
-
-window.iniciarValidacionCrearSede = iniciarValidacionCrearSede;
+// Exponer globalmente
+window.iniciarValidacionEditarCategoria = iniciarValidacionEditarCategoria;

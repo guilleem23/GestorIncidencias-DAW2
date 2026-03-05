@@ -1,14 +1,12 @@
-function iniciarValidacionCrearSede() {
-    console.log("Inicializando validación Crear Sede...");
+function iniciarValidacionCrearCategoria() {
+    console.log("Inicializando validación Crear Categoría...");
     const eNombre = document.getElementById("error-nombre");
     const sNombre = document.getElementById("disponibilidad-nombre");
-    const eResponsable = document.getElementById("error-responsable");
     const eDescripcion = document.getElementById("error-descripcion");
 
-    const nombreInput = document.getElementById("nombre-sede");
-    const responsableInput = document.getElementById("responsable-sede");
-    const descripcionInput = document.getElementById("descripcion-sede");
-    const botonEnviar = document.getElementById("btn-enviar-sede");
+    const nombreInput = document.getElementById("nombre-categoria");
+    const descripcionInput = document.getElementById("descripcion-categoria");
+    const botonEnviar = document.getElementById("btn-enviar-categoria");
 
     let timeoutNombre = null;
     let nombreDisponible = false;
@@ -22,14 +20,6 @@ function iniciarValidacionCrearSede() {
     };
     nombreInput.onblur = comprobarNombre;
 
-    if (responsableInput) {
-        responsableInput.oninput = () => {
-            comprobarResponsable();
-            comprobarBoton();
-        };
-        responsableInput.onblur = comprobarResponsable;
-    }
-
     if (descripcionInput) {
         descripcionInput.oninput = () => {
             comprobarDescripcion();
@@ -40,14 +30,12 @@ function iniciarValidacionCrearSede() {
 
     function comprobarBoton() {
         const nombre = nombreInput.value.trim();
-        const responsable = responsableInput ? responsableInput.value.trim() : "";
         const descripcion = descripcionInput ? descripcionInput.value.trim() : "";
 
         let nombreValido = nombre !== "" && nombre.length >= 2 && nombreDisponible;
-        let responsableValido = responsable !== "";
-        let descripcionValido = descripcion !== "";
+        let descripcionValida = descripcion !== "";
 
-        if (nombreValido && responsableValido && descripcionValido) {
+        if (nombreValido && descripcionValida) {
             botonEnviar.disabled = false;
             botonEnviar.classList.remove("btn-login-desabilitado");
         } else {
@@ -75,7 +63,7 @@ function iniciarValidacionCrearSede() {
 
         eNombre.innerText = "";
 
-        fetch(`/admin/sedes/check-nombre?nom=${encodeURIComponent(valor)}`)
+        fetch(`/admin/categorias/check-nom?nom=${encodeURIComponent(valor)}`)
             .then(r => r.json())
             .then(data => {
                 if (data.disponible) {
@@ -93,15 +81,6 @@ function iniciarValidacionCrearSede() {
             .catch(err => console.error("Error comprobando nombre:", err));
     }
 
-    function comprobarResponsable() {
-        if (!responsableInput) return;
-        if (responsableInput.value.trim() === "") {
-            eResponsable.innerText = "El responsable es obligatorio.";
-        } else {
-            eResponsable.innerText = "";
-        }
-    }
-
     function comprobarDescripcion() {
         if (!descripcionInput) return;
         if (descripcionInput.value.trim() === "") {
@@ -113,20 +92,19 @@ function iniciarValidacionCrearSede() {
 
     // Validar inicialmente
     if (nombreInput.value !== "") comprobarNombre();
-    if (responsableInput && responsableInput.value !== "") comprobarResponsable();
     if (descripcionInput && descripcionInput.value !== "") comprobarDescripcion();
     comprobarBoton();
 }
 
 // Inicializar cuando el DOM esté listo
 if (document.readyState === "complete" || document.readyState === "interactive") {
-    console.log("DOM listo, iniciando validación crear sede.");
-    iniciarValidacionCrearSede();
+    console.log("DOM listo, iniciando validación crear categoría.");
+    iniciarValidacionCrearCategoria();
 } else {
     document.addEventListener('DOMContentLoaded', function () {
-        console.log("Window loaded, iniciando validación crear sede.");
-        iniciarValidacionCrearSede();
+        console.log("Window loaded, iniciando validación crear categoría.");
+        iniciarValidacionCrearCategoria();
     });
 }
 
-window.iniciarValidacionCrearSede = iniciarValidacionCrearSede;
+window.iniciarValidacionCrearCategoria = iniciarValidacionCrearCategoria;

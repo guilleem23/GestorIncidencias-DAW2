@@ -76,29 +76,29 @@
     }
 
     if (btnToggleClosed) {
-        btnToggleClosed.addEventListener('click', function () {
+        btnToggleClosed.onclick = function () {
             showingClosed = !showingClosed;
             updateToggleButton();
-        });
+        };
     }
 
     // Debounce para el buscador
     let timeout = null;
     if (filterBuscar) {
-        filterBuscar.addEventListener('input', function () {
+        filterBuscar.oninput = function () {
             clearTimeout(timeout);
             timeout = setTimeout(() => fetchIncidencias(), 400);
-        });
+        };
     }
 
     // Listeners para selects
     [filterEstat, filterPrioritat, filterTecnic, filterSede, filterOrden].forEach(el => {
-        if (el) el.addEventListener('change', () => fetchIncidencias());
+        if (el) el.onchange = () => fetchIncidencias();
     });
 
     // Limpiar filtros
     if (btnClearFilters) {
-        btnClearFilters.addEventListener('click', function () {
+        btnClearFilters.onclick = function () {
             if (filterBuscar) filterBuscar.value = '';
             if (filterEstat) filterEstat.value = '';
             if (filterPrioritat) filterPrioritat.value = '';
@@ -106,85 +106,84 @@
             if (filterSede) filterSede.value = '';
             if (filterOrden) filterOrden.value = 'desc';
             fetchIncidencias();
-        });
+        };
     }
 
     // Paginación via AJAX (onclick delegation)
     if (tableContainer) {
-        tableContainer.addEventListener('click', function (e) {
+        tableContainer.onclick = function (e) {
             const link = e.target.closest('.pagination a');
             if (link) {
                 e.preventDefault();
                 fetchIncidencias(link.href);
+                return;
             }
-        });
 
-        tableContainer.addEventListener('click', function (e) {
             const btnDelete = e.target.closest('.btn-delete');
-            if (!btnDelete) return;
+            if (btnDelete) {
+                const incidenciaId = btnDelete.dataset.id;
+                if (!incidenciaId) return;
 
-            const incidenciaId = btnDelete.dataset.id;
-            if (!incidenciaId) return;
+                const path = window.location.pathname;
+                const isAdmin = path.startsWith('/admin/incidencias');
+                const isGestor = path.startsWith('/gestor/incidencias');
 
-            const path = window.location.pathname;
-            const isAdmin = path.startsWith('/admin/incidencias');
-            const isGestor = path.startsWith('/gestor/incidencias');
+                if (!isAdmin && !isGestor) return;
 
-            if (!isAdmin && !isGestor) return;
+                const deleteUrl = `${isAdmin ? '/admin/incidencias' : '/gestor/incidencias'}/${incidenciaId}`;
 
-            const deleteUrl = `${isAdmin ? '/admin/incidencias' : '/gestor/incidencias'}/${incidenciaId}`;
+                Swal.fire({
+                    title: '¿Eliminar incidencia?',
+                    text: 'Esta acción no se puede deshacer.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#4b5563',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar',
+                    background: '#1e293b',
+                    color: '#f8fafc'
+                }).then((result) => {
+                    if (!result.isConfirmed) return;
 
-            Swal.fire({
-                title: '¿Eliminar incidencia?',
-                text: 'Esta acción no se puede deshacer.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#4b5563',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar',
-                background: '#1e293b',
-                color: '#f8fafc'
-            }).then((result) => {
-                if (!result.isConfirmed) return;
-
-                fetch(deleteUrl, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    }
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (!data.success) {
-                            throw new Error(data.message || 'No se pudo eliminar la incidencia.');
+                    fetch(deleteUrl, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                         }
-
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            icon: 'success',
-                            title: data.message || 'Incidencia eliminada.',
-                            showConfirmButton: false,
-                            timer: 2000,
-                            background: '#1e293b',
-                            color: '#f8fafc'
-                        });
-
-                        fetchIncidencias();
                     })
-                    .catch(error => {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: error.message || 'No se pudo eliminar la incidencia.',
-                            background: '#1e293b',
-                            color: '#f8fafc'
+                        .then(res => res.json())
+                        .then(data => {
+                            if (!data.success) {
+                                throw new Error(data.message || 'No se pudo eliminar la incidencia.');
+                            }
+
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: data.message || 'Incidencia eliminada.',
+                                showConfirmButton: false,
+                                timer: 2000,
+                                background: '#1e293b',
+                                color: '#f8fafc'
+                            });
+
+                            fetchIncidencias();
+                        })
+                        .catch(error => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: error.message || 'No se pudo eliminar la incidencia.',
+                                background: '#1e293b',
+                                color: '#f8fafc'
+                            });
                         });
-                    });
-            });
-        });
+                });
+            }
+        };
     }
 
     // 2. Manejo dinámico de las Subcategorías (Edición)
@@ -214,13 +213,13 @@
     const selectEstatSync = document.getElementById('estat');
 
     if (selectTecnicSync && selectEstatSync) {
-        selectTecnicSync.addEventListener('change', function () {
+        selectTecnicSync.onchange = function () {
             if (this.value !== "" && selectEstatSync.value === "Sense assignar") {
                 selectEstatSync.value = "Assignada";
             } else if (this.value === "" && selectEstatSync.value === "Assignada") {
                 selectEstatSync.value = "Sense assignar";
             }
-        });
+        };
     }
 
     // ----------------------------------------------------------------
@@ -230,7 +229,7 @@
     const formEditar = document.getElementById('form-editar-incidencia');
 
     if (btnSubmitEdit && formEditar) {
-        btnSubmitEdit.addEventListener('click', function (e) {
+        btnSubmitEdit.onclick = function (e) {
             e.preventDefault();
 
             // Validación HTML5 nativa primero
@@ -306,7 +305,7 @@
             } else {
                 formEditar.submit();
             }
-        });
+        };
     }
     // ----------------------------------------------------------------
     // 4. (Removido: El manejo de comentarios ahora reside exclusivamente en ver_incidencia.js)

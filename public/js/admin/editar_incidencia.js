@@ -26,7 +26,7 @@
     const formEditar = document.getElementById('form-editar-incidencia');
 
     if (btnSubmitEdit && formEditar) {
-        btnSubmitEdit.addEventListener('click', function (e) {
+        formEditar.onsubmit = function (e) {
             e.preventDefault();
 
             // Validación HTML5 nativa primero
@@ -99,7 +99,7 @@
 
                         // Enviar formulario vía AJAX
                         const formData = new FormData(formEditar);
-                        
+
                         fetch(formEditar.action, {
                             method: 'POST',
                             body: formData,
@@ -108,55 +108,55 @@
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                             }
                         })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: '¡Éxito!',
-                                    text: data.message,
-                                    background: '#1e293b',
-                                    color: '#f8fafc'
-                                }).then(() => {
-                                    // Redirigir a la vista de la incidencia
-                                    if (data.redirect) {
-                                        window.location.href = data.redirect;
-                                    } else {
-                                        window.location.reload();
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: '¡Éxito!',
+                                        text: data.message,
+                                        background: '#1e293b',
+                                        color: '#f8fafc'
+                                    }).then(() => {
+                                        // Redirigir a la vista de la incidencia
+                                        if (data.redirect) {
+                                            window.location.href = data.redirect;
+                                        } else {
+                                            window.location.reload();
+                                        }
+                                    });
+                                } else {
+                                    let errorMsg = data.message || 'Error al actualizar la incidencia.';
+                                    if (data.errors) {
+                                        const firstError = Object.values(data.errors)[0];
+                                        if (Array.isArray(firstError)) {
+                                            errorMsg = firstError[0];
+                                        }
                                     }
-                                });
-                            } else {
-                                let errorMsg = data.message || 'Error al actualizar la incidencia.';
-                                if (data.errors) {
-                                    const firstError = Object.values(data.errors)[0];
-                                    if (Array.isArray(firstError)) {
-                                        errorMsg = firstError[0];
-                                    }
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: errorMsg,
+                                        background: '#1e293b',
+                                        color: '#f8fafc'
+                                    });
                                 }
+                            })
+                            .catch(error => {
+                                console.error('Error al actualizar incidencia:', error);
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Error',
-                                    text: errorMsg,
+                                    text: 'No se pudo actualizar la incidencia.',
                                     background: '#1e293b',
                                     color: '#f8fafc'
                                 });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error al actualizar incidencia:', error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'No se pudo actualizar la incidencia.',
-                                background: '#1e293b',
-                                color: '#f8fafc'
                             });
-                        });
                     }
                 });
             } else {
                 formEditar.submit();
             }
-        });
+        };
     }
 })();

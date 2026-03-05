@@ -267,7 +267,7 @@ class AdminIncidenciaController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors([
-                'error' => 'Error al asignar técnico: ' . $e->getMessage(),
+                'error' => 'No se pudo asignar el técnico. Inténtalo de nuevo.',
             ]);
         }
     }
@@ -348,6 +348,14 @@ class AdminIncidenciaController extends Controller
     public function destroy(Request $request, $id)
     {
         $incidencia = Incidencia::findOrFail($id);
+        
+        // Eliminar imágenes de los comentarios
+        foreach ($incidencia->comentarios as $comentario) {
+            if ($comentario->imatge_path && Storage::disk('public')->exists($comentario->imatge_path)) {
+                Storage::disk('public')->delete($comentario->imatge_path);
+            }
+        }
+        
         // Eliminar comentarios para evitar error de clave foránea
         $incidencia->comentarios()->delete();
         $incidencia->delete();

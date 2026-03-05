@@ -53,6 +53,8 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
     Route::delete('/admin/usuarios/{id}', [UserController::class, 'destroy'])->name('admin.usuarios.destroy');
 
     // CRUD Categorías
+    Route::get('/admin/categorias/check-nom', [CategoriaController::class, 'checkNom']);
+    Route::get('/admin/subcategorias/check-nom', [CategoriaController::class, 'checkNomSubcategoria']);
     Route::get('/admin/categorias', [CategoriaController::class, 'index'])->name('admin.categorias.index');
     Route::post('/admin/categorias', [CategoriaController::class, 'store'])->name('admin.categorias.store');
     Route::get('/admin/categorias/{id}/edit', [CategoriaController::class, 'edit'])->name('admin.categorias.edit');
@@ -77,12 +79,11 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
 // Solo los clientes pueden entrar aquí
 Route::middleware(['auth', 'role:client'])->group(function () {
     Route::get('/client/mis-incidencias', [ClientController::class, 'index'])->name('client.index');
+    Route::post('/client/mis-incidencias', [ClientController::class, 'index'])->name('client.index.filter');
     Route::get('/client/incidencias/{id}', [ClientController::class, 'verIncidencia'])->name('client.incidencias.show');
     Route::get('/client/crear', [ClientController::class, 'crear'])->name('client.crear');
     Route::post('/client/crear', [ClientController::class, 'store'])->name('client.store');
-    Route::get('/client/incidencias/{id}/editar', [ClientController::class, 'editarIncidencia'])->name('client.incidencias.editar');
-    Route::put('/client/incidencias/{id}', [ClientController::class, 'updateIncidencia'])->name('client.incidencias.update');
-    Route::delete('/client/incidencias/{id}', [ClientController::class, 'destroyIncidencia'])->name('client.incidencias.destroy');
+
     Route::post('/client/tancar/{id}', [ClientController::class, 'tancarIncidencia'])->name('client.tancar');
     Route::post('/client/incidencias/{id}/comentarios', [ClientController::class, 'storeComentario'])->name('client.incidencias.comentarios.store');
     Route::put('/client/comentarios/{id}', [ClientController::class, 'updateComentario'])->name('client.comentarios.update');

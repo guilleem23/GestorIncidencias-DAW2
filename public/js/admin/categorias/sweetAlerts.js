@@ -4,12 +4,17 @@
 // ========================================
 
 // Confirmación para eliminar CATEGORÍA
-document.querySelectorAll('.btn-eliminar-categoria').forEach(btn => {
-    btn.addEventListener('click', function (e) {
+const oldCategoriasClick = document.onclick;
+document.onclick = function (e) {
+    if (oldCategoriasClick) oldCategoriasClick(e);
+
+    // Confirmación para eliminar CATEGORÍA
+    const btnEliminarCat = e.target.closest('.btn-eliminar-categoria');
+    if (btnEliminarCat) {
         e.preventDefault();
-        const form = this.closest('form');
-        const nombre = this.dataset.nombre;
-        const numSubcategorias = parseInt(this.dataset.subcategorias) || 0;
+        const form = btnEliminarCat.closest('form');
+        const nombre = btnEliminarCat.dataset.nombre;
+        const numSubcategorias = parseInt(btnEliminarCat.dataset.subcategorias) || 0;
 
         let textoAdvertencia = `Se eliminará la categoría "${nombre}"`;
         if (numSubcategorias > 0) {
@@ -27,26 +32,21 @@ document.querySelectorAll('.btn-eliminar-categoria').forEach(btn => {
             confirmButtonText: '<i class="fa-solid fa-trash"></i> Sí, eliminar',
             cancelButtonText: 'Cancelar',
             background: '#1e1e1e',
-            color: '#f3f4f6',
-            customClass: {
-                popup: 'swal-dark-popup',
-                confirmButton: 'swal-confirm-btn',
-                cancelButton: 'swal-cancel-btn'
-            }
+            color: '#f3f4f6'
         }).then((result) => {
             if (result.isConfirmed) {
                 form.submit();
             }
         });
-    });
-});
+        return;
+    }
 
-// Confirmación para eliminar SUBCATEGORÍA
-document.querySelectorAll('.btn-eliminar-subcategoria').forEach(btn => {
-    btn.addEventListener('click', function (e) {
+    // Confirmación para eliminar SUBCATEGORÍA
+    const btnEliminarSub = e.target.closest('.btn-eliminar-subcategoria');
+    if (btnEliminarSub) {
         e.preventDefault();
-        const form = this.closest('form');
-        const nombre = this.dataset.nombre;
+        const form = btnEliminarSub.closest('form');
+        const nombre = btnEliminarSub.dataset.nombre;
 
         Swal.fire({
             title: '¿Eliminar subcategoría?',
@@ -58,27 +58,22 @@ document.querySelectorAll('.btn-eliminar-subcategoria').forEach(btn => {
             confirmButtonText: '<i class="fa-solid fa-trash"></i> Sí, eliminar',
             cancelButtonText: 'Cancelar',
             background: '#1e1e1e',
-            color: '#f3f4f6',
-            customClass: {
-                popup: 'swal-dark-popup',
-                confirmButton: 'swal-confirm-btn',
-                cancelButton: 'swal-cancel-btn'
-            }
+            color: '#f3f4f6'
         }).then((result) => {
             if (result.isConfirmed) {
                 form.submit();
             }
         });
-    });
-});
+        return;
+    }
 
-// Mostrar descripción en SweetAlert
-document.querySelectorAll('.btn-show-desc').forEach(btn => {
-    btn.addEventListener('click', function (e) {
+    // Mostrar descripción en SweetAlert
+    const btnShowDesc = e.target.closest('.btn-show-desc');
+    if (btnShowDesc) {
         e.preventDefault();
-        e.stopPropagation(); // Evitar que el acordeón se cierre si está dentro de un botón toggle
-        const nombre = this.dataset.nombre;
-        const descripcion = this.dataset.descripcion;
+        e.stopPropagation();
+        const nombre = btnShowDesc.dataset.nombre;
+        const descripcion = btnShowDesc.dataset.descripcion;
 
         Swal.fire({
             title: `<span style="color: var(--neon-blue)">${nombre}</span>`,
@@ -87,11 +82,8 @@ document.querySelectorAll('.btn-show-desc').forEach(btn => {
             confirmButtonText: 'Entendido',
             confirmButtonColor: '#3b82f6',
             background: '#1e1e1e',
-            color: '#f3f4f6',
-            customClass: {
-                popup: 'swal-dark-popup',
-                confirmButton: 'swal-confirm-btn'
-            }
+            color: '#f3f4f6'
         });
-    });
-});
+        return;
+    }
+};

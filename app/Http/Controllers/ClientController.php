@@ -18,7 +18,7 @@ class ClientController extends Controller
         // Obtener filtros
         $estatFilter = $request->get('estat');
         $ordenFilter = $request->get('orden', 'desc'); // Por defecto DESC (más recientes primero)
-        $ocultarResoltes = $request->get('ocultar_resoltes', false);
+        $ocultarResoltes = filter_var($request->get('ocultar_resoltes', false), FILTER_VALIDATE_BOOLEAN);
 
         // Construir query de incidencias del cliente
         $query = Incidencia::where('client_id', $client->id)
@@ -68,7 +68,7 @@ class ClientController extends Controller
             ]);
         }
 
-        return view('client.index', compact('incidencies', 'estats', 'estatFilter', 'ordenFilter', 'ocultarResoltes', 'categorias'));
+        return view('client.index', compact('estats', 'categorias'));
     }
 
     public function verIncidencia($id)
@@ -376,45 +376,5 @@ class ClientController extends Controller
         }
 
         return redirect()->route('client.index')->with('success', 'Incidencia actualizada correctamente.');
-    }
-
-    public function destroyIncidencia(Request $request, $id)
-    {
-        $incidencia = Incidencia::findOrFail($id);
-
-        // Verificar que la incidencia pertenece al cliente autenticado
-        if ((int) $incidencia->client_id !== (int) Auth::id()) {
-            if ($request->ajax()) {
-                return response()->json(['error' => 'No tienes permiso para eliminar esta incidencia.'], 403);
-            }
-            abort(403, 'No tienes permiso para eliminar esta incidencia.');
-        }
-
-        // Solo se puede eliminar si está sin asignar
-        if ($incidencia->estat !== 'Sense assignar') {
-            if ($request->ajax()) {
-                return response()->json(['error' => 'Solo puedes eliminar incidencias que estén sin asignar.'], 403);
-            }
-            return back()->with('error', 'Solo puedes eliminar incidencias que estén sin asignar.');
-        }
-
-        // Eliminar comentarios asociados y sus imágenes
-        foreach ($incidencia->comentarios as $comentario) {
-            if ($comentario->imatge_path && \Storage::disk('public')->exists($comentario->imatge_path)) {
-                \Storage::disk('public')->delete($comentario->imatge_path);
-            }
-            $comentario->delete();
-        }
-
-        $incidencia->delete();
-
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Incidencia eliminada correctamente.'
-            ]);
-        }
-
-        return redirect()->route('client.index')->with('success', 'Incidencia eliminada correctamente.');
     }
 }

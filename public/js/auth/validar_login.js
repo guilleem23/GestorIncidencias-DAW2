@@ -75,4 +75,4 @@ function iniciarValidacionLogin() {
     comprobarBoton();
 }
 
-document.addEventListener("DOMContentLoaded", iniciarValidacionLogin);
+document.addEventListener('DOMContentLoaded', iniciarValidacionLogin);

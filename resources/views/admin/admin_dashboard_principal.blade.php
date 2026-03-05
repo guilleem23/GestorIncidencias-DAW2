@@ -134,7 +134,6 @@
                     <th>Sede</th>
                     <th>Categoría</th>
                     <th>Fecha</th>
-                    <th>Acción</th>
                 </tr>
             </thead>
             <tbody>
@@ -148,11 +147,6 @@
                             <span class="date-text" title="{{ $incidencia->created_at }}">
                                 {{ $incidencia->created_at?->locale('es')->diffForHumans() ?? '—' }}
                             </span>
-                        </td>
-                        <td>
-                            <a class="btn-assign" href="{{ route('admin.incidencias.edit', $incidencia->id) }}">
-                                <i class="fa-solid fa-user-plus"></i> Asignar
-                            </a>
                         </td>
                     </tr>
                 @empty

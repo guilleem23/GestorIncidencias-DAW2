@@ -40,18 +40,6 @@
                             </div>
                         </div>
                         <br>
-                        @if(in_array($incidencia->estat, ['Sense assignar', 'Assignada']))
-                            <button type="button" name="editar_incidencia"
-                                class="btn-primary btn-editar-incidencia-client" data-id="{{ $incidencia->id }}"
-                                style="padding: 0.5rem 1rem;">
-                                <i class="fa-solid fa-pen-to-square"></i> Editar Incidencia
-                            </button>
-                        @endif
-                        @if($incidencia->estat === 'Sense assignar')
-                            <button type="button" class="btn-danger btn-eliminar-incidencia-client" data-id="{{ $incidencia->id }}" style="padding: 0.5rem 1rem; margin-left: 0.5rem;">
-                                <i class="fas fa-trash"></i> Eliminar
-                            </button>
-                        @endif
                         @if($incidencia->estat === 'Resolta')
                             <form method="POST" action="{{ route('client.tancar', $incidencia->id) }}" class="form-close-incidencia" style="display: inline;">
                                 @csrf
@@ -201,23 +189,6 @@
             </div>
         </div>
 
-        <!-- Modal Editar Incidencia -->
-        <div class="modal fade" id="modalEditarIncidencia" tabindex="-1" aria-labelledby="modalEditarIncidenciaLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content bg-dark text-white border-secondary">
-                    <div class="modal-header border-secondary">
-                        <h5 class="modal-title" id="modalEditarIncidenciaLabel">
-                            <i class="fa-solid fa-pen-to-square"></i> Editar Incidencia
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                    </div>
-                    <div class="modal-body" id="modal-editar-incidencia-content">
-                        @include('client.partials.editar_incidencia_form')
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Modal Ver Imagen Comentario -->
         <div class="modal fade" id="modalImagenComentario" tabindex="-1" aria-labelledby="modalImagenComentarioLabel"
             aria-hidden="true">
@@ -277,7 +248,7 @@
                         </div>
                         <div class="modal-footer border-secondary">
                             <button type="button" class="btn btn-secondary py-2" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" id="btn-submit-edit-comentario" class="btn btn-primary py-2">
+                            <button type="submit" id="btn-save-edit-comment" class="btn btn-primary py-2">
                                 <i class="fa-solid fa-save"></i> Guardar
                             </button>
                         </div>
@@ -289,12 +260,9 @@
 @endsection
 
 @push('scripts')
-    <script>
-        window.categoriasData = @json($categorias ?? []);
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/client-actions.js') }}"></script>
     <script src="{{ asset('js/client/comentarios.js') }}"></script>
-    <script src="{{ asset('js/client/validar_editar_comentario.js') }}"></script>
+    <script src="{{ asset('js/client/validar_comentarios.js') }}"></script>
     <script src="{{ asset('js/client/incidencias.js') }}"></script>
 @endpush

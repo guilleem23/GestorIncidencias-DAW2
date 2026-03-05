@@ -76,18 +76,6 @@
                     <i class="fas fa-eye"></i> Ver Detalles
                 </a>
 
-                @if(in_array($incidencia->estat, ['Sense assignar', 'Assignada']))
-                    <button type="button" class="btn btn-secondary btn-editar-incidencia-client" data-id="{{ $incidencia->id }}">
-                        <i class="fas fa-edit"></i> Editar
-                    </button>
-                @endif
-
-                @if($incidencia->estat === 'Sense assignar')
-                    <button type="button" class="btn btn-danger btn-eliminar-incidencia-client" data-id="{{ $incidencia->id }}">
-                        <i class="fas fa-trash"></i> Eliminar
-                    </button>
-                @endif
-
                 @if($incidencia->estat === 'Resolta')
                     <form method="POST" action="{{ route('client.tancar', $incidencia->id) }}" class="form-close-incidencia" style="display: inline;">
                         @csrf

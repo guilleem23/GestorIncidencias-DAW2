@@ -4,11 +4,16 @@
 // ========================================
 
 // Confirmación para eliminar SEDE
-document.querySelectorAll('.btn-eliminar-sede').forEach(btn => {
-    btn.addEventListener('click', function (e) {
+const oldSedesClick = document.onclick;
+document.onclick = function (e) {
+    if (oldSedesClick) oldSedesClick(e);
+
+    // Confirmación para eliminar SEDE
+    const btnEliminar = e.target.closest('.btn-eliminar-sede');
+    if (btnEliminar) {
         e.preventDefault();
-        const form = this.closest('form');
-        const nombre = this.dataset.nombre;
+        const form = btnEliminar.closest('form');
+        const nombre = btnEliminar.dataset.nombre;
 
         let textoAdvertencia = `Se eliminará la sede "${nombre}". ¡Esta acción no se puede deshacer!`;
 
@@ -22,26 +27,21 @@ document.querySelectorAll('.btn-eliminar-sede').forEach(btn => {
             confirmButtonText: '<i class="fa-solid fa-trash"></i> Sí, eliminar',
             cancelButtonText: 'Cancelar',
             background: '#1e1e1e',
-            color: '#f3f4f6',
-            customClass: {
-                popup: 'swal-dark-popup',
-                confirmButton: 'swal-confirm-btn',
-                cancelButton: 'swal-cancel-btn'
-            }
+            color: '#f3f4f6'
         }).then((result) => {
             if (result.isConfirmed) {
                 form.submit();
             }
         });
-    });
-});
+        return;
+    }
 
-// Mostrar descripción completa de la sede
-document.querySelectorAll('.btn-info-desc').forEach(btn => {
-    btn.addEventListener('click', function () {
-        const nombre = this.dataset.nombre;
-        const descripcion = this.dataset.descripcion;
-        const gestor = this.dataset.gestor;
+    // Mostrar descripción completa de la sede
+    const btnInfo = e.target.closest('.btn-info-desc');
+    if (btnInfo) {
+        const nombre = btnInfo.dataset.nombre;
+        const descripcion = btnInfo.dataset.descripcion;
+        const gestor = btnInfo.dataset.gestor;
 
         Swal.fire({
             title: nombre,
@@ -51,10 +51,8 @@ document.querySelectorAll('.btn-info-desc').forEach(btn => {
             confirmButtonColor: '#3b82f6',
             confirmButtonText: 'Cerrar',
             background: '#1e1e1e',
-            color: '#f3f4f6',
-            customClass: {
-                popup: 'swal-dark-popup'
-            }
+            color: '#f3f4f6'
         });
-    });
-});
+        return;
+    }
+};

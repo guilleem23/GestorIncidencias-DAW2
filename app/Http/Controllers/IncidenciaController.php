@@ -434,6 +434,13 @@ class IncidenciaController extends Controller
             return back()->with('error', $msg);
         }
 
+        // Eliminar imágenes de los comentarios
+        foreach ($incidencia->comentarios as $comentario) {
+            if ($comentario->imatge_path && Storage::disk('public')->exists($comentario->imatge_path)) {
+                Storage::disk('public')->delete($comentario->imatge_path);
+            }
+        }
+        
         // Primero eliminar comentarios para evitar el error de clave foránea
         $incidencia->comentarios()->delete();
         $incidencia->delete();

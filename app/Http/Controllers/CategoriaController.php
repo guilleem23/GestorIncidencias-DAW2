@@ -27,6 +27,14 @@ class CategoriaController extends Controller
         $validated = $request->validate([
             'nom' => ['required', 'string', 'min:2', 'max:255', 'unique:categorias,nom'],
             'descripcion' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'nom.required' => 'El nombre de la categoría es obligatorio.',
+            'nom.string' => 'El nombre debe ser texto.',
+            'nom.min' => 'El nombre debe tener al menos 2 caracteres.',
+            'nom.max' => 'El nombre no puede superar 255 caracteres.',
+            'nom.unique' => 'Esta categoría ya existe.',
+            'descripcion.string' => 'La descripción debe ser texto.',
+            'descripcion.max' => 'La descripción no puede superar 1000 caracteres.',
         ]);
 
         DB::beginTransaction();
@@ -36,7 +44,7 @@ class CategoriaController extends Controller
             return redirect()->route('admin.categorias.index')->with('success', 'Categoría creada correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Error al crear la categoría: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'No se pudo crear la categoría. Inténtalo de nuevo.']);
         }
     }
 
@@ -57,6 +65,14 @@ class CategoriaController extends Controller
         $validated = $request->validate([
             'nom' => ['required', 'string', 'min:2', 'max:255', 'unique:categorias,nom,' . $id],
             'descripcion' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'nom.required' => 'El nombre de la categoría es obligatorio.',
+            'nom.string' => 'El nombre debe ser texto.',
+            'nom.min' => 'El nombre debe tener al menos 2 caracteres.',
+            'nom.max' => 'El nombre no puede superar 255 caracteres.',
+            'nom.unique' => 'Esta categoría ya existe.',
+            'descripcion.string' => 'La descripción debe ser texto.',
+            'descripcion.max' => 'La descripción no puede superar 1000 caracteres.',
         ]);
 
         DB::beginTransaction();
@@ -67,7 +83,7 @@ class CategoriaController extends Controller
             return redirect()->route('admin.categorias.index')->with('success', 'Categoría actualizada correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Error al actualizar la categoría: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'No se pudo actualizar la categoría. Inténtalo de nuevo.']);
         }
     }
 
@@ -104,7 +120,7 @@ class CategoriaController extends Controller
                 ->with('success', 'Categoría eliminada correctamente. Las incidencias afectadas han quedado sin categorizar.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Error al eliminar la categoría: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'No se pudo eliminar la categoría. Inténtalo de nuevo.']);
         }
     }
 
@@ -119,6 +135,15 @@ class CategoriaController extends Controller
             'categoria_id' => ['required', 'exists:categorias,id'],
             'nom' => ['required', 'string', 'min:2', 'max:255'],
             'descripcion' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'categoria_id.required' => 'Debes seleccionar una categoría.',
+            'categoria_id.exists' => 'La categoría seleccionada no existe.',
+            'nom.required' => 'El nombre de la subcategoría es obligatorio.',
+            'nom.string' => 'El nombre debe ser texto.',
+            'nom.min' => 'El nombre debe tener al menos 2 caracteres.',
+            'nom.max' => 'El nombre no puede superar 255 caracteres.',
+            'descripcion.string' => 'La descripción debe ser texto.',
+            'descripcion.max' => 'La descripción no puede superar 1000 caracteres.',
         ]);
 
         DB::beginTransaction();
@@ -128,7 +153,7 @@ class CategoriaController extends Controller
             return redirect()->route('admin.categorias.index')->with('success', 'Subcategoría creada correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Error al crear la subcategoría: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'No se pudo crear la subcategoría. Inténtalo de nuevo.']);
         }
     }
 
@@ -151,6 +176,15 @@ class CategoriaController extends Controller
             'categoria_id' => ['required', 'exists:categorias,id'],
             'nom' => ['required', 'string', 'min:2', 'max:255'],
             'descripcion' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'categoria_id.required' => 'Debes seleccionar una categoría.',
+            'categoria_id.exists' => 'La categoría seleccionada no existe.',
+            'nom.required' => 'El nombre de la subcategoría es obligatorio.',
+            'nom.string' => 'El nombre debe ser texto.',
+            'nom.min' => 'El nombre debe tener al menos 2 caracteres.',
+            'nom.max' => 'El nombre no puede superar 255 caracteres.',
+            'descripcion.string' => 'La descripción debe ser texto.',
+            'descripcion.max' => 'La descripción no puede superar 1000 caracteres.',
         ]);
 
         DB::beginTransaction();
@@ -161,7 +195,7 @@ class CategoriaController extends Controller
             return redirect()->route('admin.categorias.index')->with('success', 'Subcategoría actualizada correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Error al actualizar la subcategoría: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'No se pudo actualizar la subcategoría. Inténtalo de nuevo.']);
         }
     }
 
@@ -186,7 +220,45 @@ class CategoriaController extends Controller
                 ->with('success', 'Subcategoría eliminada correctamente. Las incidencias afectadas han quedado sin subcategoría.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Error al eliminar la subcategoría: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'No se pudo eliminar la subcategoría. Inténtalo de nuevo.']);
         }
+    }
+
+    /**
+     * Comprueba si un nombre de categoría está disponible (AJAX).
+     */
+    public function checkNom(Request $request)
+    {
+        $nom = $request->query('nom');
+        $excludeId = $request->query('exclude_id');
+
+        $query = Categoria::where('nom', $nom);
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $exists = $query->exists();
+        return response()->json(['disponible' => !$exists]);
+    }
+
+    /**
+     * Comprueba si un nombre de subcategoría está disponible en su categoría (AJAX).
+     */
+    public function checkNomSubcategoria(Request $request)
+    {
+        $nom = $request->query('nom');
+        $categoriaId = $request->query('categoria_id');
+        $excludeId = $request->query('exclude_id');
+
+        $query = Subcategoria::where('nom', $nom);
+        if ($categoriaId) {
+            $query->where('categoria_id', $categoriaId);
+        }
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $exists = $query->exists();
+        return response()->json(['disponible' => !$exists]);
     }
 }
