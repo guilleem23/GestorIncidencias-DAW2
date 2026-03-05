@@ -10,6 +10,10 @@
             </a>
         </li>
         <li class="nav-item">
+            <a href="{{ route('admin.resum') }}" class="{{ request()->routeIs('admin.resum') ? 'active' : '' }}">
+                <span class="nav-icon"><i class="fa-solid fa-chart-simple"></i></span>Resumen</a>
+        </li>
+        <li class="nav-item">
             <a href="{{ route('admin.incidencias') }}" class="{{ request()->routeIs('admin.incidencias') ? 'active' : '' }}">
                 <span class="nav-icon"><i class="fa-solid fa-triangle-exclamation"></i></span>
                 Incidencias

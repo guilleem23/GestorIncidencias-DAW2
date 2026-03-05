@@ -100,4 +100,79 @@ class AdminDashboardController extends Controller
             'pendientesAsignacion'
         ));
     }
+
+    public function resum()
+    {
+        // Obtener todas las sedes
+        $sedes = Sede::orderBy('nom')->get();
+        
+        // Obtener la primera sede como predeterminada
+        $sedeSeleccionada = $sedes->first();
+        $sedeSeleccionadaId = $sedeSeleccionada ? $sedeSeleccionada->id : null;
+        
+        // Los datos se cargarán mediante AJAX
+        return view('admin.resum.index', compact(
+            'sedes',
+            'sedeSeleccionadaId'
+        ));
+    }
+
+    public function resumBySede($sedeId)
+    {
+        // Contadores por sede
+        $incidenciasResueltas = Incidencia::where('sede_id', $sedeId)
+            ->where('estat', 'Resolta')
+            ->count();
+        
+        $incidenciasPendientes = Incidencia::where('sede_id', $sedeId)
+            ->whereNotIn('estat', ['Resolta', 'Tancada'])
+            ->count();
+        
+        // Obtener técnicos de esta sede
+        $todosLosTecnicos = User::where('rol', 'tecnic')
+            ->where('sede_id', $sedeId)
+            ->get();
+        
+        $tecnicos = [];
+        
+        foreach ($todosLosTecnicos as $tecnico) {
+            // Contar incidencias resueltas por este técnico en esta sede
+            $incidenciasDelTecnico = Incidencia::where('tecnic_id', $tecnico->id)
+                ->where('sede_id', $sedeId)
+                ->where('estat', 'Resolta')
+                ->with('categoria')
+                ->get();
+            
+            $totalIncidencias = $incidenciasDelTecnico->count();
+            
+            if ($totalIncidencias > 0) {
+                $software = 0;
+                $hardware = 0;
+                
+                foreach ($incidenciasDelTecnico as $incidencia) {
+                    if ($incidencia->categoria) {
+                        if ($incidencia->categoria->nom === 'Software') {
+                            $software++;
+                        } else {
+                            // Todas las demás categorías van a Hardware
+                            $hardware++;
+                        }
+                    }
+                }
+                
+                $tecnicos[] = [
+                    'nombre' => $tecnico->name,
+                    'software' => $software,
+                    'hardware' => $hardware,
+                    'total' => $totalIncidencias
+                ];
+            }
+        }
+        
+        return response()->json([
+            'resueltas' => $incidenciasResueltas,
+            'pendientes' => $incidenciasPendientes,
+            'tecnicos' => $tecnicos
+        ]);
+    }
 }

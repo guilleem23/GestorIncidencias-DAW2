@@ -21,7 +21,7 @@
     @endif
     @if ($errors->any())
         <div class="alert-custom alert-error-custom">
-            <i class="fa-solid fa-circle-xmark"></i>
+            <i class="fa-solid fa-circle-xmark"></i>        
             @foreach ($errors->all() as $error)
                 <span>{{ $error }}</span>
             @endforeach
