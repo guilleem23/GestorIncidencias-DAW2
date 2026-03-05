@@ -12,8 +12,13 @@
         <h1><i class="fa-solid fa-chart-line"></i> Panel de Control</h1>
         <p>Estado del sistema en tiempo real</p>
     </div>
-    <div class="header-date">
-        <i class="fa-regular fa-calendar"></i> {{ now()->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY') }}
+    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+        <a href="{{ route('admin.resum') }}" class="btn-assign">
+            <i class="fa-solid fa-chart-bar"></i> Resum
+        </a>
+        <div class="header-date">
+            <i class="fa-regular fa-calendar"></i> {{ now()->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY') }}
+        </div>
     </div>
 </div>
 

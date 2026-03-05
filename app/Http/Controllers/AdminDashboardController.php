@@ -10,6 +10,63 @@ use Illuminate\Support\Facades\DB;
 
 class AdminDashboardController extends Controller
 {
+    public function resum()
+    {
+        return view('admin.resum');
+    }
+
+    public function resumSedes()
+    {
+        $sedes = Sede::select('id', 'nom')->orderBy('nom')->get();
+        return response()->json($sedes);
+    }
+
+    public function resumData($sedeId)
+    {
+        $resueltas = Incidencia::where('sede_id', $sedeId)->where('estat', 'Resolta')->count();
+        $pendientes = Incidencia::where('sede_id', $sedeId)->whereIn('estat', ['Sense assignar', 'Assignada', 'En treball'])->count();
+
+        $categorias = Categoria::orderBy('nom')->pluck('nom', 'id');
+
+        $incidencias = Incidencia::where('sede_id', $sedeId)
+            ->where('estat', 'Resolta')
+            ->whereNotNull('tecnic_id')
+            ->with('tecnico', 'categoria')
+            ->get();
+
+        $tecnicos = [];
+        foreach ($incidencias as $inc) {
+            $tecnicName = $inc->tecnico?->name ?? 'Sin técnico';
+            $catName = $inc->categoria?->nom ?? 'Sin categoría';
+            if (!isset($tecnicos[$tecnicName])) {
+                $tecnicos[$tecnicName] = ['total' => 0, 'categorias' => []];
+            }
+            $tecnicos[$tecnicName]['total']++;
+            if (!isset($tecnicos[$tecnicName]['categorias'][$catName])) {
+                $tecnicos[$tecnicName]['categorias'][$catName] = 0;
+            }
+            $tecnicos[$tecnicName]['categorias'][$catName]++;
+        }
+
+        $allCategorias = $categorias->values()->toArray();
+
+        $tabla = [];
+        foreach ($tecnicos as $nombre => $data) {
+            $fila = ['tecnico' => $nombre, 'total' => $data['total'], 'categorias' => []];
+            foreach ($allCategorias as $cat) {
+                $fila['categorias'][$cat] = $data['categorias'][$cat] ?? 0;
+            }
+            $tabla[] = $fila;
+        }
+
+        return response()->json([
+            'resueltas' => $resueltas,
+            'pendientes' => $pendientes,
+            'categorias' => $allCategorias,
+            'tabla' => $tabla,
+        ]);
+    }
+
     public function index()
     {
         // --- KPI 1: Total Usuarios ---

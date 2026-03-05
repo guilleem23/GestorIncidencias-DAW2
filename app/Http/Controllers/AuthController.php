@@ -26,7 +26,7 @@ class AuthController extends Controller
 
             // 3. Redirección inteligente por ROL
             $user = Auth::user();
-
+            
             return match ($user->rol) {
                 'administrador' => redirect()->intended('/admin/dashboard'),
                 'gestor'        => redirect()->intended('/gestor/asignar_incidencias'),
