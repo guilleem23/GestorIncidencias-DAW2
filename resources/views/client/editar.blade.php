@@ -1,0 +1,150 @@
+@extends('layouts.client')
+
+@section('title', 'Editar Incidencia - Nexton')
+
+@section('content')
+    <a href="{{ route('client.index') }}" class="back-link" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--color-primario); text-decoration: none; margin-bottom: 1.5rem; font-size: 0.9rem;">
+        <i class="fas fa-arrow-left"></i> Volver a mis incidencias
+    </a>
+
+    <h1 class="page-title">Editar Incidencia #{{ $incidencia->id }}</h1>
+    <p class="page-subtitle">Modifica los datos de la incidencia</p>
+
+    <!-- Mensajes de error de validación -->
+    @if ($errors->any())
+          <div class="error-message" style="flex-direction: column; align-items: flex-start;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <i class="fas fa-exclamation-circle"></i>
+                <strong>Hay errores en el formulario:</strong>
+            </div>
+            <ul style="margin: 0.5rem 0 0 1.5rem;">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <!-- Formulario -->
+    <div class="form-container">
+        <form method="POST" action="{{ route('client.incidencias.update', $incidencia->id) }}">
+            @csrf
+            @method('PUT')
+
+            <!-- Título -->
+            <div class="form-group">
+                <label for="titol">
+                    <i class="fas fa-heading"></i> Título de la incidencia *
+                </label>
+                <input 
+                    type="text" 
+                    id="titol" 
+                    name="titol" 
+                    class="form-input @error('titol') error @enderror"
+                    value="{{ old('titol', $incidencia->titol) }}"
+                    placeholder="Escribe un título descriptivo..."
+                >
+                @error('titol')
+                    <span class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                    </span>
+                @enderror
+            </div>
+
+            <!-- Descripción -->
+            <div class="form-group">
+                <label for="descripcio">
+                    <i class="fas fa-file-alt"></i> Descripción *
+                </label>
+                <textarea 
+                    id="descripcio" 
+                    name="descripcio" 
+                    class="form-textarea @error('descripcio') error @enderror"
+                    rows="5"
+                    placeholder="Describe el problema con detalle..."
+                >{{ old('descripcio', $incidencia->descripcio) }}</textarea>
+                @error('descripcio')
+                    <span class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                    </span>
+                @enderror
+            </div>
+
+            <!-- Sede -->
+            <div class="form-group">
+                <label for="sede_nombre">
+                    <i class="fas fa-building"></i> Sede *
+                </label>
+                <input 
+                    type="text" 
+                    id="sede_nombre" 
+                    class="form-input" 
+                    value="{{ $sedeCliente->nom ?? 'Sin sede asignada' }}"
+                    readonly
+                    style="background-color: var(--input-disabled-bg, #1f2937); cursor: not-allowed; opacity: 0.7;"
+                >
+                <small style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+                    Esta es tu sede asignada
+                </small>
+            </div>
+
+            <!-- Categoría -->
+            <div class="form-group">
+                <label for="categoria_id">
+                    <i class="fas fa-tag"></i> Categoría *
+                </label>
+                <select 
+                    id="categoria_id" 
+                    name="categoria_id" 
+                    class="form-select @error('categoria_id') error @enderror"
+                >
+                    <option value="">Selecciona una categoría...</option>
+                    @foreach($categorias as $categoria)
+                        <option value="{{ $categoria->id }}" data-subcategorias="{{ json_encode($categoria->subcategorias) }}" {{ old('categoria_id', $incidencia->categoria_id) == $categoria->id ? 'selected' : '' }}>
+                            {{ $categoria->nom }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('categoria_id')
+                    <span class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                    </span>
+                @enderror
+            </div>
+
+            <!-- Subcategoría -->
+            <div class="form-group">
+                <label for="subcategoria_id">
+                    <i class="fas fa-tags"></i> Subcategoría *
+                </label>
+                <select 
+                    id="subcategoria_id" 
+                    name="subcategoria_id" 
+                    class="form-select @error('subcategoria_id') error @enderror"
+                    data-old-value="{{ old('subcategoria_id', $incidencia->subcategoria_id) }}"
+                >
+                    <option value="">Primero selecciona una categoría...</option>
+                </select>
+                @error('subcategoria_id')
+                    <span class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                    </span>
+                @enderror
+            </div>
+
+            <!-- Botones -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
+                <a href="{{ route('client.index') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+@endsection
+
+@push('scripts')
+    <script src="{{ asset('js/client-form.js') }}?v={{ time() }}"></script>
+@endpush

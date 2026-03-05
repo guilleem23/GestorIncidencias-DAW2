@@ -285,6 +285,10 @@ class AdminIncidenciaController extends Controller
 
         $categorias = \App\Models\Categoria::with('subcategorias')->get();
 
+        if (request()->ajax()) {
+            return view('admin.partials.editar_incidencia_form', compact('incidencia', 'tecnicos', 'categorias'));
+        }
+
         return view('admin.editar_incidencia', compact('incidencia', 'tecnicos', 'categorias'));
     }
 
@@ -338,5 +342,20 @@ class AdminIncidenciaController extends Controller
         }
 
         return redirect()->route('admin.incidencias')->with('success', 'Incidencia actualizada correctamente.');
+    }
+
+    public function destroy(Request $request, $id)
+    {
+        $incidencia = Incidencia::findOrFail($id);
+        $incidencia->delete();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Incidencia eliminada con éxito.'
+            ]);
+        }
+
+        return redirect()->route('admin.incidencias')->with('success', 'Incidencia eliminada con éxito.');
     }
 }

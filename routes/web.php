@@ -33,6 +33,7 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
     Route::get('/admin/incidencias/{id}', [AdminIncidenciaController::class, 'show'])->name('admin.incidencias.show');
     Route::get('/admin/incidencias/{id}/edit', [AdminIncidenciaController::class, 'edit'])->name('admin.incidencias.edit');
     Route::put('/admin/incidencias/{id}', [AdminIncidenciaController::class, 'update'])->name('admin.incidencias.update');
+    Route::delete('/admin/incidencias/{id}', [AdminIncidenciaController::class, 'destroy'])->name('admin.incidencias.destroy');
     Route::post('/admin/incidencias/{id}/assign', [AdminIncidenciaController::class, 'assignTecnic'])->name('admin.incidencias.assign');
     Route::post('/admin/incidencias/{id}/comentarios', [AdminIncidenciaController::class, 'storeComentario'])->name('admin.incidencias.comentarios.store');
     Route::delete('/admin/comentarios/{id}', [AdminIncidenciaController::class, 'destroyComentario'])->name('admin.comentarios.destroy');
@@ -76,10 +77,15 @@ Route::middleware(['auth', 'role:administrador'])->group(function () {
 // Solo los clientes pueden entrar aquí
 Route::middleware(['auth', 'role:client'])->group(function () {
     Route::get('/client/mis-incidencias', [ClientController::class, 'index'])->name('client.index');
+    Route::get('/client/incidencias/{id}', [ClientController::class, 'verIncidencia'])->name('client.incidencias.show');
     Route::get('/client/crear', [ClientController::class, 'crear'])->name('client.crear');
     Route::post('/client/crear', [ClientController::class, 'store'])->name('client.store');
+    Route::get('/client/incidencias/{id}/editar', [ClientController::class, 'editarIncidencia'])->name('client.incidencias.editar');
+    Route::put('/client/incidencias/{id}', [ClientController::class, 'updateIncidencia'])->name('client.incidencias.update');
+    Route::delete('/client/incidencias/{id}', [ClientController::class, 'destroyIncidencia'])->name('client.incidencias.destroy');
     Route::post('/client/tancar/{id}', [ClientController::class, 'tancarIncidencia'])->name('client.tancar');
     Route::post('/client/incidencias/{id}/comentarios', [ClientController::class, 'storeComentario'])->name('client.incidencias.comentarios.store');
+    Route::put('/client/comentarios/{id}', [ClientController::class, 'updateComentario'])->name('client.comentarios.update');
     Route::delete('/client/comentarios/{id}', [ClientController::class, 'destroyComentario'])->name('client.comentarios.destroy');
 });
 

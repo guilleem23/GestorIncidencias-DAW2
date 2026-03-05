@@ -1,4 +1,4 @@
-<form id="form-editar-incidencia" action="{{ route('gestor.incidencias.update', $incidencia->id) }}" method="POST">
+<form id="form-editar-incidencia" action="{{ route('admin.incidencias.update', $incidencia->id) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
     
@@ -12,7 +12,7 @@
         <div class="col-md-6 mb-3">
             <label class="form-label text-white" for="tecnic_id">Técnico Asignado</label>
             <select id="tecnic_id" name="tecnic_id" class="form-select bg-dark text-white border-secondary">
-                <option value="">-- Sin Signar --</option>
+                <option value="">-- Sin Asignar --</option>
                 @foreach($tecnicos as $tecnico)
                     <option value="{{ $tecnico->id }}" {{ (old('tecnic_id', $incidencia->tecnic_id) == $tecnico->id) ? 'selected' : '' }}>
                         {{ $tecnico->name }}
@@ -52,11 +52,11 @@
         <div class="col-md-6 mb-3">
             <label class="form-label text-white" for="estat">Estado</label>
             <select id="estat" name="estat" class="form-select bg-dark text-white border-secondary" required>
-                <option value="Sense assignar" {{ (old('estat', $incidencia->estat) === 'Sense assignar') ? 'selected' : '' }}>Sense assignar</option>
-                <option value="Assignada" {{ (old('estat', $incidencia->estat) === 'Assignada') ? 'selected' : '' }}>Assignada</option>
-                <option value="En treball" {{ (old('estat', $incidencia->estat) === 'En treball') ? 'selected' : '' }}>En treball</option>
-                <option value="Resolta" {{ (old('estat', $incidencia->estat) === 'Resolta') ? 'selected' : '' }}>Resolta</option>
-                <option value="Tancada" {{ (old('estat', $incidencia->estat) === 'Tancada') ? 'selected' : '' }}>Tancada</option>
+                <option value="Sense assignar" {{ (old('estat', $incidencia->estat) === 'Sense assignar') ? 'selected' : '' }}>Sin asignar</option>
+                <option value="Assignada" {{ (old('estat', $incidencia->estat) === 'Assignada') ? 'selected' : '' }}>Asignada</option>
+                <option value="En treball" {{ (old('estat', $incidencia->estat) === 'En treball') ? 'selected' : '' }}>En trabajo</option>
+                <option value="Resolta" {{ (old('estat', $incidencia->estat) === 'Resolta') ? 'selected' : '' }}>Resuelta</option>
+                <option value="Tancada" {{ (old('estat', $incidencia->estat) === 'Tancada') ? 'selected' : '' }}>Cerrada</option>
             </select>
             <small id="error-estat" class="text-danger" style="display: none;"></small>
         </div>

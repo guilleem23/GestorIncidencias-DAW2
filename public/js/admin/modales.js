@@ -1,4 +1,4 @@
-// MODAL EDITAR INCIDENCIA (GESTOR)
+// MODAL EDITAR INCIDENCIA (ADMIN)
 function closeAllModals() {
     document.querySelectorAll('.modal.show').forEach(modalEl => {
         const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -15,23 +15,29 @@ document.addEventListener('click', function (e) {
         e.preventDefault();
         closeAllModals();
         const id = btnDelegado.dataset.id;
-        // Obtenemos el botón exacto por ID como pide el usuario
-        const btnEdit = document.getElementById(`btn-edit-incidencia-${id}`);
-
-        // Mostrar estado de carga (opcional)
-        document.getElementById('modal-editar-content').innerHTML = '<div class="text-center p-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-white">Cargando formulario...</p></div>';
+        
+        // Mostrar estado de carga
+        const modalContent = document.getElementById('modal-editar-content');
+        if (modalContent) {
+            modalContent.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-white">Cargando formulario...</p></div>';
+        }
 
         const modalEl = document.getElementById('modalEditarIncidencia');
+        if (!modalEl) {
+            console.error('Modal con ID modalEditarIncidencia no encontrado');
+            return;
+        }
+
         const modal = new bootstrap.Modal(modalEl);
         modal.show();
 
-        fetch(`/gestor/incidencias/${id}/edit`, {
+        fetch(`/admin/incidencias/${id}/edit`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
             .then(res => {
-                if (!res.ok) throw new Error('Error al cargar');
+                if (!res.ok) throw new Error('Error al cargar: ' + res.status);
                 return res.text();
             })
             .then(html => {
@@ -46,10 +52,10 @@ document.addEventListener('click', function (e) {
                 }
             })
             .catch(error => {
-                console.error(error);
+                console.error('Error en fetch:', error);
                 Swal.fire({
                     title: 'Error',
-                    text: 'No se pudo cargar el formulario de edición.',
+                    text: 'No se pudo cargar el formulario de edición. ' + error.message,
                     icon: 'error',
                     confirmButtonText: 'Aceptar',
                     background: '#1e293b',
@@ -61,15 +67,25 @@ document.addEventListener('click', function (e) {
 
 // Lógica de Categorías y Subcategorías para el Modal
 function inicializarLogicaCategorias() {
+    console.log('🔄 Inicializando lógica de categorías...');
+    
     const categoriaSelect = document.getElementById('categoria_id');
     const subcategoriaSelect = document.getElementById('subcategoria_id');
     const formEditar = document.getElementById('form-editar-incidencia');
 
+    console.log({ categoriaSelect, subcategoriaSelect, formEditar });
+
     if (categoriaSelect && subcategoriaSelect) {
-        categoriaSelect.addEventListener('change', function () {
+        // Remover evento anterior clonando el elemento
+        const newCategoriaSelect = categoriaSelect.cloneNode(true);
+        categoriaSelect.parentNode.replaceChild(newCategoriaSelect, categoriaSelect);
+
+        newCategoriaSelect.addEventListener('change', function () {
             const categoriaId = this.value;
             const categorias = window.categoriasData || [];
             const categoriaSeleccionada = categorias.find(c => c.id == categoriaId);
+
+            console.log('📁 Categoría seleccionada:', categoriaSeleccionada);
 
             // Limpiar subcategorías
             subcategoriaSelect.innerHTML = '<option value="" disabled selected>Selecciona una subcategoría</option>';
@@ -86,8 +102,13 @@ function inicializarLogicaCategorias() {
     }
 
     if (formEditar) {
-        formEditar.addEventListener('submit', function (e) {
+        // Remover evento anterior clonando el elemento
+        const newFormEditar = formEditar.cloneNode(true);
+        formEditar.parentNode.replaceChild(newFormEditar, formEditar);
+
+        newFormEditar.addEventListener('submit', function (e) {
             e.preventDefault();
+            console.log('📝 Formulario al enviar');
 
             if (!this.checkValidity()) {
                 this.reportValidity();
@@ -107,11 +128,15 @@ function inicializarLogicaCategorias() {
                 color: '#f8fafc'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const formData = new FormData(formEditar);
-                    const url = formEditar.action;
+                    const formData = new FormData(newFormEditar);
+                    const url = newFormEditar.action;
+
+                    console.log('🚀 Enviando fetch a:', url);
+                    console.log('Headers con CSRF token');
 
                     if (btnSave) {
                         btnSave.disabled = true;
+                        btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
                     }
 
                     fetch(url, {
@@ -122,8 +147,13 @@ function inicializarLogicaCategorias() {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                         }
                     })
-                        .then(res => res.json())
+                        .then(res => {
+                            console.log('📦 Respuesta recibida:', res.status);
+                            return res.json();
+                        })
                         .then(data => {
+                            console.log('✅ Datos JSON:', data);
+                            
                             if (data.success) {
                                 const modalEl = document.getElementById('modalEditarIncidencia');
                                 const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -139,16 +169,28 @@ function inicializarLogicaCategorias() {
                                     color: '#f8fafc'
                                 });
 
+                                // Actualizar tabla mediante fetch o recargar página como fallback
                                 if (window.fetchIncidencias) {
+                                    console.log('🔄 Actualizando tabla...');
                                     window.fetchIncidencias();
                                 } else {
-                                    setTimeout(() => window.location.reload(), 2000);
+                                    setTimeout(() => {
+                                        console.log('🔄 Recargando página...');
+                                        window.location.reload();
+                                    }, 2000);
                                 }
                             } else {
                                 let errorMsg = 'Error en los datos:\n';
                                 if (data.errors) {
-                                    Object.values(data.errors).forEach(err => errorMsg += `- ${err}\n`);
+                                    Object.values(data.errors).forEach(err => {
+                                        if (Array.isArray(err)) {
+                                            errorMsg += `- ${err[0]}\n`;
+                                        } else {
+                                            errorMsg += `- ${err}\n`;
+                                        }
+                                    });
                                 }
+                                console.warn('❌ Error:', errorMsg);
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Error',
@@ -159,8 +201,14 @@ function inicializarLogicaCategorias() {
                             }
                         })
                         .catch(error => {
-                            console.error(error);
-                            Swal.fire('Error', 'Ocurrió un error inesperado.', 'error');
+                            console.error('❌ Error en fetch:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error inesperado: ' + error.message,
+                                background: '#1e293b',
+                                color: '#f8fafc'
+                            });
                         })
                         .finally(() => {
                             if (btnSave) {

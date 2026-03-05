@@ -67,9 +67,9 @@
                             <a href="{{ route('admin.incidencias.show', $incidencia->id) }}" class="btn-icon btn-view" title="Ver Detalles">
                                 <i class="fa-solid fa-eye"></i>
                             </a>
-                            <a href="{{ route('admin.incidencias.edit', $incidencia->id) }}" class="btn-icon btn-edit" title="Editar">
+                            <button type="button" id="btn-edit-incidencia-{{ $incidencia->id }}" class="btn-icon btn-edit btn-editar-incidencia" data-id="{{ $incidencia->id }}" title="Editar">
                                 <i class="fa-solid fa-pen"></i>
-                            </a>
+                            </button>
                             <button type="button" class="btn-icon btn-delete" title="Eliminar" data-id="{{ $incidencia->id }}">
                                 <i class="fa-solid fa-trash"></i>
                             </button>

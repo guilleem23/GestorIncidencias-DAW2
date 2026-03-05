@@ -1,9 +1,8 @@
-@extends('layouts.admin')
+@extends('layouts.client')
 
-@section('title', 'Ver Incidencia - Admin')
+@section('title', 'Ver Incidencia - Nexton')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/gestor_historial.css') }}">
     <link rel="stylesheet" href="{{ asset('css/gestor_incidencia_detail.css') }}">
     <link rel="stylesheet" href="{{ asset('css/comentarios.css') }}">
 @endpush
@@ -13,8 +12,8 @@
         <div class="detail-container">
             <div class="detail-header">
                 <h1>Detalles de la Incidencia #{{ $incidencia->id }}</h1>
-                <a href="{{ route('admin.incidencias') }}" class="btn-back">
-                    <i class="fa-solid fa-arrow-left"></i> Volver al Listado
+                <a href="{{ route('client.index') }}" class="btn-back">
+                    <i class="fa-solid fa-arrow-left"></i> Volver a Mis Incidencias
                 </a>
             </div>
 
@@ -41,11 +40,26 @@
                             </div>
                         </div>
                         <br>
-                        <button type="button" id="btn-edit-incidencia-{{ $incidencia->id }}" name="editar_incidencia"
-                            class="btn-primary btn-editar-incidencia" data-id="{{ $incidencia->id }}"
-                            style="padding: 0.5rem 1rem;">
-                            <i class="fa-solid fa-pen-to-square"></i> Editar Incidencia
-                        </button>
+                        @if(in_array($incidencia->estat, ['Sense assignar', 'Assignada']))
+                            <button type="button" name="editar_incidencia"
+                                class="btn-primary btn-editar-incidencia-client" data-id="{{ $incidencia->id }}"
+                                style="padding: 0.5rem 1rem;">
+                                <i class="fa-solid fa-pen-to-square"></i> Editar Incidencia
+                            </button>
+                        @endif
+                        @if($incidencia->estat === 'Sense assignar')
+                            <button type="button" class="btn-danger btn-eliminar-incidencia-client" data-id="{{ $incidencia->id }}" style="padding: 0.5rem 1rem; margin-left: 0.5rem;">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        @endif
+                        @if($incidencia->estat === 'Resolta')
+                            <form method="POST" action="{{ route('client.tancar', $incidencia->id) }}" class="form-close-incidencia" style="display: inline;">
+                                @csrf
+                                <button type="submit" class="btn-primary" style="padding: 0.5rem 1rem; margin-left: 0.5rem;">
+                                    <i class="fas fa-check-double"></i> Cerrar Incidencia
+                                </button>
+                            </form>
+                        @endif
                     </div>
                     <div style="display: flex; gap: 0.75rem; align-items: center;">
                         @if ($incidencia->prioritat)
@@ -77,16 +91,12 @@
                 <div class="card-body-premium">
                     <div class="info-grid">
                         <div class="info-block">
-                            <span class="info-label">Cliente Reportador</span>
+                            <span class="info-label">Cliente (Tú)</span>
                             @if ($incidencia->cliente)
                                 <div class="user-profile-mini">
                                     <div class="avatar-mini">{{ substr($incidencia->cliente->name, 0, 1) }}</div>
                                     <div class="user-text-mini">
-                                        <a class="user-name-mini"
-                                            href="{{ route('admin.usuarios.show', $incidencia->cliente->id) }}"
-                                            style="text-decoration:none; color: inherit;">
-                                            {{ $incidencia->cliente->name }}
-                                        </a>
+                                        <span class="user-name-mini">{{ $incidencia->cliente->name }}</span>
                                         <span class="user-email-mini">{{ $incidencia->cliente->email }}</span>
                                     </div>
                                 </div>
@@ -138,7 +148,7 @@
                             style="margin-top: 0.75rem; display:flex; flex-direction:column; gap:0.75rem;">
                             @if ($incidencia->comentarios && $incidencia->comentarios->count())
                                 @foreach ($incidencia->comentarios as $comentario)
-                                    @include('admin.partials.comentario_item', [
+                                    @include('client.partials.comentario_item', [
                                         'comentario' => $comentario,
                                     ])
                                 @endforeach
@@ -151,7 +161,7 @@
                         </div>
 
                         <form id="form-comentario" method="POST"
-                            action="{{ route('admin.incidencias.comentarios.store', $incidencia->id) }}"
+                            action="{{ route('client.incidencias.comentarios.store', $incidencia->id) }}"
                             enctype="multipart/form-data" style="margin-top: 0.9rem;">
                             @csrf
                             <div style="display:flex; flex-direction:column; gap:0.5rem;">
@@ -192,13 +202,89 @@
         </div>
 
         <!-- Modal Editar Incidencia -->
-        @include('admin.partials.modal_editar_incidencia')
+        <div class="modal fade" id="modalEditarIncidencia" tabindex="-1" aria-labelledby="modalEditarIncidenciaLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content bg-dark text-white border-secondary">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title" id="modalEditarIncidenciaLabel">
+                            <i class="fa-solid fa-pen-to-square"></i> Editar Incidencia
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body" id="modal-editar-incidencia-content">
+                        @include('client.partials.editar_incidencia_form')
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Modal Ver Imagen Comentario -->
-        @include('admin.partials.modal_imagen_comentario')
+        <div class="modal fade" id="modalImagenComentario" tabindex="-1" aria-labelledby="modalImagenComentarioLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content bg-dark border-secondary">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title" id="modalImagenComentarioLabel">
+                            <i class="fa-solid fa-image"></i> Ver Imagen
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img id="modal-imagen-src" src="" alt="Imagen comentario"
+                            style="max-width: 100%; height: auto; border-radius: 0.5rem;">
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Modal Editar Comentario -->
-        @include('admin.partials.modal_editar_comentario')
+        <div class="modal fade" id="modalEditarComentario" tabindex="-1" aria-labelledby="modalEditarComentarioLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark text-white border-secondary">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title" id="modalEditarComentarioLabel">
+                            <i class="fa-solid fa-pen-to-square"></i> Editar Comentario
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Cerrar"></button>
+                    </div>
+                    <form id="form-editar-comentario" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="edit-missatge-comentario" class="form-label">
+                                    <i class="fa-solid fa-comment"></i> Comentario
+                                </label>
+                                <textarea id="edit-missatge-comentario" name="missatge"
+                                    class="form-control bg-secondary text-white border-secondary" rows="4"
+                                    placeholder="Edita tu comentario..."></textarea>
+                                <small class="form-text text-muted">Mínimo 2 caracteres.</small>
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label for="edit-imatge-comentario" class="form-label">
+                                    <i class="fa-solid fa-image"></i> Imagen (Opcional)
+                                </label>
+                                <input type="file" id="edit-imatge-comentario" name="imatge"
+                                    class="form-control bg-secondary text-white border-secondary" accept="image/*">
+                                <small class="form-text text-muted">JPG, PNG, GIF, WebP. Máximo 4MB.</small>
+                                <div id="edit-file-name-display"
+                                    style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.85rem;"></div>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-secondary">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" id="btn-submit-edit-comentario" class="btn btn-primary">
+                                <i class="fa-solid fa-save"></i> Guardar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
 
@@ -207,7 +293,8 @@
         window.categoriasData = @json($categorias ?? []);
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{{ asset('js/admin/validar_editar_incidencia.js') }}"></script>
-    <script src="{{ asset('js/admin/modales.js') }}"></script>
-    <script src="{{ asset('js/admin/ver_incidencia.js') }}"></script>
+    <script src="{{ asset('js/client-actions.js') }}"></script>
+    <script src="{{ asset('js/client/comentarios.js') }}"></script>
+    <script src="{{ asset('js/client/validar_editar_comentario.js') }}"></script>
+    <script src="{{ asset('js/client/incidencias.js') }}"></script>
 @endpush

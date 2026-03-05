@@ -15,6 +15,10 @@
     margin-bottom: 1rem;
 }
 
+.comment-item-wrapper.client {
+    margin-bottom: 1rem;
+}
+
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -32,8 +36,8 @@
 
 .comment-item-bubble {
     max-width: 92%;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color, var(--color-borde, #334155));
+    border-radius: var(--radius-md, var(--radio-md, 0.5rem));
     background: rgba(15, 23, 42, 0.25);
 }
 
@@ -54,6 +58,10 @@
     padding: 0.85rem 1rem;
 }
 
+.comment-item-bubble.client {
+    padding: 0.85rem 1rem;
+}
+
 .comment-item-header {
     display: flex;
     justify-content: space-between;
@@ -69,6 +77,10 @@
     gap: 1rem;
 }
 
+.comment-item-header.client {
+    gap: 1rem;
+}
+
 .comment-item-name {
     font-weight: 600;
 }
@@ -78,6 +90,10 @@
 }
 
 .comment-item-name.gestor {
+    font-size: 1rem;
+}
+
+.comment-item-name.client {
     font-size: 1rem;
 }
 
@@ -94,8 +110,12 @@
     gap: 0.5rem;
 }
 
+.comment-item-actions.client {
+    gap: 0.5rem;
+}
+
 .comment-item-timestamp {
-    color: var(--text-secondary);
+    color: var(--text-secondary, var(--texto-secundario, #94a3b8));
     white-space: nowrap;
 }
 
@@ -104,6 +124,10 @@
 }
 
 .comment-item-timestamp.gestor {
+    font-size: 0.85rem;
+}
+
+.comment-item-timestamp.client {
     font-size: 0.85rem;
 }
 
@@ -128,24 +152,29 @@
     font-size: 0.9rem;
 }
 
+.btn-comment-action.client {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.9rem;
+}
+
 .btn-edit-comment-action {
-    color: #3b82f6;
+    color: #94a3b8;
 }
 
 .btn-edit-comment-action:hover {
-    color: #2563eb;
+    color: #3b82f6;
 }
 
 .btn-delete-comment-action {
-    color: #ef4444;
+    color: #94a3b8;
 }
 
 .btn-delete-comment-action:hover {
-    color: #dc2626;
+    color: #3b82f6;
 }
 
 .comment-item-text {
-    color: var(--text-secondary);
+    color: var(--text-secondary, var(--texto-secundario, #94a3b8));
 }
 
 .comment-item-text.admin {
@@ -155,6 +184,11 @@
 }
 
 .comment-item-text.gestor {
+    margin-top: 0.4rem;
+    font-size: 1rem;
+}
+
+.comment-item-text.client {
     margin-top: 0.4rem;
     font-size: 1rem;
 }
@@ -181,8 +215,8 @@
 .comment-item-image img {
     max-width: 100%;
     height: auto;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md, var(--radio-md, 0.5rem));
+    border: 1px solid var(--border-color, var(--color-borde, #334155));
     display: block;
 }
 
@@ -191,5 +225,9 @@
 }
 
 .comment-item-image.gestor img {
-    width: auto;
+    max-width: 300px;
+}
+
+.comment-item-image.client img {
+    max-width: 300px;
 }

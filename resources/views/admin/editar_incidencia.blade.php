@@ -37,6 +37,7 @@
                         <div class="form-group">
                             <label class="form-label" for="titol">Título de la Incidencia</label>
                             <input type="text" id="titol" name="titol" class="form-control" value="{{ old('titol', $incidencia->titol) }}">
+                            <small id="error-titol" class="text-danger" style="display: none;"></small>
                         </div>
                         
                         <div class="form-group">
@@ -62,6 +63,7 @@
                                     </option>
                                 @endforeach
                             </select>
+                            <small id="error-categoria" class="text-danger" style="display: none;"></small>
                         </div>
                         
                         <div class="form-group">
@@ -73,6 +75,7 @@
                                     </option>
                                 @endforeach
                             </select>
+                            <small id="error-subcategoria" class="text-danger" style="display: none;"></small>
                         </div>
                     </div>
 
@@ -86,6 +89,7 @@
                                 <option value="Resolta" {{ (old('estat', $incidencia->estat) === 'Resolta') ? 'selected' : '' }}>Resuelta</option>
                                 <option value="Tancada" {{ (old('estat', $incidencia->estat) === 'Tancada') ? 'selected' : '' }}>Cerrada</option>
                             </select>
+                            <small id="error-estat" class="text-danger" style="display: none;"></small>
                         </div>
                         
                         <div class="form-group">
@@ -95,12 +99,19 @@
                                 <option value="mitjana" {{ (old('prioritat', $incidencia->prioritat) === 'mitjana') ? 'selected' : '' }}>Media</option>
                                 <option value="baixa" {{ (old('prioritat', $incidencia->prioritat) === 'baixa') ? 'selected' : '' }}>Baja</option>
                             </select>
+                            <small id="error-prioritat" class="text-danger" style="display: none;"></small>
+                        </div>
+                    </div>
+                    <div class="info-grid">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <small id="error-tecnic-estat" class="text-danger" style="display: none;"></small>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label" for="descripcio">Descripción de la Incidencia</label>
                         <textarea id="descripcio" name="descripcio" class="form-control">{{ old('descripcio', $incidencia->descripcio) }}</textarea>
+                        <small id="error-descripcio" class="text-danger" style="display: none;"></small>
                     </div>
 
                     <div class="form-actions">
@@ -123,5 +134,14 @@
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('js/admin/validar_editar_incidencia.js') }}"></script>
     <script src="{{ asset('js/admin/editar_incidencia.js') }}"></script>
+    <script>
+        // Inicializar validación después de cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof window.iniciarValidacionEditarIncidencia === 'function') {
+                window.iniciarValidacionEditarIncidencia();
+            }
+        });
+    </script>
 @endpush
