@@ -20,11 +20,9 @@ class IncidenciaSeeder extends Seeder
         // Limpiamos las incidencias existentes si queremos empezar de cero (opcional)
         // Incidencia::truncate();
 
-        // Obtenemos todas las sedes, técnicos y clientes
-        $sedes = Sede::all();
+        // Obtenemos todas los clientes, técnicos y categorías
+        $clientes = User::where('rol', 'client')->get();
         $categorias = Categoria::with('subcategorias')->get();
-
-        $estados = ['Sense assignar', 'Assignada', 'En treball', 'Resolta', 'Tancada'];
         $prioridades = ['alta', 'mitjana', 'baixa'];
 
         // Casos realistas de incidencias IT
@@ -38,7 +36,12 @@ class IncidenciaSeeder extends Seeder
             'He olvidado mi contraseña del sistema',
             'Pantalla en negro al intentar encender el equipo',
             'El software de contabilidad lanza un error 404',
-            'La red WiFi de invitados no funciona'
+            'La red WiFi de invitados no funciona',
+            'El navegador no abre las páginas web correctamente',
+            'Tengo problemas para conectar a la VPN corporativa',
+            'El software de compresión no comprime archivos',
+            'La actualización de Windows no se completa',
+            'El portátil se reinicia sin previo aviso'
         ];
 
         $descripciones = [
@@ -51,74 +54,129 @@ class IncidenciaSeeder extends Seeder
             'Volví de las vacaciones y no recuerdo la contraseña correcta para entrar al CRM. ¿Pueden restablecérmela, por favor?',
             'Al darle al botón de encendido hace un pitido largo y dos cortos, pero la pantalla se queda completamente en negro.',
             'Cada vez que intento generar un informe trimestral en la aplicación, el programa se cierra de golpe sin guardar nada.',
-            'Varios clientes están intentando conectarse a la red "Empresa-Guest" pero les marca "Sin conexión a internet".'
+            'Varios clientes están intentando conectarse a la red "Empresa-Guest" pero les marca "Sin conexión a internet".',
+            'Firefox no carga ninguna página pero Edge funciona correctamente.',
+            'Al conectar a la VPN me pide contraseña pero no acepta ninguna.',
+            'El programa de compresión abre pero no permite seleccionar archivos.',
+            'Windows me pide reiniciar pero la actualización nunca se completa.',
+            'El portátil se queda bloqueado durante unos segundos y luego se reinicia.'
         ];
 
-        foreach ($sedes as $sede) {
-            // Obtener clientes y técnicos específicos para esta sede
-            $clientesSede = User::where('rol', 'client')->where('sede_id', $sede->id)->get();
-            $tecnicosSede = User::where('rol', 'tecnic')->where('sede_id', $sede->id)->get();
+        // Distribución de incidencias por cliente:
+        // - 3 abiertas (sin asignar/sin técnico)
+        // - 3 cerradas (resueltas/tancadas)
+        // - 4 asignadas (con técnico)
+        // Total: 10 incidencias por cliente
 
-            if ($clientesSede->isEmpty() || $tecnicosSede->isEmpty()) {
-                continue; // Saltar si la sede no tiene suficientes usuarios
+        foreach ($clientes as $cliente) {
+            // Obtener técnicos de la misma sede
+            $tecnicosSede = User::where('rol', 'tecnic')
+                ->where('sede_id', $cliente->sede_id)
+                ->get();
+
+            if ($tecnicosSede->isEmpty() || $categorias->isEmpty()) {
+                continue; // Saltar si no hay técnicos o categorías
             }
 
-            // Generamos entre 5 y 8 incidencias por Sede
-            $numIncidencias = rand(5, 8);
-
-            for ($i = 0; $i < $numIncidencias; $i++) {
-                $cliente = $clientesSede->random();
-                
-                // Seleccionamos un estado aleatorio
-                $estado = $estados[array_rand($estados)];
-                
-                // Si está 'Sense assignar', no tiene técnico. Si no, cogemos uno.
-                $tecnico = ($estado === 'Sense assignar') ? null : $tecnicosSede->random();
-                
-                // Prioridad
-                $prioridad = $prioridades[array_rand($prioridades)];
-                
-                // Categoría y Subcategoría (nos aseguramos de que coincidan)
+            $indicesTitulos = [];
+            
+            // 3 INCIDENCIAS ABIERTAS SIN ASIGNAR
+            for ($i = 0; $i < 3; $i++) {
+                $indicesTitulos[] = $i;
                 $categoria = $categorias->random();
-                $subcategoria = $categoria->subcategorias->count() > 0 ? $categoria->subcategorias->random() : null;
-                
-                // Si por algún motivo la categoría no tiene subcategorías, la saltamos o pillamos otra
-                if (!$subcategoria) {
-                    continue; 
-                }
+                $subcategoria = $categoria->subcategorias->count() > 0 
+                    ? $categoria->subcategorias->random() 
+                    : null;
 
-                $indiceDatos = array_rand($titulos);
+                if (!$subcategoria) continue;
 
-                // Fechas
-                $diasAtras = rand(1, 45); // Hace 1 a 45 días
+                $diasAtras = rand(1, 30);
                 $fechaCreacion = Carbon::now()->subDays($diasAtras)->subHours(rand(1, 10));
-                
-                $fechaInicioTrabajo = null;
-                $fechaResolucion = null;
-
-                if (in_array($estado, ['En treball', 'Resolta', 'Tancada'])) {
-                    $fechaInicioTrabajo = (clone $fechaCreacion)->addHours(rand(1, 24));
-                }
-
-                if (in_array($estado, ['Resolta', 'Tancada'])) {
-                    $fechaResolucion = (clone $fechaInicioTrabajo)->addHours(rand(2, 48));
-                }
 
                 Incidencia::create([
-                    'titol' => $titulos[$indiceDatos],
-                    'descripcio' => $descripciones[$indiceDatos],
+                    'titol' => $titulos[$i],
+                    'descripcio' => $descripciones[$i],
                     'client_id' => $cliente->id,
-                    'tecnic_id' => $tecnico ? $tecnico->id : null,
-                    'sede_id' => $sede->id,
+                    'tecnic_id' => null,  // Sin asignar
+                    'sede_id' => $cliente->sede_id,
                     'categoria_id' => $categoria->id,
                     'subcategoria_id' => $subcategoria->id,
-                    'estat' => $estado,
-                    'prioritat' => $prioridad,
+                    'estat' => 'Sense assignar',
+                    'prioritat' => $prioridades[array_rand($prioridades)],
+                    'data_creacio' => $fechaCreacion,
+                    'data_inici_treball' => null,
+                    'data_resolucio' => null,
+                    'created_at' => $fechaCreacion,
+                    'updated_at' => $fechaCreacion
+                ]);
+            }
+
+            // 3 INCIDENCIAS CERRADAS
+            $estadosCerrados = ['Resolta', 'Tancada', 'Resolta'];
+            for ($i = 0; $i < 3; $i++) {
+                $indicesTitulos[] = 3 + $i;
+                $categoria = $categorias->random();
+                $subcategoria = $categoria->subcategorias->count() > 0 
+                    ? $categoria->subcategorias->random() 
+                    : null;
+
+                if (!$subcategoria) continue;
+
+                $diasAtras = rand(5, 45);
+                $fechaCreacion = Carbon::now()->subDays($diasAtras)->subHours(rand(1, 10));
+                $fechaInicioTrabajo = (clone $fechaCreacion)->addHours(rand(1, 24));
+                $fechaResolucion = (clone $fechaInicioTrabajo)->addHours(rand(2, 48));
+
+                Incidencia::create([
+                    'titol' => $titulos[3 + $i],
+                    'descripcio' => $descripciones[3 + $i],
+                    'client_id' => $cliente->id,
+                    'tecnic_id' => $tecnicosSede->random()->id,  // Con técnico
+                    'sede_id' => $cliente->sede_id,
+                    'categoria_id' => $categoria->id,
+                    'subcategoria_id' => $subcategoria->id,
+                    'estat' => $estadosCerrados[$i],
+                    'prioritat' => $prioridades[array_rand($prioridades)],
                     'data_creacio' => $fechaCreacion,
                     'data_inici_treball' => $fechaInicioTrabajo,
                     'data_resolucio' => $fechaResolucion,
                     'created_at' => $fechaCreacion,
-                    'updated_at' => $fechaResolucion ?? ($fechaInicioTrabajo ?? $fechaCreacion)
+                    'updated_at' => $fechaResolucion
+                ]);
+            }
+
+            // 4 INCIDENCIAS ASIGNADAS (Con técnico)
+            $estadosAsignados = ['Assignada', 'En treball', 'Assignada', 'En treball'];
+            for ($i = 0; $i < 4; $i++) {
+                $indicesTitulos[] = 6 + $i;
+                $categoria = $categorias->random();
+                $subcategoria = $categoria->subcategorias->count() > 0 
+                    ? $categoria->subcategorias->random() 
+                    : null;
+
+                if (!$subcategoria) continue;
+
+                $diasAtras = rand(1, 20);
+                $fechaCreacion = Carbon::now()->subDays($diasAtras)->subHours(rand(1, 10));
+                $fechaInicioTrabajo = $estadosAsignados[$i] === 'En treball' 
+                    ? (clone $fechaCreacion)->addHours(rand(1, 12))
+                    : null;
+
+                Incidencia::create([
+                    'titol' => $titulos[6 + $i],
+                    'descripcio' => $descripciones[6 + $i],
+                    'client_id' => $cliente->id,
+                    'tecnic_id' => $tecnicosSede->random()->id,  // Con técnico asignado
+                    'sede_id' => $cliente->sede_id,
+                    'categoria_id' => $categoria->id,
+                    'subcategoria_id' => $subcategoria->id,
+                    'estat' => $estadosAsignados[$i],
+                    'prioritat' => $prioridades[array_rand($prioridades)],
+                    'data_creacio' => $fechaCreacion,
+                    'data_inici_treball' => $fechaInicioTrabajo,
+                    'data_resolucio' => null,
+                    'created_at' => $fechaCreacion,
+                    'updated_at' => $fechaInicioTrabajo ?? $fechaCreacion
                 ]);
             }
         }

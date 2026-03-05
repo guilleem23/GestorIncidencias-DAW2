@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminDashboardInci;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminIncidenciaController;
 use App\Http\Controllers\CategoriaController;
@@ -28,7 +29,8 @@ Route::get('/', function () {
 // Solo los administradores pueden entrar aquí
 Route::middleware(['auth', 'role:administrador'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-
+    Route::get('/admin/resum', [AdminDashboardInci::class, 'resum'])->name('admin.resum');
+    Route::post('/admin/resum', [AdminDashboardInci::class, 'resum']);
     Route::get('/admin/incidencias', [AdminIncidenciaController::class, 'index'])->name('admin.incidencias');
     Route::get('/admin/incidencias/{id}', [AdminIncidenciaController::class, 'show'])->name('admin.incidencias.show');
     Route::get('/admin/incidencias/{id}/edit', [AdminIncidenciaController::class, 'edit'])->name('admin.incidencias.edit');

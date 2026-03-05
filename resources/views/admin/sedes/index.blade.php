@@ -36,7 +36,6 @@
     @endif
 
     {{-- Listado de sedes --}}
-    {{-- Listado de sedes --}}
     <div class="sedes-grid">
         @forelse ($sedes as $sede)
             <div class="sede-card">
@@ -44,7 +43,9 @@
                     @if($sede->imagen)
                         <img src="{{ asset($sede->imagen) }}" alt="Imagen Sede" class="sede-img-banner">
                     @else
-                        <img src="{{ asset('img/sede_default.jpg') }}" alt="Sede Default" class="sede-img-banner">
+                        <a href="{{ route('admin.resum', $sede->id) }}">
+                            <img src="{{ asset('img/sede_default.jpg') }}" alt="Sede Default" class="sede-img-banner">
+                        </a>
                     @endif
                     
                     <form action="{{ route('admin.sedes.destroy', $sede->id) }}" method="POST" class="form-eliminar-sede">
