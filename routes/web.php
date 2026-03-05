@@ -16,11 +16,6 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Ruta protegida para el dashboard
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware('auth');
-
 Route::get('/', function () {
     return redirect()->route('login');
 });
@@ -28,6 +23,82 @@ Route::get('/', function () {
 // Solo los administradores pueden entrar aquí
 Route::middleware(['auth', 'role:administrador'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+
+    Route::get('/resum', function () {
+        //La tabla + KPIs se piden después por AJAX a /resum/data
+        $sedes = \App\Models\Sede::orderBy('nom')->get();
+
+        return view('admin.resum', compact('sedes'));
+    })->name('admin.resum'); 
+
+    Route::get('/resum/data', function (\Illuminate\Http\Request $request) {
+        if (!$request->ajax()) {
+            abort(404);
+        }
+
+        $sedeId = $request->query('sede_id');
+        $sedeId = is_numeric($sedeId) ? (int) $sedeId : null;
+
+        if (empty($sedeId)) {
+            return response()->json([
+                'htmlKpis' => view('admin.partials.resum_kpis', ['sedeSeleccionada' => null])->render(),
+                'htmlTabla' => '',
+            ]);
+        }
+
+        $sedeSeleccionada = \App\Models\Sede::find($sedeId);
+        if (!$sedeSeleccionada) {
+            return response()->json([
+                'htmlKpis' => view('admin.partials.resum_kpis', ['sedeSeleccionada' => null])->render(),
+                'htmlTabla' => '',
+            ]);
+        }
+
+        // Categorías para las columnas de la tabla
+        $categorias = \App\Models\Categoria::orderBy('nom')->get();
+
+        // Estados considerados "resueltos" en este resumen
+        $resueltasEstados = ['Resolta', 'Tancada'];
+
+        // KPIs: resueltas vs pendientes (según estados definidos)
+        $totalIncidenciasResueltas = \App\Models\Incidencia::where('sede_id', $sedeId)
+            ->whereIn('estat', $resueltasEstados)
+            ->count();
+
+        $totalIncidenciasPendientes = \App\Models\Incidencia::where('sede_id', $sedeId)
+            ->whereNotIn('estat', $resueltasEstados)
+            ->count();
+
+        // Agregado: total de incidencias resueltas por técnico y por categoría
+        $filas = \App\Models\Incidencia::select('tecnic_id', 'categoria_id', \Illuminate\Support\Facades\DB::raw('COUNT(*) as total'))
+            ->where('sede_id', $sedeId)
+            ->whereIn('estat', $resueltasEstados)
+            ->whereNotNull('tecnic_id')
+            ->whereNotNull('categoria_id')
+            ->groupBy('tecnic_id', 'categoria_id')
+            ->get();
+
+        $idsTecnicos = $filas->pluck('tecnic_id')->unique()->values();
+        $tecnicos = \App\Models\User::whereIn('id', $idsTecnicos)->orderBy('name')->get();
+
+        $resueltasPorTecnicoCategoria = [];
+        foreach ($filas as $fila) {
+            $resueltasPorTecnicoCategoria[(int) $fila->tecnic_id][(int) $fila->categoria_id] = (int) $fila->total;
+        }
+
+        return response()->json([
+            'htmlKpis' => view('admin.partials.resum_kpis', compact(
+                'sedeSeleccionada',
+                'totalIncidenciasResueltas',
+                'totalIncidenciasPendientes'
+            ))->render(),
+            'htmlTabla' => view('admin.partials.resum_table', compact(
+                'categorias',
+                'tecnicos',
+                'resueltasPorTecnicoCategoria'
+            ))->render(),
+        ]);
+    })->name('admin.resum.data');
 
     Route::get('/admin/incidencias', [AdminIncidenciaController::class, 'index'])->name('admin.incidencias');
     Route::get('/admin/incidencias/{id}', [AdminIncidenciaController::class, 'show'])->name('admin.incidencias.show');

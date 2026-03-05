@@ -33,6 +33,12 @@
                 Usuarios
             </a>
         </li>
+                <li class="nav-item">
+                <a href="{{ route('admin.resum') }}" class="{{ request()->routeIs('admin.resum') ? 'active' : '' }}">
+                    <span class="nav-icon"><i class="fa-solid fa-house"></i></span>
+                    Dashboard Validación
+                </a>
+            </li>
     </ul>
 
     <!-- Footer de Sidebar: Perfil de Usuario y Logout -->
