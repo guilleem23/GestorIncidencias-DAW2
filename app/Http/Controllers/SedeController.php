@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Incidencia;
 use App\Models\Comentario;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class SedeController extends Controller
 {
@@ -140,24 +141,30 @@ class SedeController extends Controller
         try {
             $sede = Sede::findOrFail($id);
 
-            // 1. Guardar IDs de usuarios de esta sede (antes de limpiar sede_id)
+            // Deshabilitar temporalmente las restricciones de claves foráneas
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+            // 1. Obtener IDs de usuarios de esta sede
             $userIds = User::where('sede_id', $sede->id)->pluck('id');
 
             // 2. Obtener IDs de incidencias de esta sede
             $incidenciaIds = Incidencia::where('sede_id', $sede->id)->pluck('id');
 
-            // 3. Eliminar todos los comentarios de esas incidencias
+            // 3. Eliminar imágenes de comentarios y los comentarios de esas incidencias
             if ($incidenciaIds->isNotEmpty()) {
-                Comentario::whereIn('incidencia_id', $incidenciaIds)->delete();
+                $comentarios = Comentario::whereIn('incidencia_id', $incidenciaIds)->get();
+                foreach ($comentarios as $comentario) {
+                    if ($comentario->imatge_path && Storage::disk('public')->exists($comentario->imatge_path)) {
+                        Storage::disk('public')->delete($comentario->imatge_path);
+                    }
+                    $comentario->delete();
+                }
             }
 
             // 4. Eliminar todas las incidencias de esta sede
             Incidencia::where('sede_id', $sede->id)->delete();
 
-            // 5. Desasignar gestor y técnicos (sede_id = null)
-            User::where('sede_id', $sede->id)->update(['sede_id' => null]);
-
-            // 6. Desactivar todos los usuarios que pertenecían a esta sede
+            // 5. Desactivar TODOS los usuarios (sin importar su rol) que pertenecían a esta sede
             if ($userIds->isNotEmpty()) {
                 User::whereIn('id', $userIds)->update(['actiu' => false]);
             }
@@ -170,11 +177,16 @@ class SedeController extends Controller
             // 8. Eliminar la sede
             $sede->delete();
 
+            // Reabilitar las restricciones de claves foráneas
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+
             DB::commit();
             return redirect()->route('admin.sedes.index')
-                ->with('success', 'Sede eliminada correctamente. Usuarios desactivados y desasignados.');
+                ->with('success', 'Sede eliminada correctamente. Todos los usuarios de la sede han sido desactivados.');
         } catch (\Exception $e) {
             DB::rollBack();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            \Log::error('Error al eliminar sede: ' . $e->getMessage());
             return back()->withErrors(['error' => 'No se pudo eliminar la sede. Inténtalo de nuevo.']);
         }
     }
