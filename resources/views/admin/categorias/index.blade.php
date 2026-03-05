@@ -33,6 +33,14 @@
                 <span>{{ $error }}</span>
             @endforeach
         </div>
+        <script>
+            @if($errors->hasAny(['nom', 'descripcion']) && !$errors->has('categoria_id'))
+                window.modalCategoriaOpen = true;
+            @endif
+            @if($errors->hasAny(['sub_nom', 'sub_descripcion', 'categoria_id']))
+                window.modalSubcategoriaOpen = true;
+            @endif
+        script>
     @endif
 
     {{-- Listado de categorías --}}

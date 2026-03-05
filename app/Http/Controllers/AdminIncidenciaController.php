@@ -69,11 +69,11 @@ class AdminIncidenciaController extends Controller
     public function storeComentario(Request $request, $id)
     {
         $validated = $request->validate([
-            'missatge' => ['required_without:imatge', 'nullable', 'string', 'min:2', 'max:2000'],
+            'missatge' => ['required_without:imatge', 'nullable', 'string', 'min:1', 'max:2000'],
             'imatge' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:4096'],
         ], [
             'missatge.required_without' => 'Debes escribir un comentario o adjuntar una imagen.',
-            'missatge.min' => 'El comentario debe tener al menos 2 caracteres.',
+            'missatge.min' => 'El comentario debe tener al menos 1 carácter.',
             'missatge.max' => 'El comentario no puede superar 2000 caracteres.',
             'imatge.image' => 'El archivo adjunto debe ser una imagen.',
             'imatge.mimes' => 'La imagen debe ser JPG, JPEG, PNG, GIF o WEBP.',
@@ -187,15 +187,16 @@ class AdminIncidenciaController extends Controller
             ], 403);
         }
 
-        $validated = $request->validate([
-            'missatge' => 'required_without:imatge|string|min:2|max:2000',
+        // Si ya tiene imagen, el mensaje es opcional. Si no, es requerido a menos que se suba una nueva.
+        $rules = [
+            'missatge' => ($comentario->imatge_path ? 'nullable' : 'required_without:imatge|nullable') . '|string|min:1|max:2000',
             'imatge' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:4096'
-        ]);
+        ];
 
-        // Actualizar mensaje
-        if (!empty($validated['missatge'])) {
-            $comentario->missatge = $validated['missatge'];
-        }
+        $validated = $request->validate($rules);
+
+        // Actualizar mensaje (aunque sea vacío)
+        $comentario->missatge = $validated['missatge'] ?? '';
 
         // Manejar imagen
         if ($request->hasFile('imatge')) {

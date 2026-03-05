@@ -1,6 +1,10 @@
-// ========================================
-// MODAL SEDES - Carga dinámica
-// ========================================
+// Abrir modal de creación si hay errores de validación
+window.addEventListener('DOMContentLoaded', function () {
+    if (window.modalSedeOpen) {
+        var modalCrear = new bootstrap.Modal(document.getElementById('modalCrearSede'));
+        modalCrear.show();
+    }
+});
 
 // Cerrar todos los modales abiertos
 function closeAllModals() {
@@ -12,16 +16,21 @@ function closeAllModals() {
     });
 }
 
-// MODAL EDITAR SEDE
-document.querySelectorAll('.btn-editar-sede').forEach(btn => {
-    btn.onclick = function () {
+// Delegación de eventos para botones de edición
+document.addEventListener('click', function (e) {
+    const btnEdit = e.target.closest('.btn-editar-sede');
+    if (btnEdit) {
         closeAllModals();
-        const id = this.dataset.id;
+        const id = btnEdit.dataset.id;
         fetch(`/admin/sedes/${id}/edit`)
-            .then(res => res.text())
+            .then(res => {
+                if (!res.ok) throw new Error('Error al cargar');
+                return res.text();
+            })
             .then(html => {
                 document.getElementById('modal-editar-sede-content').innerHTML = html;
-                const modal = new bootstrap.Modal(document.getElementById('modalEditarSede'));
+                const modalEl = document.getElementById('modalEditarSede');
+                const modal = new bootstrap.Modal(modalEl);
 
                 // Inicializar validación si la función existe
                 if (typeof window.iniciarValidacionEditarSede === 'function') {
@@ -31,6 +40,7 @@ document.querySelectorAll('.btn-editar-sede').forEach(btn => {
                 modal.show();
             })
             .catch(error => {
+                console.error(error);
                 Swal.fire({
                     title: 'Error',
                     text: 'No se pudo cargar el formulario de edición.',
@@ -40,5 +50,5 @@ document.querySelectorAll('.btn-editar-sede').forEach(btn => {
                     color: '#f3f4f6'
                 });
             });
-    };
+    }
 });

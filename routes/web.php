@@ -109,6 +109,8 @@ Route::middleware(['auth', 'role:gestor'])->group(function () {
 // Solo los técnicos pueden entrar aquí
 Route::middleware(['auth', 'role:tecnic'])->group(function () {
     Route::get('/tecnic/tasques', [TecnicController::class, 'index'])->name('tecnic.index');
+    Route::get('/tecnic/totes-tasques', [TecnicController::class, 'totesTasques'])->name('tecnic.totes');
+    Route::get('/tecnic/incidencias/{id}', [TecnicController::class, 'show'])->name('tecnic.incidencias.show');
     Route::post('/tecnic/iniciar/{id}', [TecnicController::class, 'iniciarTreball'])->name('tecnic.iniciar');
     Route::post('/tecnic/resoldre/{id}', [TecnicController::class, 'marcarResolta'])->name('tecnic.resoldre');
     Route::post('/tecnic/incidencias/{id}/comentarios', [TecnicController::class, 'storeComentario'])->name('tecnic.incidencias.comentarios.store');

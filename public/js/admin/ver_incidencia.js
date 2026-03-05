@@ -29,7 +29,7 @@
             const hasImage = imatgeInput && imatgeInput.files && imatgeInput.files.length > 0;
 
             // Validar que haya al menos mensaje o imagen
-            if (missatge.length < 2 && !hasImage) {
+            if (missatge.length < 1 && !hasImage) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Contenido requerido',
@@ -41,11 +41,11 @@
             }
 
             // Validar longitud mínima solo si hay mensaje
-            if (missatge.length > 0 && missatge.length < 2) {
+            if (missatge.length > 0 && missatge.length < 1) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Comentario muy corto',
-                    text: 'El comentario debe tener al menos 2 caracteres.',
+                    text: 'El comentario debe tener al menos 1 carácter.',
                     background: '#1e293b',
                     color: '#f8fafc'
                 });
@@ -300,25 +300,15 @@
             if (!comentarioIdEnEdicion) return;
 
             const missatge = editMissatgeInput.value.trim();
-            const hasImage = editImatgeInput && editImatgeInput.files && editImatgeInput.files.length > 0;
+            const hasNewImage = editImatgeInput && editImatgeInput.files && editImatgeInput.files.length > 0;
+            const hasExistingImage = !!editFileNameDisplay.textContent.includes('Imagen actual');
 
             // Validación
-            if (missatge.length < 2 && !hasImage) {
+            if (missatge.length < 1 && !hasNewImage && !hasExistingImage) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Contenido requerido',
                     text: 'Debes escribir un comentario o adjuntar una imagen.',
-                    background: '#1e293b',
-                    color: '#f8fafc'
-                });
-                return;
-            }
-
-            if (missatge.length > 0 && missatge.length < 2) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Comentario muy corto',
-                    text: 'El comentario debe tener al menos 2 caracteres.',
                     background: '#1e293b',
                     color: '#f8fafc'
                 });

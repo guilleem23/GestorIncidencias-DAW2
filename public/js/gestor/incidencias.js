@@ -207,7 +207,25 @@
         };
     }
 
-    // 3. Confirmación y Validaciones al Editar Incidencia
+    // ----------------------------------------------------------------
+    // 3. Auto-sync: Technician ↔ Status
+    // ----------------------------------------------------------------
+    const selectTecnicSync = document.getElementById('tecnic_id');
+    const selectEstatSync = document.getElementById('estat');
+
+    if (selectTecnicSync && selectEstatSync) {
+        selectTecnicSync.addEventListener('change', function () {
+            if (this.value !== "" && selectEstatSync.value === "Sense assignar") {
+                selectEstatSync.value = "Assignada";
+            } else if (this.value === "" && selectEstatSync.value === "Assignada") {
+                selectEstatSync.value = "Sense assignar";
+            }
+        });
+    }
+
+    // ----------------------------------------------------------------
+    // 4. SweetAlert de confirmación antes de enviar el formulario de Editar
+    // ----------------------------------------------------------------
     const btnSubmitEdit = document.getElementById('btn-submit-edit');
     const formEditar = document.getElementById('form-editar-incidencia');
 
@@ -290,96 +308,9 @@
             }
         });
     }
-    // 4. Manejo de Comentarios vía AJAX
-    const formComentario = document.getElementById('form-comentario');
-    const commentsContainer = document.getElementById('comments-container');
-    const missatgeInput = document.getElementById('missatge-comentario');
-    const btnSubmitComentario = document.getElementById('btn-submit-comentario');
-    const noCommentsMsg = document.getElementById('no-comments-msg');
-
-    if (formComentario && commentsContainer) {
-        formComentario.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const missatge = missatgeInput.value.trim();
-            if (missatge.length < 2) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Comentario muy corto',
-                    text: 'El comentario debe tener al menos 2 caracteres.',
-                    background: '#1e293b',
-                    color: '#f8fafc'
-                });
-                return;
-            }
-
-            const formData = new FormData(this);
-            const url = this.action;
-
-            // Deshabilitar botón para evitar doble envío
-            if (btnSubmitComentario) {
-                btnSubmitComentario.disabled = true;
-                btnSubmitComentario.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
-            }
-
-            fetch(url, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        // Limpiar textarea
-                        missatgeInput.value = '';
-
-                        // Si existía el mensaje de "Sin comentarios", quitarlo
-                        if (noCommentsMsg) noCommentsMsg.remove();
-
-                        // Añadir el nuevo comentario (se asume que el partial se inyecta al final)
-                        // Usamos insertAdjacentHTML para que sea más natural
-                        commentsContainer.insertAdjacentHTML('beforeend', data.html);
-
-                        // Notificación tipo toast
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            icon: 'success',
-                            title: data.message,
-                            showConfirmButton: false,
-                            timer: 2000,
-                            background: '#1e293b',
-                            color: '#f8fafc'
-                        });
-                    } else {
-                        let errorMsg = data.message;
-                        if (data.errors && data.errors.missatge) {
-                            errorMsg = data.errors.missatge[0];
-                        }
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error al comentar',
-                            text: errorMsg,
-                            background: '#1e293b',
-                            color: '#f8fafc'
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error en fetch de comentarios:', error);
-                    Swal.fire('Error', 'No se pudo enviar el comentario.', 'error');
-                })
-                .finally(() => {
-                    if (btnSubmitComentario) {
-                        btnSubmitComentario.disabled = false;
-                        btnSubmitComentario.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar';
-                    }
-                });
-        });
-    }
+    // ----------------------------------------------------------------
+    // 4. (Removido: El manejo de comentarios ahora reside exclusivamente en ver_incidencia.js)
+    // ----------------------------------------------------------------
 
     // 5. Borrar Comentarios vía AJAX
     document.onclick = function (e) {

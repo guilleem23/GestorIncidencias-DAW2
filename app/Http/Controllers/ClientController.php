@@ -6,6 +6,7 @@ use App\Models\Incidencia;
 use App\Models\Comentario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 
 class ClientController extends Controller
 {
@@ -54,8 +55,17 @@ class ClientController extends Controller
         // Cargar categorías para el modal de edición
         $categorias = \App\Models\Categoria::with('subcategorias')->get();
 
-        if ($request->ajax() || $request->get('ajax')) {
-            return view('client.partials.incidencias_list', compact('incidencies'));
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'html' => view('client.partials.incidencias_list', compact('incidencies'))->render(),
+                'stats' => [
+                    'senseAssignar' => $incidencies->where('estat', 'Sense assignar')->count(),
+                    'enProces' => $incidencies->whereIn('estat', ['Assignada', 'En treball'])->count(),
+                    'resoltes' => $incidencies->where('estat', 'Resolta')->count(),
+                    'tancades' => $incidencies->where('estat', 'Tancada')->count(),
+                ]
+            ]);
         }
 
         return view('client.index', compact('incidencies', 'estats', 'estatFilter', 'ordenFilter', 'ocultarResoltes', 'categorias'));
@@ -80,11 +90,11 @@ class ClientController extends Controller
     public function storeComentario(Request $request, $id)
     {
         $validated = $request->validate([
-            'missatge' => ['required_without:imatge', 'nullable', 'string', 'min:2', 'max:2000'],
+            'missatge' => ['required_without:imatge', 'nullable', 'string', 'min:1', 'max:2000'],
             'imatge' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:4096'],
         ], [
             'missatge.required_without' => 'Debes escribir un comentario o adjuntar una imagen.',
-            'missatge.min' => 'El comentario debe tener al menos 2 caracteres.',
+            'missatge.min' => 'El comentario debe tener al menos 1 carácter.',
             'missatge.max' => 'El comentario no puede superar 2000 caracteres.',
             'imatge.image' => 'El archivo adjunto debe ser una imagen.',
             'imatge.mimes' => 'La imagen debe ser JPG, JPEG, PNG, GIF o WEBP.',
@@ -216,11 +226,11 @@ class ClientController extends Controller
         }
 
         $validated = $request->validate([
-            'missatge' => ['required_without:imatge', 'nullable', 'string', 'min:2', 'max:2000'],
+            'missatge' => ['required_without:imatge', 'nullable', 'string', 'min:1', 'max:2000'],
             'imatge' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:4096'],
         ], [
             'missatge.required_without' => 'Debes escribir un comentario o adjuntar una imagen.',
-            'missatge.min' => 'El comentario debe tener al menos 2 caracteres.',
+            'missatge.min' => 'El comentario debe tener al menos 1 carácter.',
             'missatge.max' => 'El comentario no puede superar 2000 caracteres.',
             'imatge.image' => 'El archivo adjunto debe ser una imagen.',
             'imatge.mimes' => 'La imagen debe ser JPG, JPEG, PNG, GIF o WEBP.',

@@ -29,39 +29,68 @@
 
     <!-- Filtros -->
     <div class="filters-container">
-        <form id="form-filters" method="GET" action="{{ route('client.index') }}" class="filters-form" onsubmit="return false;">
-            <div class="filter-group">
-                <label for="estat"><i class="fas fa-filter"></i> Estado</label>
-                <select name="estat" id="estat" class="filter-select">
-                    <option value="">Todos los estados</option>
-                    @foreach($estats as $key => $value)
-                        <option value="{{ $key }}" {{ $estatFilter == $key ? 'selected' : '' }}>
-                            {{ $value }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+        <form method="GET" action="{{ route('client.index') }}" id="form-filters" class="filters-form">
+            <div class="filters-grid">
+                <!-- Filtro por Estado -->
+                <div class="filter-group">
+                    <label for="estat"><i class="fas fa-tasks"></i> Estado</label>
+                    <select name="estat" id="estat" class="filter-select">
+                        <option value="">Todos los estados</option>
+                        @foreach($estats as $key => $value)
+                            <option value="{{ $key }}" {{ $estatFilter == $key ? 'selected' : '' }}>
+                                {{ $value }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="filter-group">
-                <label for="orden"><i class="fas fa-sort"></i> Ordenar</label>
-                <select name="orden" id="orden" class="filter-select">
-                    <option value="desc" {{ $ordenFilter == 'desc' ? 'selected' : '' }}>Más recientes primero</option>
-                    <option value="asc" {{ $ordenFilter == 'asc' ? 'selected' : '' }}>Más antiguas primero</option>
-                </select>
-            </div>
+                <div class="filter-group">
+                    <label for="orden"><i class="fas fa-sort"></i> Ordenar</label>
+                    <select name="orden" id="orden" class="filter-select">
+                        <option value="desc" {{ $ordenFilter == 'desc' ? 'selected' : '' }}>Más recientes primero</option>
+                        <option value="asc" {{ $ordenFilter == 'asc' ? 'selected' : '' }}>Más antiguas primero</option>
+                    </select>
+                </div>
 
-            <div class="filter-group">
-                <div class="filter-actions">
-                    <button type="button" id="btn-toggle-closed" class="btn-toggle-closed {{ $ocultarResoltes ? 'active' : '' }}">
-                        <i class="fa-solid {{ $ocultarResoltes ? 'fa-eye' : 'fa-eye-slash' }}"></i>
-                        {{ $ocultarResoltes ? 'Mostrar resueltas/cerradas' : 'Ocultar resueltas/cerradas' }}
-                    </button>
-                    <button type="button" id="btn-clear-filters" class="btn btn-outline">
-                        <i class="fas fa-times"></i> Limpiar
-                    </button>
+                <div class="filter-group">
+                    <div class="filter-actions">
+                        <button type="button" id="btn-toggle-closed" class="btn-toggle-closed {{ $ocultarResoltes ? 'active' : '' }}">
+                            <i class="fa-solid {{ $ocultarResoltes ? 'fa-eye' : 'fa-eye-slash' }}"></i>
+                            {{ $ocultarResoltes ? 'Mostrar resueltas/cerradas' : 'Ocultar resueltas/cerradas' }}
+                        </button>
+                        <button type="button" id="btn-clear-filters" class="btn btn-outline">
+                            <i class="fas fa-times"></i> Limpiar
+                        </button>
+                    </div>
                 </div>
             </div>
         </form>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="stats-grid" id="stats-container">
+        <div class="stat-card">
+            <div class="stat-number" id="stat-senseassignar">{{ $incidencies->where('estat', 'Sense assignar')->count() }}</div>
+            <div class="stat-label">Sin asignar</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="stat-enproces">{{ $incidencies->whereIn('estat', ['Assignada', 'En treball'])->count() }}</div>
+            <div class="stat-label">En proceso</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="stat-resoltes">{{ $incidencies->where('estat', 'Resolta')->count() }}</div>
+            <div class="stat-label">Resueltas</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="stat-tancades">{{ $incidencies->where('estat', 'Tancada')->count() }}</div>
+            <div class="stat-label">Cerradas</div>
+        </div>
+    </div>
+
+    <!-- Overlay de carga -->
+    <div id="loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;">
+        <div class="spinner-border text-primary" role="status"></div>
+        <span class="mt-2 text-white">Cargando...</span>
     </div>
 
     <div id="incidencias-list-container">
@@ -84,6 +113,10 @@
             </div>
         </div>
     </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -92,5 +125,4 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/client-actions.js') }}"></script>
-    <script src="{{ asset('js/client/incidencias.js') }}"></script>
 @endpush

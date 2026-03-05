@@ -1,5 +1,5 @@
 // Validación para el modal de editar comentario del cliente
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('form-editar-comentario');
     const missatgeInput = document.getElementById('edit-missatge-comentario');
     const imatgeInput = document.getElementById('edit-imatge-comentario');
@@ -32,11 +32,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Validación del mensaje
     function validarMissatge() {
-        const valor = missatgeInput.value.trim();
-        
+        const hasNewImage = imatgeInput.files.length > 0;
+        const hasExistingImage = !!document.getElementById('edit-file-name-display')?.textContent.includes('Imagen actual');
+
         if (!valor || valor.length === 0) {
-            // Permitir vacío si hay imagen
-            if (imatgeInput.files.length > 0) {
+            // Permitir vacío si hay imagen (nueva o existente)
+            if (hasNewImage || hasExistingImage) {
                 errorMissatge.style.display = 'none';
                 missatgeInput.classList.remove('border-danger');
                 return true;
@@ -46,21 +47,14 @@ document.addEventListener('DOMContentLoaded', function() {
             missatgeInput.classList.add('border-danger');
             return false;
         }
-        
-        if (valor.length < 2) {
-            errorMissatge.textContent = 'El comentario debe tener al menos 2 caracteres.';
-            errorMissatge.style.display = 'block';
-            missatgeInput.classList.add('border-danger');
-            return false;
-        }
-        
+
         if (valor.length > 2000) {
             errorMissatge.textContent = 'El comentario no puede superar 2000 caracteres.';
             errorMissatge.style.display = 'block';
             missatgeInput.classList.add('border-danger');
             return false;
         }
-        
+
         errorMissatge.style.display = 'none';
         missatgeInput.classList.remove('border-danger');
         return true;
@@ -101,13 +95,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function comprobarFormulario() {
         const missatgeValido = validarMissatge();
         const imatgeValido = validarImatge();
-        
+
         // El formulario es válido si tiene mensaje o imagen (o ambos) y todos son válidos
         const tieneContenido = missatgeInput.value.trim().length > 0 || imatgeInput.files.length > 0;
         const formularioValido = tieneContenido && missatgeValido && imatgeValido;
-        
+
         submitBtn.disabled = !formularioValido;
-        
+
         if (formularioValido) {
             submitBtn.style.opacity = '1';
             submitBtn.style.cursor = 'pointer';
@@ -120,8 +114,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listeners
     missatgeInput.addEventListener('input', comprobarFormulario);
     missatgeInput.addEventListener('blur', validarMissatge);
-    
-    imatgeInput.addEventListener('change', function() {
+
+    imatgeInput.addEventListener('change', function () {
         validarImatge();
         comprobarFormulario();
     });
@@ -129,13 +123,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Validación al abrir el modal
     const modal = document.getElementById('modalEditarComentario');
     if (modal) {
-        modal.addEventListener('shown.bs.modal', function() {
+        modal.addEventListener('shown.bs.modal', function () {
             // Resetear errores
             errorMissatge.style.display = 'none';
             errorImatge.style.display = 'none';
             missatgeInput.classList.remove('border-danger');
             imatgeInput.classList.remove('border-danger');
-            
+
             // Comprobar estado inicial
             setTimeout(() => {
                 comprobarFormulario();
@@ -144,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Validación al enviar
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', function (e) {
         if (!validarMissatge() || !validarImatge()) {
             e.preventDefault();
             Swal.fire({

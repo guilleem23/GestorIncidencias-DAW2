@@ -19,13 +19,13 @@
                             <i class="fa-solid fa-comment"></i> Comentario
                         </label>
                         <textarea id="edit-missatge-comentario" name="missatge" class="form-control bg-secondary text-white border-secondary"
-                            rows="4" placeholder="Edita tu comentario..."></textarea>
-                        <small class="form-text text-muted">Mínimo 2 caracteres.</small>
+                            rows="4" placeholder="Escribe un comentario..."></textarea>
+                        <small class="form-text text-muted">Opcional si adjuntas una imagen.</small>
                     </div>
 
                     <div class="form-group mt-3">
                         <label for="edit-imatge-comentario" class="form-label">
-                            <i class="fa-solid fa-image"></i> Imagen (Opcional)
+                            <i class="fa-solid fa-image"></i> Imagen
                         </label>
                         <input type="file" id="edit-imatge-comentario" name="imatge"
                             class="form-control bg-secondary text-white border-secondary" accept="image/*">
@@ -35,8 +35,8 @@
                     </div>
                 </div>
                 <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" id="btn-submit-edit-comentario" class="btn btn-primary">
+                    <button type="button" class="btn btn-secondary py-2" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" id="btn-submit-edit-comentario" class="btn btn-primary py-2">
                         <i class="fa-solid fa-save"></i> Guardar
                     </button>
                 </div>

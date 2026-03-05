@@ -1,6 +1,14 @@
-// ========================================
-// MODAL CATEGORÍAS - Carga dinámica
-// ========================================
+// Abrir modal de creación si hay errores de validación
+window.addEventListener('DOMContentLoaded', function () {
+    if (window.modalCategoriaOpen) {
+        var modalCrear = new bootstrap.Modal(document.getElementById('modalCrearCategoria'));
+        modalCrear.show();
+    }
+    if (window.modalSubcategoriaOpen) {
+        var modalCrearSub = new bootstrap.Modal(document.getElementById('modalCrearSubcategoria'));
+        modalCrearSub.show();
+    }
+});
 
 // Cerrar todos los modales abiertos
 function closeAllModals() {
@@ -12,19 +20,26 @@ function closeAllModals() {
     });
 }
 
-// MODAL EDITAR CATEGORÍA
-document.querySelectorAll('.btn-editar-categoria').forEach(btn => {
-    btn.onclick = function () {
+// Delegación de eventos para botones de edición
+document.addEventListener('click', function (e) {
+    // MODAL EDITAR CATEGORÍA
+    const btnEditCat = e.target.closest('.btn-editar-categoria');
+    if (btnEditCat) {
         closeAllModals();
-        const id = this.dataset.id;
+        const id = btnEditCat.dataset.id;
         fetch(`/admin/categorias/${id}/edit`)
-            .then(res => res.text())
+            .then(res => {
+                if (!res.ok) throw new Error('Error al cargar');
+                return res.text();
+            })
             .then(html => {
                 document.getElementById('modal-editar-categoria-content').innerHTML = html;
-                const modal = new bootstrap.Modal(document.getElementById('modalEditarCategoria'));
+                const modalEl = document.getElementById('modalEditarCategoria');
+                const modal = new bootstrap.Modal(modalEl);
                 modal.show();
             })
             .catch(error => {
+                console.error(error);
                 Swal.fire({
                     title: 'Error',
                     text: 'No se pudo cargar el formulario de edición.',
@@ -34,22 +49,26 @@ document.querySelectorAll('.btn-editar-categoria').forEach(btn => {
                     color: '#f3f4f6'
                 });
             });
-    };
-});
+    }
 
-// MODAL EDITAR SUBCATEGORÍA
-document.querySelectorAll('.btn-editar-subcategoria').forEach(btn => {
-    btn.onclick = function () {
+    // MODAL EDITAR SUBCATEGORÍA
+    const btnEditSub = e.target.closest('.btn-editar-subcategoria');
+    if (btnEditSub) {
         closeAllModals();
-        const id = this.dataset.id;
+        const id = btnEditSub.dataset.id;
         fetch(`/admin/subcategorias/${id}/edit`)
-            .then(res => res.text())
+            .then(res => {
+                if (!res.ok) throw new Error('Error al cargar');
+                return res.text();
+            })
             .then(html => {
                 document.getElementById('modal-editar-subcategoria-content').innerHTML = html;
-                const modal = new bootstrap.Modal(document.getElementById('modalEditarSubcategoria'));
+                const modalEl = document.getElementById('modalEditarSubcategoria');
+                const modal = new bootstrap.Modal(modalEl);
                 modal.show();
             })
             .catch(error => {
+                console.error(error);
                 Swal.fire({
                     title: 'Error',
                     text: 'No se pudo cargar el formulario de edición.',
@@ -59,5 +78,5 @@ document.querySelectorAll('.btn-editar-subcategoria').forEach(btn => {
                     color: '#f3f4f6'
                 });
             });
-    };
+    }
 });

@@ -30,6 +30,9 @@
                 <span>{{ $error }}</span>
             @endforeach
         </div>
+        <script>
+            window.modalSedeOpen = true;
+        </script>
     @endif
 
     {{-- Listado de sedes --}}

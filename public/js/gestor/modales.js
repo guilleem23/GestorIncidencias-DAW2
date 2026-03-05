@@ -1,3 +1,11 @@
+// Abrir modal de creación si hay errores de validación (opcional, si se implementa en el futuro)
+window.addEventListener('DOMContentLoaded', function () {
+    if (window.modalIncidenciaOpen) {
+        var modalCrear = new bootstrap.Modal(document.getElementById('modalCrearIncidencia'));
+        if (modalCrear) modalCrear.show();
+    }
+});
+
 // MODAL EDITAR INCIDENCIA (GESTOR)
 function closeAllModals() {
     document.querySelectorAll('.modal.show').forEach(modalEl => {
@@ -15,15 +23,12 @@ document.addEventListener('click', function (e) {
         e.preventDefault();
         closeAllModals();
         const id = btnDelegado.dataset.id;
-        // Obtenemos el botón exacto por ID como pide el usuario
-        const btnEdit = document.getElementById(`btn-edit-incidencia-${id}`);
 
-        // Mostrar estado de carga (opcional)
-        document.getElementById('modal-editar-content').innerHTML = '<div class="text-center p-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-white">Cargando formulario...</p></div>';
-
-        const modalEl = document.getElementById('modalEditarIncidencia');
-        const modal = new bootstrap.Modal(modalEl);
-        modal.show();
+        // Mostrar estado de carga (vaciamos el contenido previo)
+        const modalContent = document.getElementById('modal-editar-content');
+        if (modalContent) {
+            modalContent.innerHTML = '';
+        }
 
         fetch(`/gestor/incidencias/${id}/edit`, {
             headers: {
@@ -36,6 +41,9 @@ document.addEventListener('click', function (e) {
             })
             .then(html => {
                 document.getElementById('modal-editar-content').innerHTML = html;
+                const modalEl = document.getElementById('modalEditarIncidencia');
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
 
                 // Inicializar la lógica de categorías/subcategorias tras cargar el HTML
                 inicializarLogicaCategorias();

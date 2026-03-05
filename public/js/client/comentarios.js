@@ -20,9 +20,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnSubmitComentario = document.getElementById('btn-submit-comentario');
 
     if (fileInput && fileNameDisplay) {
-        fileInput.addEventListener('change', function () {
+        fileInput.onchange = function () {
             fileNameDisplay.textContent = this.files && this.files.length ? this.files[0].name : '';
-        });
+        };
     }
 
     if (formComentario && commentsContainer) {
@@ -32,11 +32,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const missatge = (missatgeInput?.value || '').trim();
             const hasImage = !!(fileInput && fileInput.files && fileInput.files.length > 0);
 
-            if (missatge.length < 2 && !hasImage) {
+            if (missatge.length < 1 && !hasImage) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Comentario muy corto',
-                    text: 'Escribe al menos 2 caracteres o adjunta una imagen.',
+                    text: 'Escribe al menos 1 carácter o adjunta una imagen.',
                     background: '#111111',
                     color: '#f8fafc'
                 });

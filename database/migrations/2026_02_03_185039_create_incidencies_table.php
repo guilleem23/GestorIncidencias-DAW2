@@ -22,8 +22,8 @@ return new class extends Migration
             $table->foreignId('sede_id')->constrained('sedes'); // Sede de la incidencia
             
             // Categorización
-            $table->foreignId('categoria_id')->constrained('categorias');
-            $table->foreignId('subcategoria_id')->constrained('subcategorias');
+            $table->foreignId('categoria_id')->nullable()->constrained('categorias');
+            $table->foreignId('subcategoria_id')->nullable()->constrained('subcategorias');
             
             // Estados y Prioridades
             $table->enum('estat', [

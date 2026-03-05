@@ -1,3 +1,11 @@
+// Abrir modal de creación si hay errores de validación (opcional, si se implementa en el futuro)
+window.addEventListener('DOMContentLoaded', function () {
+    if (window.modalIncidenciaOpen) {
+        var modalCrear = new bootstrap.Modal(document.getElementById('modalCrearIncidencia'));
+        modalCrear.show();
+    }
+});
+
 // MODAL EDITAR INCIDENCIA (ADMIN)
 function closeAllModals() {
     document.querySelectorAll('.modal.show').forEach(modalEl => {
@@ -15,21 +23,12 @@ document.addEventListener('click', function (e) {
         e.preventDefault();
         closeAllModals();
         const id = btnDelegado.dataset.id;
-        
-        // Mostrar estado de carga
+
+        // Mostrar estado de carga (vaciamos el contenido previo)
         const modalContent = document.getElementById('modal-editar-content');
         if (modalContent) {
-            modalContent.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-white">Cargando formulario...</p></div>';
+            modalContent.innerHTML = '';
         }
-
-        const modalEl = document.getElementById('modalEditarIncidencia');
-        if (!modalEl) {
-            console.error('Modal con ID modalEditarIncidencia no encontrado');
-            return;
-        }
-
-        const modal = new bootstrap.Modal(modalEl);
-        modal.show();
 
         fetch(`/admin/incidencias/${id}/edit`, {
             headers: {
@@ -42,6 +41,9 @@ document.addEventListener('click', function (e) {
             })
             .then(html => {
                 document.getElementById('modal-editar-content').innerHTML = html;
+                const modalEl = document.getElementById('modalEditarIncidencia');
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
 
                 // Inicializar la lógica de categorías/subcategorias tras cargar el HTML
                 inicializarLogicaCategorias();
@@ -68,7 +70,7 @@ document.addEventListener('click', function (e) {
 // Lógica de Categorías y Subcategorías para el Modal
 function inicializarLogicaCategorias() {
     console.log('🔄 Inicializando lógica de categorías...');
-    
+
     const categoriaSelect = document.getElementById('categoria_id');
     const subcategoriaSelect = document.getElementById('subcategoria_id');
     const formEditar = document.getElementById('form-editar-incidencia');
@@ -153,7 +155,7 @@ function inicializarLogicaCategorias() {
                         })
                         .then(data => {
                             console.log('✅ Datos JSON:', data);
-                            
+
                             if (data.success) {
                                 const modalEl = document.getElementById('modalEditarIncidencia');
                                 const modalInstance = bootstrap.Modal.getInstance(modalEl);

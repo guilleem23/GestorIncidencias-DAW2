@@ -12,7 +12,7 @@
 
     // Mostrar nombre del archivo seleccionado
     if (imatgeInput && fileNameDisplay) {
-        imatgeInput.addEventListener('change', function() {
+        imatgeInput.addEventListener('change', function () {
             if (this.files && this.files.length > 0) {
                 fileNameDisplay.textContent = this.files[0].name;
             } else {
@@ -29,7 +29,7 @@
             const hasImage = imatgeInput && imatgeInput.files && imatgeInput.files.length > 0;
 
             // Validar que haya al menos mensaje o imagen
-            if (missatge.length < 2 && !hasImage) {
+            if (missatge.length < 1 && !hasImage) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Contenido requerido',
@@ -41,11 +41,11 @@
             }
 
             // Validar longitud mínima solo si hay mensaje
-            if (missatge.length > 0 && missatge.length < 2) {
+            if (missatge.length > 0 && missatge.length < 1) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Comentario muy corto',
-                    text: 'El comentario debe tener al menos 2 caracteres.',
+                    text: 'El comentario debe tener al menos 1 carácter.',
                     background: '#1e293b',
                     color: '#f8fafc'
                 });
@@ -225,9 +225,28 @@
         }
     };
 
-    // 4. Manejo de clicks en imágenes de comentarios para mostrar en modal
+    // 5. Manejo de edición de comentarios
+    const formEditarComentario = document.getElementById('form-editar-comentario');
+    const editMissatgeInput = document.getElementById('edit-missatge-comentario');
+    const editImatgeInput = document.getElementById('edit-imatge-comentario');
+    const editFileNameDisplay = document.getElementById('edit-file-name-display');
+    let comentarioIdEnEdicion = null;
+
+    // Mostrar nombre del archivo en modal de edición
+    if (editImatgeInput && editFileNameDisplay) {
+        editImatgeInput.addEventListener('change', function () {
+            if (this.files && this.files.length > 0) {
+                editFileNameDisplay.textContent = this.files[0].name;
+            } else {
+                editFileNameDisplay.textContent = '';
+            }
+        });
+    }
+
+    // 4. Manejo de clicks en el contenedor de comentarios (Imágenes y Edición)
     if (commentsContainer) {
-        commentsContainer.addEventListener('click', function (e) {
+        commentsContainer.onclick = function (e) {
+            // Ver Imagen
             const img = e.target.closest('.comment-image-clickable');
             if (img) {
                 const imgSrc = img.src;
@@ -237,32 +256,10 @@
                     const modalImagenComentario = new bootstrap.Modal(document.getElementById('modalImagenComentario'));
                     modalImagenComentario.show();
                 }
+                return;
             }
-        });
-    }
 
-    // 5. Manejo de edición de comentarios
-    const formEditarComentario = document.getElementById('form-editar-comentario');
-    const editMissatgeInput = document.getElementById('edit-missatge-comentario');
-    const editImatgeInput = document.getElementById('edit-imatge-comentario');
-    const editFileNameDisplay = document.getElementById('edit-file-name-display');
-    const incidenciaId = window.location.pathname.match(/\d+/)?.[0];
-    let comentarioIdEnEdicion = null;
-
-    // Mostrar nombre del archivo en modal de edición
-    if (editImatgeInput && editFileNameDisplay) {
-        editImatgeInput.addEventListener('change', function() {
-            if (this.files && this.files.length > 0) {
-                editFileNameDisplay.textContent = this.files[0].name;
-            } else {
-                editFileNameDisplay.textContent = '';
-            }
-        });
-    }
-
-    // Capturar clicks en botones de editar comentario
-    if (commentsContainer) {
-        commentsContainer.addEventListener('click', function (e) {
+            // Editar Comentario
             const btnEdit = e.target.closest('.btn-edit-comment-action');
             if (btnEdit) {
                 const id = btnEdit.dataset.id;
@@ -278,17 +275,17 @@
                             editMissatgeInput.value = data.data.missatge || '';
                             editImatgeInput.value = '';
                             editFileNameDisplay.textContent = data.data.imatge_path ? 'Imagen actual: ' + data.data.imatge_path.split('/').pop() : '';
-                            
-                            // Limpiar el atributo method del formulario de edición
+
                             formEditarComentario.action = `/gestor/comentarios/${id}`;
-                            
+
                             const modalEditarComentario = new bootstrap.Modal(document.getElementById('modalEditarComentario'));
                             modalEditarComentario.show();
                         }
                     })
                     .catch(error => console.error('Error al cargar comentario:', error));
+                return;
             }
-        });
+        };
     }
 
     // Enviar formulario de edición
@@ -299,25 +296,15 @@
             if (!comentarioIdEnEdicion) return;
 
             const missatge = editMissatgeInput.value.trim();
-            const hasImage = editImatgeInput && editImatgeInput.files && editImatgeInput.files.length > 0;
+            const hasNewImage = editImatgeInput && editImatgeInput.files && editImatgeInput.files.length > 0;
+            const hasExistingImage = !!editFileNameDisplay.textContent.includes('Imagen actual');
 
             // Validación
-            if (missatge.length < 2 && !hasImage) {
+            if (missatge.length < 1 && !hasNewImage && !hasExistingImage) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Contenido requerido',
                     text: 'Debes escribir un comentario o adjuntar una imagen.',
-                    background: '#1e293b',
-                    color: '#f8fafc'
-                });
-                return;
-            }
-
-            if (missatge.length > 0 && missatge.length < 2) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Comentario muy corto',
-                    text: 'El comentario debe tener al menos 2 caracteres.',
                     background: '#1e293b',
                     color: '#f8fafc'
                 });
