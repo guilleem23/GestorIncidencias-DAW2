@@ -1,12 +1,12 @@
 // Confirmación con SweetAlert2 para cerrar incidencias
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Obtener todos los botones de cerrar incidencia
     const closeForms = document.querySelectorAll('.form-close-incidencia');
-    
+
     closeForms.forEach(form => {
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', function (e) {
             e.preventDefault(); // Prevenir envío inmediato
-            
+
             Swal.fire({
                 title: 'Tancar incidència?',
                 text: 'Confirmes que vols tancar aquesta incidència?',
@@ -25,21 +25,72 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Si confirma, enviar el formulario
-                    form.submit();
+                    // Realizar petición AJAX para cerrar incidencia
+                    fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Tancada',
+                                    text: data.message,
+                                    timer: 2000,
+                                    showConfirmButton: false,
+                                    background: '#111111',
+                                    color: '#f8fafc'
+                                }).then(() => {
+                                    // Actualizar el badge de estado dinámicamente
+                                    const card = form.closest('.incidencia-card');
+                                    if (card) {
+                                        const badgeContainer = card.querySelector('.incidencia-header div:last-child');
+                                        if (badgeContainer) {
+                                            // Reemplazar Resolta con Tancada (badge-active)
+                                            badgeContainer.innerHTML = '<span class="badge badge-active">Cerrada</span>';
+                                        }
+
+                                        // Cambiar el botón de cerrar por mensaje de éxito
+                                        const actionDiv = form.closest('.incidencia-actions');
+                                        if (actionDiv) {
+                                            actionDiv.innerHTML = '<span style="color: var(--texto-secundario); font-size: 0.9rem;"><i class="fas fa-check-circle"></i> Incidencia cerrada</span>';
+                                        }
+                                    } else {
+                                        // Si no estamos en la lista (index), tal vez en ver_incidencia
+                                        window.location.reload();
+                                    }
+                                });
+                            } else {
+                                throw new Error(data.error || 'Error al tancar la incidència');
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: error.message || 'No es va poder tancar la incidència',
+                                background: '#111111',
+                                color: '#f8fafc'
+                            });
+                        });
                 }
             });
         });
     });
 
     // ========== ELIMINAR INCIDENCIA ==========
-    document.addEventListener('click', function(e) {
+    document.onclick = function (e) {
         if (e.target.closest('.btn-eliminar-incidencia-client')) {
             const btn = e.target.closest('.btn-eliminar-incidencia-client');
             const incidenciaId = btn.dataset.id;
             const isDetailPage = /^\/client\/incidencias\/\d+$/.test(window.location.pathname);
             const clientIndexUrl = '/client/mis-incidencias';
-            
+
             Swal.fire({
                 title: '¿Eliminar incidencia?',
                 text: 'Esta acción no se puede deshacer. Se eliminarán todos los comentarios asociados.',
@@ -62,39 +113,39 @@ document.addEventListener('DOMContentLoaded', function() {
                             'Accept': 'application/json'
                         }
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Eliminada',
+                                    text: data.message,
+                                    timer: 2000,
+                                    showConfirmButton: false,
+                                    background: '#111111',
+                                    color: '#f8fafc'
+                                }).then(() => {
+                                    if (isDetailPage) {
+                                        window.location.href = clientIndexUrl;
+                                    } else {
+                                        window.location.reload();
+                                    }
+                                });
+                            } else {
+                                throw new Error(data.error || 'Error al eliminar la incidencia');
+                            }
+                        })
+                        .catch(error => {
                             Swal.fire({
-                                icon: 'success',
-                                title: 'Eliminada',
-                                text: data.message,
-                                timer: 2000,
-                                showConfirmButton: false,
+                                icon: 'error',
+                                title: 'Error',
+                                text: error.message || 'No se pudo eliminar la incidencia',
                                 background: '#111111',
                                 color: '#f8fafc'
-                            }).then(() => {
-                                if (isDetailPage) {
-                                    window.location.href = clientIndexUrl;
-                                } else {
-                                    window.location.reload();
-                                }
                             });
-                        } else {
-                            throw new Error(data.error || 'Error al eliminar la incidencia');
-                        }
-                    })
-                    .catch(error => {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: error.message || 'No se pudo eliminar la incidencia',
-                            background: '#111111',
-                            color: '#f8fafc'
                         });
-                    });
                 }
             });
         }
-    });
+    };
 });

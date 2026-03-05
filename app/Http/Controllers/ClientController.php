@@ -140,7 +140,14 @@ class ClientController extends Controller
         $incidencia->estat = 'Tancada';
         $incidencia->save();
 
-        return back()->with('success', 'Incidència tancada correctament.');
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Incidencia cerrada correctamente.'
+            ]);
+        }
+
+        return back()->with('success', 'Incidencia cerrada correctamente.');
     }
 
     public function crear()

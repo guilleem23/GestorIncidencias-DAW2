@@ -433,6 +433,8 @@ class IncidenciaController extends Controller
             return back()->with('error', $msg);
         }
 
+        // Primero eliminar comentarios para evitar el error de clave foránea
+        $incidencia->comentarios()->delete();
         $incidencia->delete();
 
         if ($request->ajax()) {

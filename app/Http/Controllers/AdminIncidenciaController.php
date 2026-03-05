@@ -347,6 +347,8 @@ class AdminIncidenciaController extends Controller
     public function destroy(Request $request, $id)
     {
         $incidencia = Incidencia::findOrFail($id);
+        // Eliminar comentarios para evitar error de clave foránea
+        $incidencia->comentarios()->delete();
         $incidencia->delete();
 
         if ($request->ajax()) {

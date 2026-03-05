@@ -23,6 +23,7 @@
     
     <!-- Shared Styles -->
     <link rel="stylesheet" href="{{ asset('css/client.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/gestor/gestor_animations.css') }}">
     
     <!-- Page Specific Styles -->
     @stack('styles')

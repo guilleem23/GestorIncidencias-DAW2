@@ -12,7 +12,7 @@
 
     // Mostrar nombre del archivo seleccionado
     if (imatgeInput && fileNameDisplay) {
-        imatgeInput.addEventListener('change', function() {
+        imatgeInput.addEventListener('change', function () {
             if (this.files && this.files.length > 0) {
                 fileNameDisplay.textContent = this.files[0].name;
             } else {
@@ -172,22 +172,23 @@
                         .then(res => res.json())
                         .then(data => {
                             if (data.success) {
-                                // Animación de salida vía CSS
+                                // Animación de salida
                                 commentItem.classList.add('fade-out-right');
 
                                 setTimeout(() => {
                                     commentItem.remove();
 
-                                    // Si ya no hay comentarios, mostrar el mensaje de "Sin comentarios"
-                                    if (commentsContainer && commentsContainer.getElementsByClassName('comment-item-wrapper').length === 0) {
-                                        commentsContainer.innerHTML = `
+                                    // Verificar si quedan comentarios
+                                    const container = document.getElementById('comments-container');
+                                    if (container && container.querySelectorAll('.comment-item-wrapper').length === 0) {
+                                        const noCommentsHtml = `
                                         <div id="no-comments-msg" class="fade-in-up" style="margin-top: 0.5rem; color: var(--text-secondary);">
                                             Sin comentarios.
                                         </div>
                                     `;
+                                        container.insertAdjacentHTML('beforeend', noCommentsHtml);
                                     }
-                                }, 300);
-
+                                }, 400); // Tiempo de la animación CSS
                                 Swal.fire({
                                     toast: true,
                                     position: 'top-end',
@@ -251,7 +252,7 @@
 
     // Mostrar nombre del archivo en modal de edición
     if (editImatgeInput && editFileNameDisplay) {
-        editImatgeInput.addEventListener('change', function() {
+        editImatgeInput.addEventListener('change', function () {
             if (this.files && this.files.length > 0) {
                 editFileNameDisplay.textContent = this.files[0].name;
             } else {
@@ -278,10 +279,10 @@
                             editMissatgeInput.value = data.data.missatge || '';
                             editImatgeInput.value = '';
                             editFileNameDisplay.textContent = data.data.imatge_path ? 'Imagen actual: ' + data.data.imatge_path.split('/').pop() : '';
-                            
+
                             // Limpiar el atributo method del formulario de edición
                             formEditarComentario.action = `/admin/comentarios/${id}`;
-                            
+
                             const modalEditarComentario = new bootstrap.Modal(document.getElementById('modalEditarComentario'));
                             modalEditarComentario.show();
                         }
